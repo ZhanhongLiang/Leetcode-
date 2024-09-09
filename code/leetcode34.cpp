@@ -4,8 +4,8 @@
  * @Author: Jean_Leung
  * @Date: 2024-09-08 16:34:39
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-09-09 13:27:07
- * @FilePath: \code\main.cpp
+ * @LastEditTime: 2024-09-09 15:07:10
+ * @FilePath: \code\leetcode34.cpp
  * @Description:
  *
  * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
@@ -112,12 +112,43 @@ class Solution {
         // 情况二
         return {-1, -1};
     }
+
+    // 解法二 AC-wing解法
+    // 还是套路模板
+    vector<int> SearchRangeII(vector<int> &nums, int target) {
+        if (nums.empty())
+            return {-1, -1};
+        // 还是二分查找的模板
+        int left = 0;
+        int right = nums.size() - 1;
+        while (left < right) {
+            int mid = (left + right) >> 1; // 算术右移，也就是除2操作
+            if (nums[mid] >= target) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+        if (nums[right] != target)
+            return {-1, -1};
+        int L = right; // 找到左端点
+        left = 0;
+        right = nums.size() - 1;
+        while (left < right) {
+            int mid = (left + right + 1) >> 1;
+            if (nums[mid] <= target)
+                left = mid;
+            else
+                right = mid - 1;
+        }
+        return {L, right};
+    }
 };
 
 int main() {
     Solution solution;
     vector<int> testNums{2, 4, 10, 10, 11, 11, 17, 18};
-    vector<int> ans = solution.SearchRange(testNums, 11);
+    vector<int> ans = solution.SearchRangeII(testNums, 11);
     for (int i = 0; i < ans.size(); i++) {
         std::cout << ans[i] << std::endl;
     }

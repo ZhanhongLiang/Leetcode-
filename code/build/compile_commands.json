@@ -1,7 +1,7 @@
 [
 {
   "directory": "D:/Learning/LeetCode_Note/code/build",
-  "command": "D:\\APPDATA\\mingw64\\x86_64-7.3.0-release-posix-seh-rt_v5-rev0\\mingw64\\bin\\c++.exe    -g   -o CMakeFiles\\code.dir\\main.cpp.obj -c D:\\Learning\\LeetCode_Note\\code\\main.cpp",
-  "file": "D:/Learning/LeetCode_Note/code/main.cpp"
+  "command": "D:\\APPDATA\\mingw64\\x86_64-7.3.0-release-posix-seh-rt_v5-rev0\\mingw64\\bin\\c++.exe    -g   -o CMakeFiles\\code.dir\\leetcode367.cpp.obj -c D:\\Learning\\LeetCode_Note\\code\\leetcode367.cpp",
+  "file": "D:/Learning/LeetCode_Note/code/leetcode367.cpp"
 }
 ]

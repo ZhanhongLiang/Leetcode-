@@ -37,8 +37,8 @@ include rules.ninja
 # Order-only phony target for code
 
 build cmake_object_order_depends_target_code: phony || CMakeFiles/code.dir
-build CMakeFiles/code.dir/main.cpp.obj: CXX_COMPILER__code ../main.cpp || cmake_object_order_depends_target_code
-  DEP_FILE = CMakeFiles\code.dir\main.cpp.obj.d
+build CMakeFiles/code.dir/leetcode367.cpp.obj: CXX_COMPILER__code ../leetcode367.cpp || cmake_object_order_depends_target_code
+  DEP_FILE = CMakeFiles\code.dir\leetcode367.cpp.obj.d
   FLAGS = -g
   OBJECT_DIR = CMakeFiles\code.dir
   OBJECT_FILE_DIR = CMakeFiles\code.dir
@@ -50,7 +50,7 @@ build CMakeFiles/code.dir/main.cpp.obj: CXX_COMPILER__code ../main.cpp || cmake_
 #############################################
 # Link the executable code.exe
 
-build code.exe: CXX_EXECUTABLE_LINKER__code CMakeFiles/code.dir/main.cpp.obj
+build code.exe: CXX_EXECUTABLE_LINKER__code CMakeFiles/code.dir/leetcode367.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\code.dir
