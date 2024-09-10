@@ -2,9 +2,9 @@
  * @Author: Jean_Leung
  * @Date: 2024-09-09 15:58:20
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-09-09 16:29:32
- * @FilePath: \code\leetcode367.cpp
- * @Description:
+ * @LastEditTime: 2024-09-10 11:00:18
+ * @FilePath: \code\binarysearch_leetcode367.cpp
+ * @Description: 二分查找
  *
  * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
  */
