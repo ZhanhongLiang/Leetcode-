@@ -2,7 +2,7 @@
  * @Author: Jean_Leung
  * @Date: 2024-09-10 12:35:36
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-09-10 14:01:38
+ * @LastEditTime: 2024-09-11 10:19:45
  * @FilePath: \code\slow_fast_leetcode26.cpp
  * @Description: 移除重复的元素，得到一个不重复的序列且返回处理后的长度
  *
@@ -20,15 +20,17 @@ using namespace std;
 class Solution {
   public:
     int removeDuplicates(vector<int> &nums) {
-        // if (nums.empty())
-        //     return 0;
-        int slow_index = 0;
-        // int target = nums[0]; // 设定每次查询的val值
+        int slow_index = 0; // 慢指针位置，用于进行交换
         for (int fast_index = 0; fast_index < nums.size(); fast_index++) {
-            // 如果快指针的数是不等于慢指针的数的话，那么需要进行交换
-            // 将慢指针的位置与快指针位置进行交换
+            // 用fast_index 快指针进行遍历整个数组，当nums[fast_index] !=
+            // nums[fast_index -
+            // 1]的时候，那么就说明前一个数和后一个数不相等，就应该进行slow_index
+            // 和fast_index的交换
+            // !fast_index是边界条件，因为刚进去的时候，fast_index=0
             if (!fast_index || nums[fast_index] != nums[fast_index - 1]) {
-                nums[slow_index++] = nums[fast_index];
+                nums[slow_index] = nums[fast_index];
+                slow_index++;
+                /* code */
             }
             /* code */
         }
