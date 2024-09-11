@@ -448,3 +448,487 @@ int main(int argc, char const *argv[]) {
 }
 ```
 
+# 283 [移动零](https://leetcode.cn/problems/move-zeroes/description/)
+
+## 题目
+
+给定一个数组 `nums`，编写一个函数将所有 `0` 移动到数组的末尾，同时保持非零元素的相对顺序。
+
+**请注意** ，必须在不复制数组的情况下原地对数组进行操作。
+
+ 
+
+**示例 1:**
+
+```
+输入: nums = [0,1,0,3,12]
+输出: [1,3,12,0,0]
+```
+
+**示例 2:**
+
+```
+输入: nums = [0]
+输出: [0]
+```
+
+ 
+
+**提示**:
+
+- `1 <= nums.length <= 104`
+- `-231 <= nums[i] <= 231 - 1`
+
+## 题目大意
+
+题⽬要求不能采⽤额外的辅助空间，将数组中 0 元素都移动到数组的末尾，并且维持所有⾮ 0 元素的相对位置。
+
+## 解题思路
+
+只要fast_index里面的值非零，然后就进行与slow_index交换
+
+然后只到fast_index遍历为止，然后在末尾补齐0
+
+时间复杂度为O(N)
+
+## 代码
+
+```c++
+#include <iostream>
+#include <stdlib.h>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+  public:
+    void MoveZeroes(vector<int> &nums) {
+        // 判定fast_index 位置是否为零，如果不为零，那么与slow_index位置交换
+        // 否则直接fast_index++
+        // 然后最后判断slow_index 是否小于数组长度，如果小于，将0补全在数组最后
+        int slow_index = 0;
+        for (int fast_index = 0; fast_index < nums.size(); fast_index++) {
+            // 判断fast_index位置是否为0,如果不为0那么就与slow_index位置交换
+            if (nums[fast_index]) {
+                nums[slow_index++] = nums[fast_index];
+            }
+        }
+        // 将0补全在数组最后面
+        while (slow_index < nums.size()) {
+            nums[slow_index++] = 0;
+        }
+    }
+};
+
+// 测试模板
+int main(int argc, char const *argv[]) {
+    Solution solution;
+    vector<int> test_nums{0, 1, 2, 0, 3, 3, 5, 5, 10};
+    for (int i = 0; i < test_nums.size(); i++) {
+        std::cout << test_nums[i];
+        /* code */
+    }
+    std::cout << std::endl;
+    solution.MoveZeroes(test_nums);
+    for (int i = 0; i < test_nums.size(); i++) {
+        std::cout << test_nums[i];
+        /* code */
+    }
+    // for (auto val : test_nums) {
+    //     std::cout << val;
+    // }
+    // std::cout << std::endl;
+    // solution.MoveZeroes(test_nums);
+    // std::cout << "ans:" << ans << std::endl;
+    return 0;
+}
+```
+
+
+
+# 844 [比较含退格的字符串](https://leetcode.cn/problems/backspace-string-compare/description/)
+
+## 题目
+
+>给定 `s` 和 `t` 两个字符串，当它们分别被输入到空白的文本编辑器后，如果两者相等，返回 `true` 。`#` 代表退格字符。
+>
+>**注意：**如果对空文本输入退格字符，文本继续为空。
+
+**示例 1：**
+
+```
+输入：s = "ab#c", t = "ad#c"
+输出：true
+解释：s 和 t 都会变成 "ac"。
+```
+
+**示例 2：**
+
+```
+输入：s = "ab##", t = "c#d#"
+输出：true
+解释：s 和 t 都会变成 ""。
+```
+
+**示例 3：**
+
+```
+输入：s = "a#c", t = "b"
+输出：false
+解释：s 会变成 "c"，但 t 仍然是 "b"。
+```
+
+ 
+
+**提示：**
+
+- `1 <= s.length, t.length <= 200`
+- `s` 和 `t` 只含有小写字母以及字符 `'#'`
+
+## 题目大意
+
+给 2 个字符串，如果遇到 # 号字符，就回退⼀个字符。问最终的 2 个字符串是否完全⼀致
+
+## 解题思路
+
+- 双指针法:
+
+![](https://pic.superbed.cc/item/66e13b1f4f810182602f4a58.png)
+
+>1. 当s[fast_index] != '#'的时候，需要进行交换
+>2. 当s[fast_index] =='#'的时候，且slow_index!=0的时候,则slow_index需要减一
+>
+>时间复杂度: O(n),空间复杂度:O(1)
+
+- 模拟栈
+
+>模拟栈，用出栈和入栈方式进行，但是需要额外空间,空间复杂度为O(n)
+
+## 代码
+
+- 双指针法
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-11 12:34:10
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-11 13:38:52
+ * @FilePath: \code\slow_fast_leetcode844.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+#include <iostream>
+#include <stdlib.h>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+  public:
+    bool backspaceCompare(string s, string t) {
+        get(s);
+        get(t);
+        return s == t;
+    }
+    void get(string &s) {
+        int slow_index = 0;
+        for (int fast_index = 0; fast_index < s.size(); fast_index++) {
+            // 当s[fast_index] != '#'的时候，需要进行交换
+            if (s[fast_index] != '#') {
+                s[slow_index++] = s[fast_index];
+                // 当s[fast_index] =='#'的时候，且slow_index!=0的时候,则slow_index需要减一
+                // 目的就是要减一位置，所以需要slow_index
+            } else if (slow_index != 0) {
+                // slow_index --是这里的关键
+                slow_index--;
+            }
+        }
+        s.resize(slow_index);
+    }
+};
+
+int main(int argc, char const *argv[]) {
+    Solution solution;
+    // vector<int> test_nums{0, 1, 2, 3, 3, 0, 4, 2};
+    string s = "a#c";
+    string t = "b";
+    bool ans = solution.backspaceCompare(s, t);
+    std::cout << "ans:" << ans << std::endl;
+    return 0;
+}
+```
+
+# 977 [有序数组的平方](https://leetcode.cn/problems/squares-of-a-sorted-array/description/)
+
+## 题目
+
+>给你一个按 **非递减顺序** 排序的整数数组 `nums`，返回 **每个数字的平方** 组成的新数组，要求也按 **非递减顺序** 排序。
+
+**示例 1：**
+
+```
+输入：nums = [-4,-1,0,3,10]
+输出：[0,1,9,16,100]
+解释：平方后，数组变为 [16,1,0,9,100]
+排序后，数组变为 [0,1,9,16,100]
+```
+
+**示例 2：**
+
+```
+输入：nums = [-7,-3,2,3,11]
+输出：[4,9,9,49,121]
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums.length <= 104`
+- `-104 <= nums[i] <= 104`
+- `nums` 已按 **非递减顺序** 排序
+
+ 
+
+**进阶：**
+
+- 请你设计时间复杂度为 `O(n)` 的算法解决本问题
+
+## 题目大意
+
+>给⼀个已经有序的数组，返回的数组也必须是有序的，且数组中的每个元素是由原数组中每个数字的平⽅得到的。
+
+## 解题思路
+
+>数组不要求按照原来顺序，那么就可以用双向指针法进行选择
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-11 15:16:29
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-11 15:36:26
+ * @FilePath: \code\slow_fast_leetcode977.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <iostream>
+#include <stdlib.h>
+#include <vector>
+
+using namespace std;
+
+#define MAX_ 1e4
+#define MIN_ -1e4
+
+class Solution {
+  public:
+    vector<int> sortedSquares(vector<int> &nums) {
+        // 法1:因为不考虑原先数组的位置，所以我们采用双向指针法
+        int left = 0;
+        int right = nums.size() - 1;
+        vector<int> ans;
+        ans.resize(nums.size()); // 设置新数组大小
+        int ans_right = ans.size() - 1;
+        // 双向指针法,比较左指针和右指针的数平方大小
+        while (left <= right) {
+            if (nums[left] * nums[left] < nums[right] * nums[right]) {
+                ans[ans_right--] = nums[right] * nums[right];
+                right--;
+            } else {
+                ans[ans_right--] = nums[left] * nums[left];
+                left++;
+            }
+        }
+        return ans;
+    }
+};
+// 测试模板
+int main(int argc, char const *argv[]) {
+    Solution solution;
+    vector<int> test_nums{-7, -3, 2, 3, 11};
+    vector<int> ans;
+    ans = solution.sortedSquares(test_nums);
+    for (int i = 0; i < ans.size(); i++) {
+        std::cout << ans[i] << " ";
+    }
+    std::cout << std::endl;
+    // std::cout << "ans:" << ans << std::endl;
+    return 0;
+}
+```
+
+# 滑动窗口模板
+
+>接下来就开始介绍数组操作中另⼀个重要的⽅法：滑动窗⼝。
+>
+>所谓滑动窗⼝，就是不断的调节⼦序列的起始位置和终⽌位置，从⽽得出我们要想的结果。
+>
+>在暴⼒解法中，是⼀个for循环滑动窗⼝的起始位置，⼀个for循环为滑动窗⼝的终⽌位置，⽤两个for循环 完成了⼀个不断搜索区间的过程。
+>
+>那么滑动窗⼝如何⽤⼀个for循环来完成这个操作呢。
+>
+>⾸先要思考 如果⽤⼀个for循环，那么应该表示 滑动窗⼝的起始位置，还是终⽌位置。
+>
+>如果只⽤⼀个for循环来表示 滑动窗⼝的起始位置，那么如何遍历剩下的终⽌位置？
+>
+>此时难免再次陷⼊ 暴⼒解法的怪圈。
+>
+>所以 只⽤⼀个for循环，那么这个循环的索引，⼀定是表示 滑动窗⼝的终⽌位置。
+>
+>那么问题来了， 滑动窗⼝的起始位置如何移动呢？
+>
+>这⾥还是以题⽬中的示例来举例，s=7， 数组是 2，3，1，2，4，3，来看⼀下查找的过程：
+
+
+
+```c++
+    // AC-WINGS Y神写法
+    int minSubArrayLenII(int target, vector<int> &nums) {
+        int result = INT_MAX; // 结果
+        for (int left = 0, sum = 0, right = 0; right < nums.size(); right++) {
+            sum += nums[right]; // 右指针不懂，sum加上nums[right]
+            while (sum - nums[left] >= target) {
+                // 试探窗口左指针的最大值，也就是试探窗口最小值
+                sum -= nums[left++];
+            }
+            if (sum >= target) {
+                // 需要做一次判断，可能有特殊情况出现,找到result的值,然后存进result里面
+                result = min(result, right - left + 1);
+            }
+        }
+        if (result == INT_MAX) {
+            result = 0;
+        }
+        return result;
+    }
+```
+
+
+
+# 209 长度最小的子数组
+
+## 题目
+
+>给定一个含有 `n` 个正整数的数组和一个正整数 `target` **。**
+>
+>找出该数组中满足其总和大于等于 `target` 的长度最小的 **子数组**[numsl, numsl+1, ..., numsr-1, numsr] ，并返回其长度如果不存在符合条件的子数组，返回0
+
+**示例 1：**
+
+```
+输入：target = 7, nums = [2,3,1,2,4,3]
+输出：2
+解释：子数组 [4,3] 是该条件下的长度最小的子数组。
+```
+
+**示例 2：**
+
+```
+输入：target = 4, nums = [1,4,4]
+输出：1
+```
+
+**示例 3：**
+
+```
+输入：target = 11, nums = [1,1,1,1,1,1,1,1]
+输出：0
+```
+
+ 
+
+**提示：**
+
+- `1 <= target <= 109`
+- `1 <= nums.length <= 105`
+- `1 <= nums[i] <= 105`
+
+## 题目大意
+
+>就是找数组中满足总和大于等于target长度最小的子数组
+
+## 解题思路
+
+![](https://pic.superbed.cc/item/66e1595b4f8101826069a2a7.png)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-11 15:55:21
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-11 16:30:51
+ * @FilePath: \code\sliding_window_leetcode209.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+class Solution {
+  public:
+    // 代码随想录写法
+    int minSubArrayLen(int target, vector<int> &nums) {
+        int left = 0; // 窗口左指针
+        // int right = 0;        // 窗口右指针
+        int window_lenght = 0; // 窗口长度
+        int sum = 0;           // 窗口总和
+        int result = INT_MAX;  // 结果
+        for (int right = 0; right < nums.size(); right++) {
+            sum += nums[right]; // 窗口想右移动
+            while (sum >= target) {
+                window_lenght = (right - left + 1); // 计算当前窗口长度
+                result = result < window_lenght ? result
+                                                : window_lenght; // 更新结果值
+                // left++;// 窗口左指针向右移动
+                sum -= nums[left++];
+            }
+        }
+        return result == INT_MAX ? 0 : result;
+    }
+
+    // AC-WINGS Y神写法
+    int minSubArrayLenII(int target, vector<int> &nums) {
+        int result = INT_MAX; // 结果
+        for (int left = 0, sum = 0, right = 0; right < nums.size(); right++) {
+            sum += nums[right]; // 右指针不懂，sum加上nums[right]
+            while (sum - nums[left] >= target) {
+                // 试探窗口左指针的最大值，也就是试探窗口最小值
+                sum -= nums[left++];
+            }
+            if (sum >= target) {
+                // 需要做一次判断，可能有特殊情况出现,找到result的值,然后存进result里面
+                result = min(result, right - left + 1);
+            }
+        }
+        if (result == INT_MAX) {
+            result = 0;
+        }
+        return result;
+    }
+};
+// 测试模板
+int main(int argc, char const *argv[]) {
+    Solution solution;
+    vector<int> test_nums{2, 3, 1, 2, 4, 3};
+    int ans = solution.minSubArrayLenII(7, test_nums);
+    std::cout << "ans:" << ans << std::endl;
+    return 0;
+}
+```
+
