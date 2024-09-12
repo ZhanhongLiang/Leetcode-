@@ -1,3 +1,13 @@
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-11 10:27:23
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-12 11:27:03
+ * @FilePath: \code\slow_fast_leetcode283.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
 #include <iostream>
 #include <stdlib.h>
 #include <vector>
@@ -7,16 +17,13 @@ using namespace std;
 class Solution {
   public:
     void MoveZeroes(vector<int> &nums) {
-        // 判定fast_index 位置是否为零，如果不为零，那么与slow_index位置交换
-        // 否则直接fast_index++
-        // 然后最后判断slow_index 是否小于数组长度，如果小于，将0补全在数组最后
-        int slow_index = 0;
+        int slow_index = 0; // 慢指针
         for (int fast_index = 0; fast_index < nums.size(); fast_index++) {
             if (nums[fast_index]) {
                 nums[slow_index++] = nums[fast_index];
             }
         }
-        while (slow_index < nums.size()) {
+        while(slow_index < nums.size()){
             nums[slow_index++] = 0;
         }
     }

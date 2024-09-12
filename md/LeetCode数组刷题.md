@@ -812,7 +812,7 @@ int main(int argc, char const *argv[]) {
 
 
 
-# 209 长度最小的子数组
+# 209 [长度最小的子数组](https://leetcode.cn/problems/minimum-size-subarray-sum/)
 
 ## 题目
 
@@ -927,6 +927,273 @@ int main(int argc, char const *argv[]) {
     Solution solution;
     vector<int> test_nums{2, 3, 1, 2, 4, 3};
     int ans = solution.minSubArrayLenII(7, test_nums);
+    std::cout << "ans:" << ans << std::endl;
+    return 0;
+}
+```
+
+# 904 [水果成篮](https://leetcode.cn/problems/fruit-into-baskets/description/)
+
+## 题目
+
+>你正在探访一家农场，农场从左到右种植了一排果树。这些树用一个整数数组 `fruits` 表示，其中 `fruits[i]` 是第 `i` 棵树上的水果 **种类** 。
+>
+>你想要尽可能多地收集水果。然而，农场的主人设定了一些严格的规矩，你必须按照要求采摘水果：
+>
+>- 你只有 **两个** 篮子，并且每个篮子只能装 **单一类型** 的水果。每个篮子能够装的水果总量没有限制。
+>- 你可以选择任意一棵树开始采摘，你必须从 **每棵** 树（包括开始采摘的树）上 **恰好摘一个水果** 。采摘的水果应当符合篮子中的水果类型。每采摘一次，你将会向右移动到下一棵树，并继续采摘。
+>- 一旦你走到某棵树前，但水果不符合篮子的水果类型，那么就必须停止采摘。
+>
+>给你一个整数数组 `fruits` ，返回你可以收集的水果的 **最大** 数目。
+
+**示例 1：**
+
+```
+输入：fruits = [1,2,1]
+输出：3
+解释：可以采摘全部 3 棵树。
+```
+
+**示例 2：**
+
+```
+输入：fruits = [0,1,2,2]
+输出：3
+解释：可以采摘 [1,2,2] 这三棵树。
+如果从第一棵树开始采摘，则只能采摘 [0,1] 这两棵树。
+```
+
+**示例 3：**
+
+```
+输入：fruits = [1,2,3,2,2]
+输出：4
+解释：可以采摘 [2,3,2,2] 这四棵树。
+如果从第一棵树开始采摘，则只能采摘 [1,2] 这两棵树。
+```
+
+**示例 4：**
+
+```
+输入：fruits = [3,3,3,1,2,1,1,2,3,3,4]
+输出：5
+解释：可以采摘 [1,2,1,1,2] 这五棵树。
+```
+
+ 
+
+**提示：**
+
+- `1 <= fruits.length <= 105`
+- `0 <= fruits[i] < fruits.length`
+
+## 题目大意
+
+>这道题考察的是滑动窗⼝的问题。
+>
+>给出⼀个数组，数组⾥⾯的数字代表每个果树上⽔果的种类，1 代表⼀号⽔果，不同数字代表的⽔果不同。现在有2 个篮⼦，每个篮⼦只能装⼀个种类的⽔果，这就意味着只能选 2 个不同的数字。摘⽔果只能从左往右摘，直到右边没有⽔果可以摘就停下。问可以连续摘⽔果的最⻓区间段的⻓度。
+
+## 解题思路
+
+>- 首先需要types记录整个数组的种类个数，那么就需要维护一个容器来记录
+>  - 用hash map，可以通过key:value来进行维护
+>  - 用数组来维护
+>- 需要设置一个win_types来代表该窗口下的种类数，如果种类数>2,那么就需要进行试探,left往右边试探
+>
+>当试探到win_types == 2 就可以退出循环
+>
+>- 记录result值，result值是记录窗口的最大值，也就是字串最长
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-12 12:46:08
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-12 13:36:07
+ * @FilePath: \code\sliding_window_leetcode904.cpp
+ * @Description: 滑动窗口
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unordered_map>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+class Solution {
+  public:
+    int totalFruit(vector<int>& fruits) {
+        //int result = INT_MIN; // 记录滑动窗口的长度
+        int result = 0;
+        // vector<int> type(2, -1); // 初始化数组，记录水果的种类
+        unordered_map<int, int> types; // 维护哈希表，就是key:value值的哈希表
+        for (int right = 0, left = 0, win_types = 0; right < fruits.size(); right++) {
+            // 如果哈希表代表的key第一次存在，那么需要++
+            if (++types[fruits[right]] == 1) {
+                win_types++; // 代表窗口区间的种类
+            }
+            // 需要移动left指针，来试探
+            while (win_types > 2) {
+                // 如果left位置的哈希表==0，那么需要left向前移动
+                // 且当前窗口种类减一,win_types--;
+                if (--types[fruits[left]] == 0) {
+                    win_types--;
+                }
+                left++;
+            }
+            result = max(result, right - left + 1);
+        }
+        //if (result == INT_MIN) {
+           // result = 0;
+        //}
+        return result;
+    }
+};
+
+// 测试模板
+int main(int argc, char const *argv[]) {
+    Solution solution;
+    vector<int> test_nums{2, 3, 1, 2, 4, 3};
+    int ans = solution.totalFruit(test_nums);
+    std::cout << "ans:" << ans << std::endl;
+    return 0;
+}
+```
+
+# 76 [最小覆盖字串](https://leetcode.cn/problems/minimum-window-substring/description/)
+
+## 题目
+
+>给你一个字符串 `s` 、一个字符串 `t` 。返回 `s` 中涵盖 `t` 所有字符的最小子串。如果 `s` 中不存在涵盖 `t` 所有字符的子串，则返回空字符串 `""` 。
+>
+> 
+>
+>**注意：**
+>
+>- 对于 `t` 中重复字符，我们寻找的子字符串中该字符数量必须不少于 `t` 中该字符数量。
+>- 如果 `s` 中存在这样的子串，我们保证它是唯一的答案。
+
+**示例 1：**
+
+```
+输入：s = "ADOBECODEBANC", t = "ABC"
+输出："BANC"
+解释：最小覆盖子串 "BANC" 包含来自字符串 t 的 'A'、'B' 和 'C'。
+```
+
+**示例 2：**
+
+```
+输入：s = "a", t = "a"
+输出："a"
+解释：整个字符串 s 是最小覆盖子串。
+```
+
+**示例 3:**
+
+```
+输入: s = "a", t = "aa"
+输出: ""
+解释: t 中两个字符 'a' 均应包含在 s 的子串中，
+因此没有符合条件的子字符串，返回空字符串。
+```
+
+ 
+
+**提示：**
+
+- `m == s.length`
+- `n == t.length`
+- `1 <= m, n <= 105`
+- `s` 和 `t` 由英文字母组成
+
+## 题目大意
+
+>这⼀题是滑动窗⼝的题⽬，在窗⼝滑动的过程中不断的包含字符串 T，直到完全包含字符串 T 的字符以后，记下左
+>
+>右窗⼝的位置和窗⼝⼤⼩。每次都不断更新这个符合条件的窗⼝和窗⼝⼤⼩的最⼩值。最后输出结果即可。
+
+## 解题思路
+
+周六日补齐，汇总的时候补齐图片
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-12 13:49:45
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-12 15:10:56
+ * @FilePath: \code\sliding_window_leetcode76.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unordered_map>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+class Solution {
+  public:
+    string minWindow(string s, string t) {
+        // 因为是两个数组进行匹配
+        // 我们需要维护一个map进行记录t字符串中每个字符出现的次数
+        // 维护一个滑动窗口map记录窗口内每个字符出现的次数
+        unordered_map<char, int> win_char_count, t_char_count;
+        // 需要先统计t出现字符的次数
+        for (auto x : t) {
+            t_char_count[x]++;
+        }
+        string result; // 结果字符串
+        // 滑动窗口思路,因为这题中left 和
+        // right，明显窗口中left是随着right增加具有单调性的
+        // count 记录当前窗口的字符出现次数
+        for (int right = 0, left = 0, count = 0; right < s.size(); right++) {
+            // 记录窗口中出现字符数量
+            win_char_count[s[right]]++;
+            // 记录窗口的统计字符数
+            // 当窗口的当前字符出现的次数 <= t字符中当前字符出现的次数
+            // 需要count++
+            if (win_char_count[s[right]] <= t_char_count[s[right]]) {
+                count++;
+            }
+            // 这一步最重要,当窗口中左指针的出现字符数>t中左指针出现字符数
+            // 那么需要进行left++,且需要进行窗口值减少
+            while (win_char_count[s[left]] > t_char_count[s[left]]) {
+                win_char_count[s[left++]]--;
+            }
+            // 当count的值是等于t的长度，那么就需要更新result值
+            if (count == t.size()) {
+                // 最后一部就是记录当前窗口长度
+                // 然后返回result值
+                if (result.empty() || result.size() > right - left + 1) {
+                    result = s.substr(left, right - left + 1);
+                }
+            }
+        }
+        return result;
+    }
+};
+int main(int argc, char const *argv[]) {
+    Solution solution;
+    // vector<int> test_nums{0, 1, 2, 3, 3, 0, 4, 2};
+    string s = "ADOBECODEBANC";
+    string t = "ABC";
+    string ans = solution.minWindow(s, t);
     std::cout << "ans:" << ans << std::endl;
     return 0;
 }
