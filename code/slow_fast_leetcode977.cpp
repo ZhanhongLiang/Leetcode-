@@ -2,7 +2,7 @@
  * @Author: Jean_Leung
  * @Date: 2024-09-11 15:16:29
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-09-11 15:36:26
+ * @LastEditTime: 2024-09-12 12:03:51
  * @FilePath: \code\slow_fast_leetcode977.cpp
  * @Description:
  *
@@ -21,15 +21,16 @@ using namespace std;
 class Solution {
   public:
     vector<int> sortedSquares(vector<int> &nums) {
-        // 法1:因为不考虑原先数组的位置，所以我们采用双向指针法
+        // 首先题目不要求是有顺序的，所以我们可以使用双向指针法
+        // 就是设置双向指针进行比对
+        // 然后题目没对空间复杂度进行要求，那么我们可以牺牲空间复杂度来换取时间复杂度
+        // int result = INT_MAX;
+        vector<int> ans(nums.size(), 0); // 返回答案数组
         int left = 0;
+        int ans_right = nums.size() - 1; // 设置答案数组的右侧
         int right = nums.size() - 1;
-        vector<int> ans(nums.size(), 0);
-        // ans.resize(nums.size()); // 设置新数组大小
-        int ans_right = ans.size() - 1;
-        // 双向指针法
         while (left <= right) {
-            if (nums[left] * nums[left] < nums[right] * nums[right]) {
+            if (nums[left] * nums[left] <= nums[right] * nums[right]) {
                 ans[ans_right--] = nums[right] * nums[right];
                 right--;
             } else {
@@ -37,6 +38,7 @@ class Solution {
                 left++;
             }
         }
+        // 判断边界条件
         return ans;
     }
 };

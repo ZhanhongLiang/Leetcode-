@@ -2,7 +2,7 @@
  * @Author: Jean_Leung
  * @Date: 2024-09-11 15:55:21
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-09-11 16:30:51
+ * @LastEditTime: 2024-09-12 12:21:48
  * @FilePath: \code\sliding_window_leetcode209.cpp
  * @Description:
  *
@@ -41,16 +41,17 @@ class Solution {
 
     // AC-WINGS Y神写法
     int minSubArrayLenII(int target, vector<int> &nums) {
-        int result = INT_MAX; // 结果
-        for (int left = 0, sum = 0, right = 0; right < nums.size(); right++) {
-            sum += nums[right]; // 右指针不懂，sum加上nums[right]
+        // 滑动区间，返回数组中最小的子数组
+        int result = INT_MAX; // 用来比较大小用的
+        for (int sum = 0, left = 0, right = 0; right < nums.size(); right++) {
+            sum += nums[right]; // 加上右边指针的值,方便进一步进行比较
             while (sum - nums[left] >= target) {
-                // 试探窗口左指针的最大值，也就是试探窗口最小值
+                // 如果sum-nums[left] >=
+                // target值的话，缩进窗口大小
                 sum -= nums[left++];
             }
             if (sum >= target) {
-                // 需要做一次判断，可能有特殊情况出现,找到result的值,然后存进result里面
-                result = min(result, right - left + 1);
+                result = min(result, right - left + 1); // 返回长度
             }
         }
         if (result == INT_MAX) {
