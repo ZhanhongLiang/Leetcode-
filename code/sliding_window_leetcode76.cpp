@@ -2,7 +2,7 @@
  * @Author: Jean_Leung
  * @Date: 2024-09-12 13:49:45
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-09-12 15:10:56
+ * @LastEditTime: 2024-09-14 12:01:19
  * @FilePath: \code\sliding_window_leetcode76.cpp
  * @Description:
  *
@@ -21,36 +21,31 @@ using namespace std;
 class Solution {
   public:
     string minWindow(string s, string t) {
-        // 因为是两个数组进行匹配
-        // 我们需要维护一个map进行记录t字符串中每个字符出现的次数
-        // 维护一个滑动窗口map记录窗口内每个字符出现的次数
-        unordered_map<char, int> win_char_count, t_char_count;
-        // 需要先统计t出现字符的次数
+        // 因为是找最小字串，从反证法来看，是满足右指针递增，左指针也是递增的情况
+        // 所以我们可以用 滑动窗口法
+        unordered_map<char, int> win_hash,
+            t_hash; // 建立维护两个哈希表，key为字符，value为int类型
+        string result; // 答案字符串
         for (auto x : t) {
-            t_char_count[x]++;
+            t_hash[x]++;
         }
-        string result; // 结果字符串
-        // 滑动窗口思路,因为这题中left 和
-        // right，明显窗口中left是随着right增加具有单调性的
-        // count 记录当前窗口的字符出现次数
-        for (int right = 0, left = 0, count = 0; right < s.size(); right++) {
-            // 记录窗口中出现字符数量
-            win_char_count[s[right]]++;
-            // 记录窗口的统计字符数
-            // 当窗口的当前字符出现的次数 <= t字符中当前字符出现的次数
-            // 需要count++
-            if (win_char_count[s[right]] <= t_char_count[s[right]]) {
+        // 遍历s串
+        for (int left = 0, right = 0, count = 0; right < s.size(); right++) {
+            win_hash[s[right]]++;
+            // count 是记录窗口内字符数量
+            // 什么时候count可以++呢,当win_hash[s[right]] <
+            // t_hash[s[right]]的时候
+            if (win_hash[s[right]] <= t_hash[s[right]]) {
                 count++;
             }
-            // 这一步最重要,当窗口中左指针的出现字符数>t中左指针出现字符数
-            // 那么需要进行left++,且需要进行窗口值减少
-            while (win_char_count[s[left]] > t_char_count[s[left]]) {
-                win_char_count[s[left++]]--;
+            // 需要进行试探
+            // 当左指针的字符数量在窗口内大于该字符出现在t内的时候
+            // 需要左指针递增进行试探
+            while (win_hash[s[left]] > t_hash[s[left]]) {
+                win_hash[s[left++]]--;
             }
-            // 当count的值是等于t的长度，那么就需要更新result值
+            // 更新结果值
             if (count == t.size()) {
-                // 最后一部就是记录当前窗口长度
-                // 然后返回result值
                 if (result.empty() || result.size() > right - left + 1) {
                     result = s.substr(left, right - left + 1);
                 }

@@ -2,7 +2,7 @@
  * @Author: Jean_Leung
  * @Date: 2024-09-11 15:55:21
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-09-12 12:21:48
+ * @LastEditTime: 2024-09-13 20:18:55
  * @FilePath: \code\sliding_window_leetcode209.cpp
  * @Description:
  *
@@ -41,17 +41,23 @@ class Solution {
 
     // AC-WINGS Y神写法
     int minSubArrayLenII(int target, vector<int> &nums) {
-        // 滑动区间，返回数组中最小的子数组
-        int result = INT_MAX; // 用来比较大小用的
-        for (int sum = 0, left = 0, right = 0; right < nums.size(); right++) {
-            sum += nums[right]; // 加上右边指针的值,方便进一步进行比较
+        // 此题目就是滑动窗口
+        // 满足随着快指针移动，慢指针也是跟着单调递增的规律
+        // 所以我们可以用滑动窗口法
+        int result = INT_MAX; // 返回子数组的结果长度
+        for (int right = 0, left = 0, sum = 0; right < nums.size(); right++) {
+            // 首先sum是先加和
+            sum += nums[right];
+            // 试探的条件，sum进行比较
+            // 当sum - nums[left] >= target的时候
+            // 证明该滑动窗口内left还能右移
             while (sum - nums[left] >= target) {
-                // 如果sum-nums[left] >=
-                // target值的话，缩进窗口大小
                 sum -= nums[left++];
             }
+            // 当右移完只有，必有sum - nums[left] < target
+            // 此时判断 sum >= target
             if (sum >= target) {
-                result = min(result, right - left + 1); // 返回长度
+                result = min(result, right - left + 1);
             }
         }
         if (result == INT_MAX) {

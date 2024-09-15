@@ -1199,3 +1199,334 @@ int main(int argc, char const *argv[]) {
 }
 ```
 
+# 59 [螺旋矩阵II](https://leetcode.cn/problems/spiral-matrix-ii/)
+
+## 题目
+
+给你一个正整数 `n` ，生成一个包含 `1` 到 `n2` 所有元素，且元素按顺时针顺序螺旋排列的 `n x n` 正方形矩阵 `matrix` 。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2020/11/13/spiraln.jpg)
+
+
+
+```
+输入：n = 3
+输出：[[1,2,3],[8,9,4],[7,6,5]]
+```
+
+**示例 2：**
+
+```
+输入：n = 1
+输出：[[1]]
+```
+
+ 
+
+**提示：**
+
+- `1 <= n <= 20`
+
+## 题目大意
+
+>给定⼀个正整数 n，⽣成⼀个包含 1 到 n^2 所有元素，且元素按顺时针顺序螺旋排列的正⽅形矩阵。
+
+## 解题思路
+
+```c++
+    //
+    // (0,0)  一 一 一 一 一 一>y
+    //       |
+    //       |
+    //       |
+    //       |
+    //       v
+    //       x
+    // AC-WINGS Y神写法
+    // dx[]规定了x方向的，如果向右走,那么x值不会变, 如果向下走，那么x值递增
+    // 如果向左走，那么x值不变，如果向上走，那么x值递减
+    // dx[]={0,1,0,-1}
+    // d代表当前方向
+    // a = x+dx[d], a代表着x方向的坐标
+    // dy[]规定了y方向的
+    // dy[]规定了y方向的，如果向右走,那么y值递增, 如果向下走，那么y值不变
+    // 如果向左走，那么y值递减，如果向左走，那么y值不变
+    // dy[]={1,0,-1,0}
+    // b = y+dy[d],b代表着y方向的坐标
+```
+
+>时间复杂度O(N)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-13 21:33:18
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-13 22:25:36
+ * @FilePath: \code\rotate_matrix_leetcode59.cpp
+ * @Description:螺旋矩阵
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unordered_map>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+class Solution {
+  public:
+    //
+    // (0,0)  一 一 一 一 一 一>y
+    //       |
+    //       |
+    //       |
+    //       |
+    //       v
+    //       x
+    // AC-WINGS Y神写法
+    // dx[]规定了x方向的，如果向右走,那么x值不会变, 如果向下走，那么x值递增
+    // 如果向左走，那么x值不变，如果向上走，那么x值递减
+    // dx[]={0,1,0,-1}
+    // d代表当前方向
+    // a = x+dx[d], a代表着x方向的坐标
+    // dy[]规定了y方向的
+    // dy[]规定了y方向的，如果向右走,那么y值递增, 如果向下走，那么y值不变
+    // 如果向左走，那么y值递减，如果向左走，那么y值不变
+    // dy[]={1,0,-1,0}
+    // b = y+dy[d],b代表着y方向的坐标
+    vector<vector<int>> generateMatrix(int n) {
+        vector<vector<int>> result(n,
+                                   vector<int>(n, 0)); // 这个是返回的矩阵形状
+        int dx[] = {0, 1, 0, -1}, dy[] = {1, 0, -1, 0};
+        // i代表着总共走的步数
+        for (int i = 1, x = 0, y = 0, d = 0; i <= n * n; i++) {
+            // 更新result值
+            result[x][y] = i;
+            int a = x + dx[d];
+            int b = y + dy[d]; // a代表目前的x方向坐标,b代表目前方向的y坐标
+            if (a < 0 || a >= n || b < 0 || b >= n || result[a][b]) {
+                d = (d + 1) % 4; // 更新方向
+                a = x + dx[d], b = y + dy[d];
+            }
+            x = a;
+            y = b;
+        }
+        return result;
+    }
+};
+
+int main(int argc, char const *argv[]) {
+    Solution solution;
+    // vector<int> test_nums{0, 1, 2, 3, 3, 0, 4, 2};
+    int n = 5;
+    vector<vector<int>> ans = solution.generateMatrix(n);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            std::cout << ans[i][j] << " ";
+        }
+        std::cout << endl;
+    }
+    // std::cout << "ans:" << ans << std::endl;
+    return 0;
+}
+```
+
+# 54 [螺旋矩阵](https://leetcode.cn/problems/spiral-matrix/description/)
+
+## 题目
+
+>给你一个 `m` 行 `n` 列的矩阵 `matrix` ，请按照 **顺时针螺旋顺序** ，返回矩阵中的所有元素。
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2020/11/13/spiral1.jpg)
+
+```
+输入：matrix = [[1,2,3],[4,5,6],[7,8,9]]
+输出：[1,2,3,6,9,8,7,4,5]
+```
+
+**示例 2：**
+
+![img](https://assets.leetcode.com/uploads/2020/11/13/spiral.jpg)
+
+```
+输入：matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12]]
+输出：[1,2,3,4,8,12,11,10,9,5,6,7]
+```
+
+ 
+
+**提示：**
+
+- `m == matrix.length`
+- `n == matrix[i].length`
+- `1 <= m, n <= 10`
+- `-100 <= matrix[i][j] <= 100`
+
+
+
+## 题目大意
+
+>给出⼀个⼆维数组，按照螺旋的⽅式输出
+>
+>解法⼀：需要注意的是特殊情况，⽐如⼆维数组退化成⼀维或者⼀列或者⼀个元素。注意了这些情况，基本就可以⼀次通过了。
+>
+>解法⼆：提前算出⼀共多少个元素，⼀圈⼀圈地遍历矩阵，停⽌条件就是遍历了所有元素（count == sum）
+
+## 解题思路
+
+```c++
+    //
+    // (0,0)  一 一 一 一 一 一>y
+    //       |
+    //       |
+    //       |
+    //       |
+    //       v
+    //       x
+    // AC-WINGS Y神写法
+    // dx[]规定了x方向的，如果向右走,那么x值不会变, 如果向下走，那么x值递增
+    // 如果向左走，那么x值不变，如果向上走，那么x值递减
+    // dx[]={0,1,0,-1}
+    // d代表当前方向
+    // a = x+dx[d], a代表着x方向的坐标
+    // dy[]规定了y方向的
+    // dy[]规定了y方向的，如果向右走,那么y值递增, 如果向下走，那么y值不变
+    // 如果向左走，那么y值递减，如果向左走，那么y值不变
+    // dy[]={1,0,-1,0}
+    // b = y+dy[d],b代表着y方向的坐标
+```
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-13 22:49:37
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-13 23:22:20
+ * @FilePath: \code\rotate_matrix_leetcode54.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unordered_map>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+class Solution {
+  public:
+    //
+    // (0,0)  一 一 一 一 一 一>y
+    //       |
+    //       |
+    //       |
+    //       |
+    //       v
+    //       x
+    // AC-WINGS Y神写法
+    // dx[]规定了x方向的，如果向右走,那么x值不会变, 如果向下走，那么x值递增
+    // 如果向左走，那么x值不变，如果向上走，那么x值递减
+    // dx[]={0,1,0,-1}
+    // d代表当前方向
+    // a = x+dx[d], a代表着x方向的坐标
+    // dy[]规定了y方向的
+    // dy[]规定了y方向的，如果向右走,那么y值递增, 如果向下走，那么y值不变
+    // 如果向左走，那么y值递减，如果向左走，那么y值不变
+    // dy[]={1,0,-1,0}
+    // b = y+dy[d],b代表着y方向的坐标
+    vector<int> generateMatrix(vector<vector<int>> matrix) {
+        int m = matrix.size();
+        int n = matrix[0].size();
+        vector<int> res(n * m, 0); // 结果矩阵
+        int dx[] = {0, 1, 0, -1}, dy[] = {1, 0, -1, 0};
+        // 这个很重要，是记录旋转矩阵中遍历每个格子的状态
+        // 状态矩阵
+        vector<vector<bool>> st(m, vector<bool>(n));
+        // i代表着总共走的步数
+        for (int i = 0, x = 0, y = 0, d = 0; i < m * n; i++) {
+            // 更新result值
+            // res[i - 1] = matrix[x][y];
+            res.push_back(matrix[x][y]);
+            st[x][y] = true; // 记录遍历的状态
+            int a = x + dx[d];
+            int b = y + dy[d]; // a代表目前的x方向坐标,b代表目前方向的y坐标
+            if (a < 0 || a >= m || b < 0 || b >= n || st[x][y]) {
+                d = (d + 1) % 4; // 更新方向
+                a = x + dx[d], b = y + dy[d];
+            }
+            x = a;
+            y = b;
+        }
+        return res;
+    }
+
+    vector<vector<int>> generateMatrixII(int n) {
+        vector<vector<int>> result(n,
+                                   vector<int>(n, 0)); // 这个是返回的矩阵形状
+        int dx[] = {0, 1, 0, -1}, dy[] = {1, 0, -1, 0};
+        // i代表着总共走的步数
+        for (int i = 1, x = 0, y = 0, d = 0; i <= n * n; i++) {
+            // 更新result值
+            result[x][y] = i;
+            int a = x + dx[d];
+            int b = y + dy[d]; // a代表目前的x方向坐标,b代表目前方向的y坐标
+            if (a < 0 || a >= n || b < 0 || b >= n || result[a][b]) {
+                d = (d + 1) % 4; // 更新方向
+                a = x + dx[d], b = y + dy[d];
+            }
+            x = a;
+            y = b;
+        }
+        return result;
+    }
+};
+
+int main(int argc, char const *argv[]) {
+    Solution solution;
+    // vector<int> test_nums{0, 1, 2, 3, 3, 0, 4, 2};
+    // int n = 5, m = 6;
+    // vector<vector<int>> matrix(m, vector<int>(n, 0));
+    // for (int i = 0; i < n; i++) {
+    //     for (int j = 0; j < m; j++) {
+    //         matrix[i][j] = j+1;
+    //     }
+    // }
+    // vector<vector<int>> ans = solution.generateMatrix(n);
+    // std::cout << "ans:" << ans << std::endl;
+    vector<vector<int>> test_matrix = solution.generateMatrixII(3);
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            std::cout << test_matrix[i][j] << " ";
+        }
+        std::cout << endl;
+    }
+    std::cout << endl;
+    vector<int> ans = solution.generateMatrix(test_matrix);
+    for (int i = 0; i < ans.size(); i++) {
+        std::cout << ans[i] << " ";
+    }
+    return 0;
+}
+```
+
+# 
+

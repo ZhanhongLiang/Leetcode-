@@ -2,7 +2,7 @@
  * @Author: Jean_Leung
  * @Date: 2024-09-12 12:46:08
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-09-12 13:36:07
+ * @LastEditTime: 2024-09-13 20:40:30
  * @FilePath: \code\sliding_window_leetcode904.cpp
  * @Description: 滑动窗口
  *
@@ -20,29 +20,30 @@ using namespace std;
 
 class Solution {
   public:
-    int totalFruit(vector<int>& fruits) {
-        int result = INT_MIN; // 记录滑动窗口的长度
-        // vector<int> type(2, -1); // 初始化数组，记录水果的种类
-        unordered_map<int, int> types; // 维护哈希表，就是key:value值的哈希表
-        for (int right = 0, left = 0, win_types = 0; right < fruits.size();
+    int totalFruit(vector<int> &fruits) {
+        // 水果成篮题目
+        // 需要记录水果的种类
+        unordered_map<int, int> win_types; // 记录窗口内水果的种类
+        int result = 0;                    // 记录最长的答案区间
+        for (int right = 0, left = 0, fruits_type = 0; right < fruits.size();
              right++) {
-            // 如果哈希表代表的key第一次存在，那么需要++
-            if (++types[fruits[right]] == 1) {
-                win_types++; // 代表窗口区间的种类
+            // 先增加
+            // 如果当前窗口里面right种类是只有一种
+            if (++win_types[fruits[right]] == 1) {
+                // 窗口种类+1
+                fruits_type++;
             }
-            // 需要移动left指针，来试探
-            while (win_types > 2) {
-                // 如果left位置的哈希表==0，那么需要left向前移动
-                // 且当前窗口种类减一,win_types--;
-                if (--types[fruits[left]] == 0) {
-                    win_types--;
+            // 进行试探
+            while (fruits_type > 2) {
+                // 如果当前区间左端点满足种类存在，那么就需要窗口种类--
+                // 且左指针需要向左移动一位
+                if (--win_types[fruits[left]] == 0) {
+                    fruits_type--;
                 }
                 left++;
             }
+            // 更新结果值
             result = max(result, right - left + 1);
-        }
-        if (result == INT_MIN) {
-            result = 0;
         }
         return result;
     }
