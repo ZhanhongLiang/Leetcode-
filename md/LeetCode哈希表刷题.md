@@ -640,3 +640,132 @@ class Solution {
 };
 ```
 
+# 18 [四数之和](https://leetcode.cn/problems/4sum/description/)
+
+## 题目
+
+>给你一个由 `n` 个整数组成的数组 `nums` ，和一个目标值 `target` 。请你找出并返回满足下述全部条件且**不重复**的四元组 `[nums[a], nums[b], nums[c], nums[d]]` （若两个四元组元素一一对应，则认为两个四元组重复）：
+>
+>- `0 <= a, b, c, d < n`
+>- `a`、`b`、`c` 和 `d` **互不相同**
+>- `nums[a] + nums[b] + nums[c] + nums[d] == target`
+>
+>你可以按 **任意顺序** 返回答案 。
+
+**示例 1：**
+
+```
+输入：nums = [1,0,-1,0,-2,2], target = 0
+输出：[[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]]
+```
+
+**示例 2：**
+
+```
+输入：nums = [2,2,2,2,2], target = 8
+输出：[[2,2,2,2]]
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums.length <= 200`
+- `-109 <= nums[i] <= 109`
+- `-109 <= target <= 109`
+
+## 题目大意
+
+>和 leetcode15 题很相像，用15题的思路来做
+
+## 解题思路
+
+>还是按照15题的思路，但是需要先固定i后固定j
+>
+>且需要进行剪枝，判断当前nums[i] 是否大于target,判断当前nums[i]+nums[j]是否大于target
+>
+>且注意nums[i] + nums[j] > target && nums[i] + nums[j] 这个数有可能超出int范围
+>
+>因为设定的范围是10^9,如果相当于4*10^9 > 2^31-1 有可能爆掉，需要转换为long类型
+>
+>long为64位不会爆掉
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-20 13:20:16
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-20 13:44:32
+ * @FilePath: \code\hash_table_leetcode18.cpp
+ * @Description:四数之和
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+class Solution {
+  public:
+    vector<vector<int>> fourSum(vector<int> &nums, int target) {
+        // 同样一个原理
+        // 和15题是类似题目
+        sort(nums.begin(), nums.end());
+        // 我这次固定的是i 和 j的位置
+        // 认为i和j不能绑定一起
+        // 然后k 和 m的位置是对撞指针方式进行运算
+        // 那么最终该算法复杂度是O(n^3)
+        vector<vector<int>> result;
+        for (int i = 0; i < nums.size(); i++) {
+            if (nums[i] > target && nums[i] >= 0) {
+                break;
+            }
+            if (i > 0 && nums[i] == nums[i - 1]) {
+                continue;
+            }
+            for (int j = i + 1; j < nums.size(); j++) {
+                // 需要剪枝
+                if (nums[i] + nums[j] > target && nums[i] + nums[j] >= 0) {
+                    break;
+                }
+                if (j > i + 1 && nums[j] == nums[j - 1]) {
+                    continue;
+                }
+                // 再设定对撞指针
+                int k = j + 1;
+                int m = nums.size() - 1;
+                // 防止数据多大溢出
+                while (k < m) {
+                    if ((long)nums[i] + nums[j] + nums[k] + nums[m] > target) {
+                        m--;
+                    } else if ((long)nums[i] + nums[j] + nums[k] + nums[m] < target) {
+                        k++;
+                    } else {
+                        result.push_back({nums[i], nums[j], nums[k], nums[m]});
+                        // 对k和m进行去重
+                        while (k < m && nums[k] == nums[k + 1]) {
+                            k++;
+                        }
+                        while (k < m && nums[m] == nums[m - 1]) {
+                            m--;
+                        }
+                        k++;
+                        m--;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+};
+```
+
