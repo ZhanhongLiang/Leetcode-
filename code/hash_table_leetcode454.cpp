@@ -2,7 +2,7 @@
  * @Author: Jean_Leung
  * @Date: 2024-09-19 13:47:47
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-09-19 14:15:26
+ * @LastEditTime: 2024-09-20 13:05:28
  * @FilePath: \code\hash_table_leetcode454.cpp
  * @Description:
  *
@@ -25,16 +25,18 @@ class Solution {
     // 这道题需要n^2的时间复杂度才能满足题意
     int fourSumCount(vector<int> &nums1, vector<int> &nums2, vector<int> &nums3,
                      vector<int> &nums4) {
-        // 记录nums1+nums2:次数，就是key是nums1+nums2,key就是出现从次数
+        // 简单题目
+        // 思路就是通过map来先查找A+B的sum组合，然后放到map里面里面
         int ans = 0;
-        unordered_map<int, int> sum_map;
+        unordered_map<int, int> sum_map; // 找到sum结果对应的map数组
+        // 先遍历两个数组，然后找到其sum的总和，通过key:value =
+        // sum:count的形式进行映射
         for (auto a : nums1) {
             for (auto b : nums2) {
                 sum_map[a + b]++;
             }
         }
-        // 再次遍历nums3和nums4，如果里面c+b = -(a+b)的话
-        // 那么就结果次数++
+        // 然后再寻找c+d = -(a+b)的组合
         for (auto c : nums3) {
             for (auto d : nums4) {
                 ans += sum_map[-(c + d)];
