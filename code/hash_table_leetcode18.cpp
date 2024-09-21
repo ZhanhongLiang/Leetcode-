@@ -2,7 +2,7 @@
  * @Author: Jean_Leung
  * @Date: 2024-09-20 13:20:16
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-09-20 14:00:26
+ * @LastEditTime: 2024-09-21 12:13:21
  * @FilePath: \code\hash_table_leetcode18.cpp
  * @Description:四数之和
  *
@@ -22,41 +22,50 @@ using namespace std;
 class Solution {
   public:
     vector<vector<int>> fourSum(vector<int> &nums, int target) {
-        // 同样一个原理
-        // 和15题是类似题目
+        // 四数之和，和15题的思路相似
+        // 不过这个是四个数，所以需要额外的开销
+        // 先固定i，后固定j，再设定双指针k和m进行对撞遍历
+        // 注意去重和剪枝
+        // 先进行排序，因为对撞遍历是满足有序性质的
         sort(nums.begin(), nums.end());
-        // 我这次固定的是i 和 j的位置
-        // 认为i和j不能绑定一起
-        // 然后k 和 m的位置是对撞指针方式进行运算
-        // 那么最终该算法复杂度是O(n^3)
-        vector<vector<int>> result;
+        vector<vector<int>> result; // 答案数组
+        // 先固定i
         for (int i = 0; i < nums.size(); i++) {
+            // 先剪枝,为什么需要剪枝呢
+            // 因为经过排序之后，数组是从小到大的
+            // 如果nums[i] > target的话,必然nums[i]+nums[i+1]>target
+            // 是递增的,所以是不可能存在满足题意的
+            // 经过分析,当nums[i] > target && nums[i] >= 0时候，
+            // 必然不存在累加等于target的值
             if (nums[i] > target && nums[i] >= 0) {
                 break;
             }
+            // 需要去重
             if (i > 0 && nums[i] == nums[i - 1]) {
                 continue;
             }
+            // 第二个固定是j
             for (int j = i + 1; j < nums.size(); j++) {
-                // 需要剪枝
+                // 二级剪枝
                 if (nums[i] + nums[j] > target && nums[i] + nums[j] >= 0) {
                     break;
                 }
+                // 需要去重
                 if (j > i + 1 && nums[j] == nums[j - 1]) {
                     continue;
                 }
-                // 再设定对撞指针
+                // 设置对撞指针
                 int k = j + 1;
                 int m = nums.size() - 1;
-                // 防止数据多大溢出
                 while (k < m) {
                     if ((long)nums[i] + nums[j] + nums[k] + nums[m] > target) {
                         m--;
-                    } else if ((long)nums[i] + nums[j] + nums[k] + nums[m] < target) {
+                    } else if ((long)nums[i] + nums[j] + nums[k] + nums[m] <
+                               target) {
                         k++;
                     } else {
+                        //
                         result.push_back({nums[i], nums[j], nums[k], nums[m]});
-                        // 对k和m进行去重
                         while (k < m && nums[k] == nums[k + 1]) {
                             k++;
                         }
