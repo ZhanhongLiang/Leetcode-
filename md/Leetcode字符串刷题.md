@@ -116,10 +116,12 @@ public:
 >- 先反转每个单词，然后再反转整个句子,最后达到效果
 >- 最为关键是如何在O(1)的空间复杂度里面进行操作
 >- i和j是设置第二个滑动窗口，k和t是设置第一个滑动窗口
->  - `关键是要设置两个滑动窗口,第一个是从数组的头部开始走,用来存第二个滑动窗口的单词`,怎么设置,用k和t来指定第一个滑动窗口的位置
->    - `因为这样可以防止句子的最前面的空格占位`
->  - 设置遍历工作指针i, i作为滑动窗口的左指针,j作为滑动窗口的右指针,这个就是第二个滑动窗口
->    - 用来进行遍历下一个单词用的
+> - `关键是要设置两个滑动窗口,第一个是从数组的头部开始走,用来存第二个滑动窗口的单词`,怎么设置,用k和t来指定第一个滑动窗口的位置
+>   - `因为这样可以防止句子的最前面的空格占位`
+> - 设置遍历工作指针i, i作为滑动窗口的左指针,j作为滑动窗口的右指针,这个就是第二个滑动窗口
+>   - 用来进行遍历下一个单词用的
+>
+>例如," ` hello world" => "olleh dlrow"=>"world hello"`
 
 ![](https://pic.superbed.cc/item/66ee789c2e3b94edab06a79f.png)
 
@@ -220,5 +222,236 @@ int main() {
     string ans = solution.reverseWords(test);
     std::cout << "ans :" << ans;
 }
+```
+
+# 28 [找出字符串中第一个匹配项的下标](https://leetcode.cn/problems/find-the-index-of-the-first-occurrence-in-a-string/description/)
+
+## 题目
+
+给你两个字符串 `haystack` 和 `needle` ，请你在 `haystack` 字符串中找出 `needle` 字符串的第一个匹配项的下标（下标从 0 开始）。如果 `needle` 不是 `haystack` 的一部分，则返回  `-1` 。
+
+ 
+
+**示例 1：**
+
+```
+输入：haystack = "sadbutsad", needle = "sad"
+输出：0
+解释："sad" 在下标 0 和 6 处匹配。
+第一个匹配项的下标是 0 ，所以返回 0 。
+```
+
+**示例 2：**
+
+```
+输入：haystack = "leetcode", needle = "leeto"
+输出：-1
+解释："leeto" 没有在 "leetcode" 中出现，所以返回 -1 。
+```
+
+ 
+
+**提示：**
+
+- `1 <= haystack.length, needle.length <= 104`
+- `haystack` 和 `needle` 仅由小写英文字符组成
+
+## 题目大意
+
+>模式串和母串匹配过程
+
+## 解题思路
+
+>经典KMP算法 时间复杂度O(N+M)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-22 12:42:03
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-22 15:04:28
+ * @FilePath: \code\string_leetcode28.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+class Solution {
+  public:
+    // 需要构建最长公共前后缀表，也就是所谓的netx数组
+    // 根据代码随想录的解释,
+    // 前缀是除了"最后一个字符"中的连续字串
+    // 后缀是除了"第一个字符"中的连续字串
+    // 模式串中的最长公共前后缀表是每个字符位置(包括当前字符--所谓连续串)之前的最长公共前后缀<长度>
+    // 例如"aabaaf","a"是下标0位置的连续串,其最长公共前后缀长度是0
+    // "aa"是下标1位置的连续串，其最长公共前后缀是长度是1
+    // "aab"是下标2位置的连续串，其最长公共前后缀是长度是0
+    // "aaba"是下标3位置的连续串,其最长公共前后缀是长度是1
+    // "aabaa"是下标4位置的连续串,其最长公共前后缀是长度是2
+    // "aabaaf"是下标5位置的连续串,其最长公共前后缀是长度是0
+    // 总结对应的next数组(最长公共前后缀长度表)就是[0,1,0,1,2,0]
+    // 好我们来构建next数组
+
+    // 先构建第一个版本,将next数组整体的数字算数右移一位
+    // 也就是[-1,0,-1,0,1,-1]
+    void getNext(int *next, const string &s) {
+        // 定义两个指针i和j，j指向前缀末尾位置，i指向后缀末尾位置
+        int j = -1;
+        // next[i] 表示 i（包括i）之前最⻓相等的前后缀⻓度（其实就是j）
+        next[0] = j;
+        for (int i = 1; i < s.size(); i++) {     // 注意i从1开始
+            while (j >= 0 && s[i] != s[j + 1]) { // 前后缀不相同了
+                j = next[j];                     // 向前回退
+            }
+            if (s[i] == s[j + 1]) { // 找到相同的前后缀
+                j++;
+            }
+            next[i] = j; // 将j（前缀的⻓度）赋给next[i]
+        }
+    }
+    // 先构建第二个版本,原版
+    // 也就是[0,1,0,1,2,0]
+    void getNextII(int *next, const string &s) {
+        int j = 0;
+        next[0] = 0;
+        for (int i = 1; i < s.size(); i++) {
+            while (
+                j > 0 &&
+                s[i] !=
+                    s[j]) { // j要保证⼤于0，因为下⾯有取j-1作为数组下标的操作
+                j = next[j - 1]; // 注意这⾥，是要找前⼀位的对应的回退位置了
+            }
+            if (s[i] == s[j]) {
+                j++;
+            }
+            next[i] = j;
+        }
+    }
+
+    int strStr(string haystack, string needle) {
+        if (needle.size() == 0) {
+            return 0;
+        }
+        vector<int> next(needle.size());
+        getNext(&next[0], needle);
+        int j = -1; // // 因为next数组里记录的起始位置为-1
+        for (int i = 0; i < haystack.size(); i++) { // 注意i就从0开始
+            while (j >= 0 && haystack[i] != needle[j + 1]) { // 不匹配
+                j = next[j]; // j 寻找之前匹配的位置
+            }
+            if (haystack[i] == needle[j + 1]) { // 匹配，j和i同时向后移动
+                j++;                            // i的增加在for循环里
+            }
+            if (j == (needle.size() - 1)) { // 文本串s里出现了模式串t
+                return (i - needle.size() + 1);
+            }
+        }
+        return -1;
+    }
+};
+
+```
+
+# 459 [重复的子字符串](https://leetcode.cn/problems/repeated-substring-pattern/description/)
+
+## 题目
+
+**示例 1:**
+
+```
+输入: s = "abab"
+输出: true
+解释: 可由子串 "ab" 重复两次构成。
+```
+
+**示例 2:**
+
+```
+输入: s = "aba"
+输出: false
+```
+
+**示例 3:**
+
+```
+输入: s = "abcabcabcabc"
+输出: true
+解释: 可由子串 "abc" 重复四次构成。 (或子串 "abcabc" 重复两次构成。)
+```
+
+ 
+
+**提示：**
+
+
+
+- `1 <= s.length <= 104`
+- `s` 由小写英文字母组成
+
+## 题目大意
+
+>难题,也就是字符串的数学证明题
+
+## 解题思路
+
+>需要运用周期理论和弱周期理论来进行数学证明
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-22 15:08:23
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-22 16:02:53
+ * @FilePath: \code\string_leetcode459.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+class Solution {
+  public:
+    bool repeatedSubstringPattern(string s) {
+        // 这道题目太难了??
+        // 涉及到串的弱周期理论和周期理论,KMP算法
+        // 需要严格的数学证明,我先放着,等几天学完再来看这道题
+        // 给定一个字符串，判断是否可以由某个字串重复构成
+    }
+    // 简单实现，但是没有数学证明
+    bool repeatedSubstringPattern(string s) {
+        string t = s + s;
+        t.erase(t.begin());
+        t.erase(t.end() - 1); // 掐头去尾
+        if (t.find(s) != std::string::npos) {
+            return true; // r
+        }
+        return false;
+    }
+};
 ```
 

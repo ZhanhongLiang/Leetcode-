@@ -2,7 +2,7 @@
  * @Author: Jean_Leung
  * @Date: 2024-09-20 14:07:23
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-09-21 12:24:57
+ * @LastEditTime: 2024-09-22 12:02:23
  * @FilePath: \code\string_leetcode541.cpp
  * @Description:
  *
@@ -39,19 +39,12 @@ class Solution {
     //     }
     // }
     string reverseStr(string s, int k) {
-        // 从字符串开头开始算起
-        // 反转2k个字符中的前k个字符
-        // 反转字符串需要重新额外进行
-        // 需要从原字符串中截取2k中
-        string result; // 答案字符串
-        for (int i = 0, j = 0, m = 0; i < s.size(); i += 2 * k) {
-            // 截取出来进行反转操作
-            j = i; // 左端点
-            // 一开始我想复杂了,以为再次右端点需要复杂的进行筛选
-            m = min(i + k, (int)s.size()); // 右端点
+        // 分类讨论
+        for (int i = 0; i < s.size(); i += 2 * k) {
+            int j = i; // 窗口左端点
+            int m = min(i + k, (int)s.size());
             // 左闭右开
             reverse(s.begin() + j, s.begin() + m);
-            // string temp = s.substr(j, m + 1);
         }
         return s;
     }
