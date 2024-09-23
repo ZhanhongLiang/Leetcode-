@@ -2,7 +2,7 @@
  * @Author: Jean_Leung
  * @Date: 2024-09-22 12:42:03
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-09-22 15:04:28
+ * @LastEditTime: 2024-09-23 10:15:27
  * @FilePath: \code\string_leetcode28.cpp
  * @Description:
  *
@@ -77,7 +77,7 @@ class Solution {
             return 0;
         }
         vector<int> next(needle.size());
-        getNext(&next[0], needle);
+        getNext(&next[0], needle); // 获得是next数组
         int j = -1; // // 因为next数组里记录的起始位置为-1
         for (int i = 0; i < haystack.size(); i++) { // 注意i就从0开始
             while (j >= 0 && haystack[i] != needle[j + 1]) { // 不匹配
