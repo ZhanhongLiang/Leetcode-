@@ -415,3 +415,312 @@ int main() {
 }
 ```
 
+# 1047 [删除字符串中的所有相邻重复项](https://leetcode.cn/problems/remove-all-adjacent-duplicates-in-string/description/)
+
+## 题目
+
+给出由小写字母组成的字符串 `s`，**重复项删除操作**会选择两个相邻且相同的字母，并删除它们。
+
+在 `s` 上反复执行重复项删除操作，直到无法继续删除。
+
+在完成所有重复项删除操作后返回最终的字符串。答案保证唯一。
+
+ 
+
+**示例：**
+
+```
+输入："abbaca"
+输出："ca"
+解释：
+例如，在 "abbaca" 中，我们可以删除 "bb" 由于两字母相邻且相同，这是此时唯一可以执行删除操作的重复项。之后我们得到字符串 "aaca"，其中又只有 "aa" 可以执行重复项删除操作，所以最后的字符串为 "ca"。
+```
+
+ 
+
+**提示：**
+
+1. `1 <= s.length <= 105`
+2. `s` 仅由小写英文字母组成。
+
+## 题目大意
+
+>给出由⼩写字⺟组成的字符串 S，重复项删除操作会选择两个相邻且相同的字⺟，并删除它们。在 S 上反复执⾏重复项删除操作，直到⽆法继续删除。在完成所有重复项删除操作后返回最终的字符串。答案保证唯⼀。
+
+## 解题思路
+
+>利用栈，每次取出栈顶元素与当前字符串遍历到的字符进行比较，如果两者匹配，那么就将栈顶出栈
+>
+>如果不匹配，那么就将当前元素入栈f
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-24 13:08:15
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-24 13:47:39
+ * @FilePath: \code\stack_queue_leetcode1047.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+// 栈操作经典题目
+class Solution {
+  public:
+    string removeDuplicates(string s) {
+        // 原地算法, 设置答案字符串
+        if (s.empty()) {
+            return s;
+        }
+        stack<char> s_stack; // 字符栈
+        s_stack.push(s[0]);  // 压入栈
+        for (int i = 1; i < s.size(); i++) {
+            if (!s_stack.empty()) {
+                char temp = s_stack.top(); // 栈顶元素
+                if (temp == s[i]) {
+                    // 拿当前元素
+                    s_stack.pop();
+                } else {
+                    s_stack.push(s[i]);
+                }
+            } else {
+                s_stack.push(s[i]);
+            }
+        }
+        // 将原来字符串删除
+        s.erase(s.begin(), s.end());
+        // 将栈元素放进s中
+        while (!s_stack.empty()) {
+            int temp = s_stack.top();
+            s += temp;
+            s_stack.pop();
+        }
+        reverse(s.begin(), s.end());
+        return s;
+    }
+};
+
+int main() {
+    string test = "abbaca";
+    Solution solution;
+    string ans = solution.removeDuplicates(test);
+    std::cout << "ans :" << ans;
+}
+```
+
+
+
+# 150 [逆波兰表达式求值](https://leetcode.cn/problems/evaluate-reverse-polish-notation/description/)
+
+## 题目
+
+给你一个字符串数组 `tokens` ，表示一个根据 [逆波兰表示法](https://baike.baidu.com/item/逆波兰式/128437) 表示的算术表达式。
+
+请你计算该表达式。返回一个表示表达式值的整数。
+
+**注意：**
+
+- 有效的算符为 `'+'`、`'-'`、`'*'` 和 `'/'` 。
+- 每个操作数（运算对象）都可以是一个整数或者另一个表达式。
+- 两个整数之间的除法总是 **向零截断** 。
+- 表达式中不含除零运算。
+- 输入是一个根据逆波兰表示法表示的算术表达式。
+- 答案及所有中间计算结果可以用 **32 位** 整数表示。
+
+ 
+
+**示例 1：**
+
+```
+输入：tokens = ["2","1","+","3","*"]
+输出：9
+解释：该算式转化为常见的中缀算术表达式为：((2 + 1) * 3) = 9
+```
+
+**示例 2：**
+
+```
+输入：tokens = ["4","13","5","/","+"]
+输出：6
+解释：该算式转化为常见的中缀算术表达式为：(4 + (13 / 5)) = 6
+```
+
+**示例 3：**
+
+```
+输入：tokens = ["10","6","9","3","+","-11","*","/","*","17","+","5","+"]
+输出：22
+解释：该算式转化为常见的中缀算术表达式为：
+  ((10 * (6 / ((9 + 3) * -11))) + 17) + 5
+= ((10 * (6 / (12 * -11))) + 17) + 5
+= ((10 * (6 / -132)) + 17) + 5
+= ((10 * 0) + 17) + 5
+= (0 + 17) + 5
+= 17 + 5
+= 22
+```
+
+ 
+
+**提示：**
+
+- `1 <= tokens.length <= 104`
+- `tokens[i]` 是一个算符（`"+"`、`"-"`、`"*"` 或 `"/"`），或是在范围 `[-200, 200]` 内的一个整数
+
+ 
+
+**逆波兰表达式：**
+
+逆波兰表达式是一种后缀表达式，所谓后缀就是指算符写在后面。
+
+- 平常使用的算式则是一种中缀表达式，如 `( 1 + 2 ) * ( 3 + 4 )` 。
+- 该算式的逆波兰表达式写法为 `( ( 1 2 + ) ( 3 4 + ) * )` 。
+
+逆波兰表达式主要有以下两个优点：
+
+- 去掉括号后表达式无歧义，上式即便写成 `1 2 + 3 4 + * `也可以依据次序计算出正确结果。
+- 适合用栈操作运算：遇到数字则入栈；遇到算符则取出栈顶两个数字进行计算，并将结果压入栈中
+
+## 题目大意
+
+>就是栈操作，经典考研题目
+
+## 解题思路
+
+>设置栈，遍历字符容器，如果遇到当前字符为操作符，那么就将栈顶两个元素进行操作符操作
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-24 14:00:02
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-24 14:48:25
+ * @FilePath: \code\stack_queue_leetcode150.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+class Solution {
+  public:
+    int evalRPN(vector<string> &tokens) {
+        // 设置数字栈
+        stack<long long> ans;
+        for (int i = 0; i < tokens.size(); i++) {
+            if (tokens[i] == "+" || tokens[i] == "-" || tokens[i] == "*" ||
+                tokens[i] == "/") {
+                long long num1 = ans.top();
+                ans.pop();
+                long long num2 = ans.top();
+                ans.pop();
+                if (tokens[i] == "+") {
+                    ans.push(num2 + num1);
+                }
+                if (tokens[i] == "-") {
+                    ans.push(num2 - num1);
+                }
+                if (tokens[i] == "*") {
+                    ans.push(num2 * num1);
+                }
+                if (tokens[i] == "/") {
+                    ans.push(num2 / num1);
+                }
+            } else {
+                // 将stirng转换为long long类型
+                long long temp = stoll(tokens[i]);
+                ans.push(temp);
+            }
+        }
+        return ans.top();
+    }
+};
+
+int main() {
+    vector<string> test({"2", "1", "+", "3", "*"});
+    Solution solution;
+    int ans = solution.evalRPN(test);
+    std::cout << "ans :" << ans;
+}
+```
+
+# 239 [滑动窗口最大值](https://leetcode.cn/problems/sliding-window-maximum/description/)
+
+## 题目
+
+给你一个整数数组 `nums`，有一个大小为 `k` 的滑动窗口从数组的最左侧移动到数组的最右侧。你只可以看到在滑动窗口内的 `k` 个数字。滑动窗口每次只向右移动一位。
+
+返回 *滑动窗口中的最大值* 。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [1,3,-1,-3,5,3,6,7], k = 3
+输出：[3,3,5,5,6,7]
+解释：
+滑动窗口的位置                最大值
+---------------               -----
+[1  3  -1] -3  5  3  6  7       3
+ 1 [3  -1  -3] 5  3  6  7       3
+ 1  3 [-1  -3  5] 3  6  7       5
+ 1  3  -1 [-3  5  3] 6  7       5
+ 1  3  -1  -3 [5  3  6] 7       6
+ 1  3  -1  -3  5 [3  6  7]      7
+```
+
+**示例 2：**
+
+```
+输入：nums = [1], k = 1
+输出：[1]
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums.length <= 105`
+- `-104 <= nums[i] <= 104`
+- `1 <= k <= nums.length`
+
+## 题目大意
+
+
+
+## 解题思路
+
+
+
+## 代码
+
