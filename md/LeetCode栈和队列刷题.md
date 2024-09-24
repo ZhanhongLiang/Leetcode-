@@ -716,11 +716,195 @@ int main() {
 
 ## 题目大意
 
-
+>就是要找出nums的每个滑动窗口内的最大值，然后输出滑动窗口内最大值
 
 ## 解题思路
 
-
+>需要模拟单调队列
 
 ## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-24 18:38:53
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-24 19:57:30
+ * @FilePath: \code\stack_queue_leetcode239.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <deque>
+#include <iostream>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+class Solution {
+  private:
+    // 需要设计单调队列来维护窗口中最大值
+    class MyQueue {
+      public:
+        // 要用双端队列,
+        deque<int> q;
+        //
+        void pop(int value) {
+            if (value == q.front() && !q.empty()) {
+                q.pop_front();
+            }
+        }
+        //
+        void push(int value) {
+            while (value > q.back() && !q.empty()) {
+                q.pop_back();
+            }
+            q.push_back(value);
+        }
+
+        int front() { return q.front(); }
+    };
+
+  public:
+    vector<int> maxSlidingWindow(vector<int> &nums, int k) {
+        // 将k个数放进que中
+        vector<int> ans;
+        MyQueue que;
+        for (int i = 0; i < k; i++) {
+            que.push(nums[i]);
+        }
+        // 然后返回当前的最大值
+        ans.push_back(que.front());
+        for (int i = k; i < nums.size(); i++) {
+            // 压出栈
+            que.pop(nums[i - k]);
+            que.push(nums[i]);
+            ans.push_back(que.front());
+        }
+        return ans;
+    }
+};
+
+int main() {
+    vector<int> test{1, 3, -1, -3, 5, 3, 6, 7};
+    Solution solution;
+    vector<int> ans = solution.maxSlidingWindow(test, 3);
+    for (int i = 0; i < ans.size(); i++) {
+        std::cout << ans[i] << "\n";
+    }
+    std::cout << std::endl;
+}
+```
+
+# 347 [前k个高频元素](https://leetcode.cn/problems/top-k-frequent-elements/description/)
+
+## 题目
+
+给你一个整数数组 `nums` 和一个整数 `k` ，请你返回其中出现频率前 `k` 高的元素。你可以按 **任意顺序** 返回答案。
+
+ 
+
+**示例 1:**
+
+```
+输入: nums = [1,1,1,2,2,3], k = 2
+输出: [1,2]
+```
+
+**示例 2:**
+
+```
+输入: nums = [1], k = 1
+输出: [1]
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums.length <= 105`
+- `k` 的取值范围是 `[1, 数组中不相同的元素的个数]`
+- 题目数据保证答案唯一，换句话说，数组中前 `k` 个高频元素的集合是唯一的
+
+ 
+
+**进阶：**你所设计算法的时间复杂度 **必须** 优于 `O(n log n)` ，其中 `n` 是数组大小
+
+## 题目大意
+
+>找出数组中前k个最多的元素
+
+## 解题思路
+
+>用哈希表来做，能达到O(nlogn)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-24 20:02:07
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-24 20:46:01
+ * @FilePath: \code\stack_queue_leetcode347.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <deque>
+#include <iostream>
+#include <map>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+bool cmp(pair<int, int> a, pair<int, int> b) {
+    // 按照value降序进行排序
+    return a.second > b.second;
+}
+class Solution {
+  public:
+    vector<int> topKFrequent(vector<int> &nums, int k) {
+        vector<int> ans;
+        unordered_map<int, int> hash_map; // 用来统计数组中各个出现的字符数
+        for (auto x : nums) {
+            hash_map[x]++;
+        }
+        vector<pair<int, int>> vec(hash_map.begin(), hash_map.end());
+        sort(vec.begin(), vec.end(), cmp);
+        // 按照种类进行插入
+        // auto it = hash_map.begin();
+        for (int i = 0; i < k; i++) {
+            ans.push_back(vec[i].first);
+        }
+        return ans;
+    }
+};
+
+int main() {
+    Solution solution;
+    vector<int> test{1, 1, 1, 2, 2, 3};
+    vector<int> ans = solution.topKFrequent(test, 3);
+    for (auto x : ans) {
+        std::cout << x << "\n";
+    }
+    std::cout << std::endl;
+}
+```
 
