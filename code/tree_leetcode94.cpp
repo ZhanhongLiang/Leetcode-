@@ -2,7 +2,7 @@
  * @Author: Jean_Leung
  * @Date: 2024-09-25 11:14:38
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-09-25 13:40:53
+ * @LastEditTime: 2024-09-26 13:09:57
  * @FilePath: \code\tree_leetcode94.cpp
  * @Description:
  *
@@ -89,21 +89,16 @@ class Solution {
     }
     // 统一的迭代方法
     vector<int> inorderTraversalIII(TreeNode *root) {
-        // 统一的迭代方法
-        stack<TreeNode *> tree_stack; // 树结点栈
-        vector<int> result;           // 结果集合
+        stack<TreeNode *> tree_stack;
+        vector<int> result;
         if (root == NULL) {
             return result;
         }
         tree_stack.push(root);
         while (!tree_stack.empty()) {
-            // 取出栈顶结点
             TreeNode *cur = tree_stack.top();
             if (cur != NULL) {
-                // 压入栈中
-                // 先弹出栈，防止重复操作
                 tree_stack.pop();
-                // 先压入右指针
                 if (cur->right) {
                     tree_stack.push(cur->right);
                 }
@@ -113,7 +108,6 @@ class Solution {
                     tree_stack.push(cur->left);
                 }
             } else {
-                // 先出空指针
                 tree_stack.pop();
                 TreeNode *temp = tree_stack.top();
                 tree_stack.pop();

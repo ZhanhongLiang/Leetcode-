@@ -2,7 +2,7 @@
  * @Author: Jean_Leung
  * @Date: 2024-09-25 10:44:07
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-09-25 13:47:40
+ * @LastEditTime: 2024-09-26 12:59:37
  * @FilePath: \code\tree_leetcode144.cpp
  * @Description:
  *
@@ -87,18 +87,20 @@ class Solution {
     }
 
     // 统一的迭代方法
-    vector<int> preorderTraversalII(TreeNode *root) {
-        // 统一的迭代方法
-        stack<TreeNode *> tree_stack; // 树结点栈
-        vector<int> result;           // 结果集合
+    vector<int> preorderTraversalIII(TreeNode *root) {
+        // 设置栈
+        stack<TreeNode *> tree_stack;
+        vector<int> result;
         if (root == NULL) {
             return result;
         }
         tree_stack.push(root);
         while (!tree_stack.empty()) {
-            TreeNode *cur = tree_stack.top(); // 栈顶元素
+            // 拿出栈顶元素
+            TreeNode *cur = tree_stack.top();
             if (cur != NULL) {
-                tree_stack.pop(); // 出栈，防止重复操作
+                tree_stack.pop(); // 先出栈
+                // 压入栈中
                 if (cur->right) {
                     tree_stack.push(cur->right);
                 }
@@ -108,7 +110,7 @@ class Solution {
                 tree_stack.push(cur);
                 tree_stack.push(NULL);
             } else {
-                // 先弹出空指针
+                // 先出空栈
                 tree_stack.pop();
                 TreeNode *temp = tree_stack.top();
                 tree_stack.pop();
