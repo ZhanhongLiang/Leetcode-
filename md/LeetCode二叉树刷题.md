@@ -1140,3 +1140,603 @@ class Solution {
 };
 ```
 
+# 515 [在每个树行中找最大值](https://leetcode.cn/problems/find-largest-value-in-each-tree-row/description/)
+
+## 题目
+
+给定一棵二叉树的根节点 `root` ，请找出该二叉树中每一层的最大值。
+
+ 
+
+**示例1：**
+
+![img](https://assets.leetcode.com/uploads/2020/08/21/largest_e1.jpg)
+
+```
+输入: root = [1,3,2,5,3,null,9]
+输出: [1,3,9]
+```
+
+**示例2：**
+
+```
+输入: root = [1,2,3]
+输出: [1,3]
+```
+
+ 
+
+**提示：**
+
+- 二叉树的节点个数的范围是 `[0,104]`
+- `-231 <= Node.val <= 231 - 1`
+
+## 题目大意
+
+>按照找到每一层的最大值
+
+## 解题思路
+
+>利用层序遍历找到每一层的最大值
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-26 13:11:50
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-26 13:19:05
+ * @FilePath: \code\tree_leetcode515.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+// 二叉树的层序遍历
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+
+class Solution {
+  public:
+    vector<int> largestValues(TreeNode *root) {
+        vector<int> result;
+        queue<TreeNode *> tree_queue;
+        if (root == NULL) {
+            return result;
+        }
+        tree_queue.push(root);
+        while (!tree_queue.empty()) {
+            int size = tree_queue.size();
+            // 找出每层最大的数
+            int max_value = INT_MIN;
+            for (int i = 0; i < size; i++) {
+                TreeNode *cur = tree_queue.front();
+                tree_queue.pop();
+                max_value = max(max_value, cur->val);
+                if (cur->left) {
+                    tree_queue.push(cur->left);
+                }
+                if (cur->right) {
+                    tree_queue.push(cur->right);
+                }
+            }
+            result.push_back(max_value);
+        }
+        return result;
+    }
+};
+```
+
+# 116 [填充每个结点的下一个右指针](https://leetcode.cn/problems/populating-next-right-pointers-in-each-node/description/)
+
+## 题目
+
+给定一个 **完美二叉树** ，其所有叶子节点都在同一层，每个父节点都有两个子节点。二叉树定义如下：
+
+```
+struct Node {
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
+}
+```
+
+填充它的每个 next 指针，让这个指针指向其下一个右侧节点。如果找不到下一个右侧节点，则将 next 指针设置为 `NULL`。
+
+初始状态下，所有 next 指针都被设置为 `NULL`。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2019/02/14/116_sample.png)
+
+```
+输入：root = [1,2,3,4,5,6,7]
+输出：[1,#,2,3,#,4,5,6,7,#]
+解释：给定二叉树如图 A 所示，你的函数应该填充它的每个 next 指针，以指向其下一个右侧节点，如图 B 所示。序列化的输出按层序遍历排列，同一层节点由 next 指针连接，'#' 标志着每一层的结束。
+```
+
+
+
+**示例 2:**
+
+```
+输入：root = []
+输出：[]
+```
+
+ 
+
+**提示：**
+
+- 树中节点的数量在 `[0, 212 - 1]` 范围内
+- `-1000 <= node.val <= 1000`
+
+ 
+
+**进阶：**
+
+- 你只能使用常量级额外空间。
+- 使用递归解题也符合要求，本题中递归程序占用的栈空间不算做额外的空间复杂度。
+
+## 题目大意
+
+>找到每一个结点的右侧指针
+
+## 解题思路
+
+>层序遍历
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-26 13:20:10
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-26 13:38:42
+ * @FilePath: \code\tree_leetcode116.cpp
+ * @Description:
+ *
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+// 二叉树的层序遍历
+class Node {
+  public:
+    int val;
+    Node *left;
+    Node *right;
+    Node *next;
+
+    Node() : val(0), left(NULL), right(NULL), next(NULL) {}
+
+    Node(int _val) : val(_val), left(NULL), right(NULL), next(NULL) {}
+
+    Node(int _val, Node *_left, Node *_right, Node *_next)
+        : val(_val), left(_left), right(_right), next(_next) {}
+};
+
+class Solution {
+  public:
+    Node *connect(Node *root) {
+        queue<Node *> tree_stack;
+        if (root == NULL) {
+            return root;
+        }
+        tree_stack.push(root);
+        while (!tree_stack.empty()) {
+            int size = tree_stack.size();
+            for (int i = 0; i < size; i++) {
+                Node *cur = tree_stack.front();
+                tree_stack.pop();
+                if (i < size - 1) {
+                    cur->next = tree_stack.front();
+                } else {
+                    cur->next = NULL;
+                }
+                if (cur->left) {
+                    tree_stack.push(cur->left);
+                }
+                if (cur->right) {
+                    tree_stack.push(cur->right);
+                }
+            }
+        }
+        return root;
+    }
+};
+```
+
+# 117 [填充每个结点的下一个右指针II](https://leetcode.cn/problems/populating-next-right-pointers-in-each-node-ii/description/)
+
+## 题目
+
+给定一个二叉树：
+
+```
+struct Node {
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
+}
+```
+
+填充它的每个 next 指针，让这个指针指向其下一个右侧节点。如果找不到下一个右侧节点，则将 next 指针设置为 `NULL` 。
+
+初始状态下，所有 next 指针都被设置为 `NULL` 。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2019/02/15/117_sample.png)
+
+```
+输入：root = [1,2,3,4,5,null,7]
+输出：[1,#,2,3,#,4,5,7,#]
+解释：给定二叉树如图 A 所示，你的函数应该填充它的每个 next 指针，以指向其下一个右侧节点，如图 B 所示。序列化输出按层序遍历顺序（由 next 指针连接），'#' 表示每层的末尾。
+```
+
+**示例 2：**
+
+```
+输入：root = []
+输出：[]
+```
+
+ 
+
+**提示：**
+
+- 树中的节点数在范围 `[0, 6000]` 内
+- `-100 <= Node.val <= 100`
+
+**进阶：**
+
+- 你只能使用常量级额外空间。
+- 使用递归解题也符合要求，本题中递归程序的隐式栈空间不计入额外空间复杂度。
+
+## 题目大意
+
+>找到每一个结点的右侧指针
+
+## 解题思路
+
+>层序遍历
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-26 13:41:36
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-26 13:54:49
+ * @FilePath: \code\tree_leetcode117.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+// 二叉树的层序遍历
+class Node {
+  public:
+    int val;
+    Node *left;
+    Node *right;
+    Node *next;
+
+    Node() : val(0), left(NULL), right(NULL), next(NULL) {}
+
+    Node(int _val) : val(_val), left(NULL), right(NULL), next(NULL) {}
+
+    Node(int _val, Node *_left, Node *_right, Node *_next)
+        : val(_val), left(_left), right(_right), next(_next) {}
+};
+
+class Solution {
+  public:
+    Node *connect(Node *root) {
+        queue<Node *> tree_stack;
+        if (root == NULL) {
+            return root;
+        }
+        tree_stack.push(root);
+        while (!tree_stack.empty()) {
+            int size = tree_stack.size();
+            for (int i = 0; i < size; i++) {
+                Node *cur = tree_stack.front();
+                tree_stack.pop();
+                if (i < size - 1) {
+                    cur->next = tree_stack.front();
+                } else {
+                    cur->next = NULL;
+                }
+                if (cur->left) {
+                    tree_stack.push(cur->left);
+                }
+                if (cur->right) {
+                    tree_stack.push(cur->right);
+                }
+            }
+        }
+        return root;
+    }
+};
+```
+
+# 104 [找到二叉树的最大深度](https://leetcode.cn/problems/maximum-depth-of-binary-tree/description/)
+
+## 题目
+
+给定一个二叉树 `root` ，返回其最大深度。
+
+二叉树的 **最大深度** 是指从根节点到最远叶子节点的最长路径上的节点数。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2020/11/26/tmp-tree.jpg)
+
+```
+输入：root = [3,9,20,null,null,15,7]
+输出：3
+```
+
+**示例 2：**
+
+```
+输入：root = [1,null,2]
+输出：2
+```
+
+ 
+
+**提示：**
+
+- 树中节点的数量在 `[0, 104]` 区间内。
+- `-100 <= Node.val <= 100`
+
+## 题目大意
+
+>找到二叉树的最大深度
+
+## 解题思路
+
+>法1：层序遍历
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-26 13:56:03
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-26 13:59:52
+ * @FilePath: \code\tree_leetcode104.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+// 二叉树的层序遍历
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+
+class Solution {
+  public:
+    int maxDepth(TreeNode *root) {
+        queue<TreeNode *> tree_queue;
+        int ans = 0;
+        if (root == NULL) {
+            return ans;
+        }
+        tree_queue.push(root);
+        while (!tree_queue.empty()) {
+            int size = tree_queue.size();
+            for (int i = 0; i < size; i++) {
+                TreeNode *cur = tree_queue.front();
+                tree_queue.pop();
+                if (cur->left) {
+                    tree_queue.push(cur->left);
+                }
+                if (cur->right) {
+                    tree_queue.push(cur->right);
+                }
+            }
+            ans++;
+        }
+        return ans;
+    }
+};
+```
+
+# 111 [二叉树的最小深度](https://leetcode.cn/problems/minimum-depth-of-binary-tree/description/)
+
+## 题目
+
+给定一个二叉树，找出其最小深度。
+
+最小深度是从根节点到最近叶子节点的最短路径上的节点数量。
+
+**说明：**叶子节点是指没有子节点的节点。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2020/10/12/ex_depth.jpg)
+
+```
+输入：root = [3,9,20,null,null,15,7]
+输出：2
+```
+
+**示例 2：**
+
+```
+输入：root = [2,null,3,null,4,null,5,null,6]
+输出：5
+```
+
+ 
+
+**提示：**
+
+- 树中节点数的范围在 `[0, 105]` 内
+- `-1000 <= Node.val <= 1000`
+
+## 题目大意
+
+>找到二叉树的最小深度
+
+## 解题思路
+
+>法1:层序遍历
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-26 14:01:46
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-26 14:25:45
+ * @FilePath: \code\tree_leetcode111.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+#include <algorithm>
+#include <iostream>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+// 二叉树的层序遍历
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+
+class Solution {
+  public:
+    int minDepth(TreeNode *root) {
+        queue<TreeNode *> tree_queue;
+        int ans = 0;
+        if (root == NULL) {
+            return ans;
+        }
+        tree_queue.push(root);
+        while (!tree_queue.empty()) {
+            int size = tree_queue.size();
+            ans++;
+            for (int i = 0; i < size; i++) {
+                TreeNode *cur = tree_queue.front();
+                tree_queue.pop();
+                if (cur->left) {
+                    tree_queue.push(cur->left);
+                }
+                if (cur->right) {
+                    tree_queue.push(cur->right);
+                }
+                if (cur->left == NULL && cur->right == NULL) {
+                    return ans;
+                }
+            }
+        }
+        return ans;
+    }
+};
+```
+
