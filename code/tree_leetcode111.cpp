@@ -2,7 +2,7 @@
  * @Author: Jean_Leung
  * @Date: 2024-09-26 14:01:46
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-09-26 14:25:45
+ * @LastEditTime: 2024-09-27 16:59:38
  * @FilePath: \code\tree_leetcode111.cpp
  * @Description:
  *
@@ -35,6 +35,7 @@ struct TreeNode {
 
 class Solution {
   public:
+    // 层序迭代法
     int minDepth(TreeNode *root) {
         queue<TreeNode *> tree_queue;
         int ans = 0;
@@ -61,4 +62,29 @@ class Solution {
         }
         return ans;
     }
+
+    // 后序递归法
+    int getDepth(TreeNode *root) {
+        // 确认入参和返参
+        // 确认递归终止条件
+        // 因为是找到最小深度
+        // 单层逻辑思考
+        // 终止条件
+        if (root == NULL) {
+            return 0;
+        }
+        int left_depth = getDepth(root->left);
+        int right_depth = getDepth(root->right);
+        // 如果当左子树为空,右子树不为空
+        if (root->left == NULL && root->right != NULL) {
+            return 1 + right_depth;
+        }
+        // 如果当右子树为空,左子树不为空
+        if (root->left != NULL && root->right == NULL) {
+            return 1 + left_depth;
+        }
+        int depth = 1 + min(left_depth, right_depth);
+        return depth;
+    }
+    int minDepthII(TreeNode *root) { return getDepth(root); }
 };
