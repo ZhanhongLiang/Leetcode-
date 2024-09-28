@@ -2540,3 +2540,123 @@ class Solution {
 };
 ```
 
+# 404  [左叶子之和](https://leetcode.cn/problems/sum-of-left-leaves/description/)
+
+## 题目
+
+给定二叉树的根节点 `root` ，返回所有左叶子之和。
+
+ 
+
+**示例 1**
+
+![img](https://assets.leetcode.com/uploads/2021/04/08/leftsum-tree.jpg)
+
+```
+输入: root = [3,9,20,null,null,15,7] 
+输出: 24 
+解释: 在这个二叉树中，有两个左叶子，分别是 9 和 15，所以返回 24
+```
+
+**示例 2:**
+
+```
+输入: root = [1]
+输出: 0
+```
+
+ 
+
+**提示:**
+
+- 节点数在 `[1, 1000]` 范围内
+- `-1000 <= Node.val <= 1000`
+
+ 
+
+## 题目大意
+
+>求解所有`左叶子结点`之和
+
+## 解题思路
+
+>前中后序递归+迭代
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-28 10:58:58
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-28 11:30:14
+ * @FilePath: \code\tree_leetcode404.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+class Solution {
+
+  public:
+    // 求解性质，可以后序递归遍历直接秒杀
+
+    // 确定入参和返参,因为这道题涉及回溯思想
+
+    int getLeftSum(TreeNode *root) {
+        // 中序遍历
+        if (root == NULL) {
+            return 0;
+        }
+        if (root->left == NULL && root->right == NULL) {
+            return 0;
+        }
+        // 左
+        int left_sum = getLeftSum(root->left);
+        // 如果当前结点的符合有左叶子结点
+        if (root->left != NULL && root->left->left == NULL &&
+            root->left->right == NULL) {
+            // return root->left->val;
+            left_sum = root->left->val;
+        }
+        // 右
+        int right_sum = getLeftSum(root->right);
+        int sum = left_sum + right_sum;
+        return sum;
+    }
+
+    int sumOfLeftLeaves(TreeNode *root) {
+        int result = 0;
+        if (root == NULL) {
+            return 0;
+        }
+        result = getLeftSum(root);
+        return result;
+    }
+};
+```
+
