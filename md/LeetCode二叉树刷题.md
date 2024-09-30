@@ -2589,7 +2589,7 @@ class Solution {
  * @Author: Jean_Leung
  * @Date: 2024-09-28 10:58:58
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-09-28 11:30:14
+ * @LastEditTime: 2024-09-29 11:22:04
  * @FilePath: \code\tree_leetcode404.cpp
  * @Description:
  *
@@ -2623,40 +2623,299 @@ struct TreeNode {
 class Solution {
 
   public:
-    // 求解性质，可以后序递归遍历直接秒杀
-
-    // 确定入参和返参,因为这道题涉及回溯思想
-
+    // 求二叉树所有左叶子之和
+    // 思路: 中序递归遍历
+    // 法一:
     int getLeftSum(TreeNode *root) {
-        // 中序遍历
+        // 确定入参和返参, 入参为root,返参为int,代表每个左叶子的值
+        // 确定终止条件
         if (root == NULL) {
             return 0;
         }
+        // 当结点为叶子结点但不是左叶子的时候终止
         if (root->left == NULL && root->right == NULL) {
             return 0;
         }
         // 左
         int left_sum = getLeftSum(root->left);
-        // 如果当前结点的符合有左叶子结点
-        if (root->left != NULL && root->left->left == NULL &&
+        // 中,如果当前结点是左叶子,则sum是
+        if (root->left != NULL && root->left->left != NULL &&
             root->left->right == NULL) {
-            // return root->left->val;
             left_sum = root->left->val;
         }
         // 右
         int right_sum = getLeftSum(root->right);
-        int sum = left_sum + right_sum;
+        // 等于左树+右树
+        int sum = right_sum + left_sum;
         return sum;
     }
-
     int sumOfLeftLeaves(TreeNode *root) {
-        int result = 0;
         if (root == NULL) {
             return 0;
         }
-        result = getLeftSum(root);
+        return getLeftSum(root);
+    }
+
+    // 法2:既然可以中序递归，那么必然可以中序迭代
+    int sumOfLeftLeavesII(TreeNode *root) {
+        int sum = 0;
+        if (root == NULL) {
+            return sum;
+        }
+        // 设定栈
+        stack<TreeNode *> tree_stack;
+        tree_stack.push(root);
+        while (!tree_stack.empty()) {
+            // 取出栈顶的结点
+            TreeNode *cur = tree_stack.top();
+            if (cur != NULL) {
+                // 取出栈顶元素,防止重新入栈
+                tree_stack.pop();
+                // 入栈顺序为右 中 左
+                // 右
+                if (cur->right) {
+                    tree_stack.push(cur->right);
+                }
+                // 中
+                tree_stack.push(cur);
+                tree_stack.push(NULL);
+                // 左
+                if (cur->left) {
+                    tree_stack.push(cur->left);
+                }
+            } else {
+                // 判断当前结点是否是左叶子结点
+                tree_stack.pop();                  // 出空栈
+                TreeNode *temp = tree_stack.top(); // 取出当前结点
+                tree_stack.pop();
+                // 判断当前结点是否是左叶子结点
+                if (temp->left != NULL && temp->left->left == NULL &&
+                    temp->left->right == NULL) {
+                    sum += temp->left->val;
+                }
+            }
+        }
+        return sum;
+    }
+    // // 法3,因为可以使用中序遍历,那么理论上可以前序或者后序遍历
+    // // 尝试后序递归遍历解决
+    // int getLeftSumII(TreeNode *root) {
+    //     // 是包含回溯思想？
+    //     if (root == NULL) {
+    //         return 0;
+    //     }
+    //     if (root->left == NULL && root->left == NULL) {
+    //         return 0;
+    //     }
+    //     // 左
+    //     int left_sum = getLeftSumII(root->left);
+    //     // 右
+    //     int right_sum = getLeftSumII(root->right);
+    //     // 中, 如果当前结点为左叶子结点
+    //     if(root->left != NULL && root->left->left == NULL && root->left->right == NULL){
+    //         left_sum = root->left->val;
+    //     }
+    //     int sum = left_sum + right_sum;
+    //     return sum;
+    // }
+};
+```
+
+# 513 [找树左下角的值](https://leetcode.cn/problems/find-bottom-left-tree-value/description/)
+
+## 题目
+
+给定一个二叉树的 **根节点** `root`，请找出该二叉树的 **最底层 最左边** 节点的值。
+
+假设二叉树中至少有一个节点。
+
+ 
+
+**示例 1:**
+
+![img](https://assets.leetcode.com/uploads/2020/12/14/tree1.jpg)
+
+```
+输入: root = [2,1,3]
+输出: 1
+```
+
+**示例 2:**
+
+![img](https://assets.leetcode.com/uploads/2020/12/14/tree2.jpg)
+
+```
+输入: [1,2,3,4,null,5,6,null,null,7]
+输出: 7
+```
+
+ 
+
+**提示:**
+
+- 二叉树的节点个数的范围是 `[1,104]`
+- `-231 <= Node.val <= 231 - 1` 
+
+## 题目大意
+
+>`先找到二叉树的最底层`,再在最底层里面找最左侧的叶子结点
+
+## 解题思路
+
+>DFS: 可以使用前序遍历,因为前序遍历是`中左右的顺序`
+>
+>只要优先搜索左就行---------可以根据Y神的反证法推出
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-29 11:22:34
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-09-30 10:44:35
+ * @FilePath: \code\tree_leetcode513.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+
+// class DepthNode {
+//   public:
+//     int depth; // 记录每个结点的深度
+//     DepthNode() {}
+//     DepthNode(int depth_) { depth = depth_; }
+// };
+
+class Solution {
+  public:
+    // 找出二叉树最底层中最左面的节点的值
+    // 注意: 并非一定是叶子节点,因为这个节点可能是存在右子树
+    // 所以根据这道题,我们需要记录深度,且需要是最左边
+
+    // 因为是求解的是最深的一行
+    // 采用前序遍历
+    int result = 0;          // 记录最大深度中最左边的值
+    int max_depth = INT_MIN; // 记录最大深度
+    void findMaxDepthLeftNode(TreeNode *root, int depth) {
+        // 如果当遇到叶子结点的时候，需要统计一下最大深度
+        // 且更新最大深度
+        if (depth > max_depth) {
+            max_depth = depth;
+            result = root->val; // 结果值保存
+        }
+        // 递归需要回溯算法
+        if (root->left) {
+            depth++;
+            findMaxDepthLeftNode(root->left, depth);
+            depth--;
+        }
+        if (root->right) {
+            depth++;
+            findMaxDepthLeftNode(root->right, depth);
+            depth--;
+        }
+        return;
+    }
+
+    int findBottomLeftValue(TreeNode *root) {
+        findMaxDepthLeftNode(root, 0);
         return result;
     }
+
+    // Y神前序遍历写法
+    // 递归返回还是这个
+    int result = 0;    // 记录最大深度中最左边的值
+    int max_depth = 0; // 记录最大深度
+    void dfs(TreeNode *root, int depth) {
+        // 终止条件
+        if (root == NULL) {
+            return;
+        }
+        if (depth > max_depth) {
+            max_depth = depth;
+            result = root->val;
+        }
+        // 先左侧,因为这里不是depth++,所以说是隐藏着回溯
+        // dfs执行完之后退回上一层时候,depth是恢复到原来的元素
+        dfs(root->left, depth + 1);  // 隐藏着回溯
+        dfs(root->right, depth + 1); // 隐藏着回溯
+    }
+
+    int findBottomLeftValue(TreeNode *root) {
+        dfs(root, 1);
+        return result;
+    }
+
+    // 层序遍历,宽度搜索
+    int findBottomLeftValue(TreeNode *root) {
+        int ans = 0; // 记录返回结点值答案
+        // int depth = 0; // 记录深度
+        // int MAX_DEPTH = INT_MIN;
+        // 层序遍历
+        if (root == NULL) {
+            return 0;
+        }
+        queue<TreeNode *> tree_queue;
+        tree_queue.push(root); // 插入根结点
+        while (!tree_queue.empty()) {
+            TreeNode *temp = tree_queue.front(); // 记录队列头一个结点
+            int size = tree_queue.size();
+            // depth++; // 深度+1
+            for (int i = 0; i < size; i++) {
+                // 需要记录队列头一个结点，就是最左侧结点
+                TreeNode *cur = tree_queue.front();
+                tree_queue.pop();
+                if (cur->left) {
+                    tree_queue.push(cur->left);
+                }
+                if (cur->right) {
+                    tree_queue.push(cur->right);
+                }
+            }
+            // 判断以下是否是空的
+            if (tree_queue.empty()) {
+                ans = temp->val;
+            }
+        }
+        return ans;
+    }
+
+    // // 写法三，后序遍历??
+
+    // int findBottomLeftValue(TreeNode *root) {
+    //     dfsII(root, 1);
+    //     return result;
+    // }
+
+    // void dfsII(TreeNode *root, int depth) {
+
+    // }
 };
 ```
 
