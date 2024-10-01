@@ -2919,3 +2919,378 @@ class Solution {
 };
 ```
 
+# 112 [路经总和](https://leetcode.cn/problems/path-sum/description/)
+
+## 题目
+
+给你二叉树的根节点 `root` 和一个表示目标和的整数 `targetSum` 。判断该树中是否存在 **根节点到叶子节点** 的路径，这条路径上所有节点值相加等于目标和 `targetSum` 。如果存在，返回 `true` ；否则，返回 `false` 。
+
+**叶子节点** 是指没有子节点的节点。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2021/01/18/pathsum1.jpg)
+
+```
+输入：root = [5,4,8,11,null,13,4,7,2,null,null,null,1], targetSum = 22
+输出：true
+解释：等于目标和的根节点到叶节点路径如上图所示。
+```
+
+**示例 2：**
+
+![img](https://assets.leetcode.com/uploads/2021/01/18/pathsum2.jpg)
+
+```
+输入：root = [1,2,3], targetSum = 5
+输出：false
+解释：树中存在两条根节点到叶子节点的路径：
+(1 --> 2): 和为 3
+(1 --> 3): 和为 4
+不存在 sum = 5 的根节点到叶子节点的路径。
+```
+
+**示例 3：**
+
+```
+输入：root = [], targetSum = 0
+输出：false
+解释：由于树是空的，所以不存在根节点到叶子节点的路径。
+```
+
+ 
+
+**提示：**
+
+- 树中节点的数目在范围 `[0, 5000]` 内
+- `-1000 <= Node.val <= 1000`
+- `-1000 <= targetSum <= 1000`
+
+## 题目大意
+
+>如果存在一条路径，使得这条路径所有节点之和是等于targetSum，那么就返回true
+>
+>否则返回false
+
+## 解题思路
+
+>- 前序递归遍历法
+>- 前序迭代遍历法
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-09-30 12:35:30
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-01 18:54:52
+ * @FilePath: \code\tree_leetcode112.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+class Solution {
+  public:
+    // 经典Y神写法
+    // 回溯算法,怎么才能回溯呢?
+    // 这道题是经典的回溯,利用前序遍历进行操作
+    bool dfs(TreeNode *root, int sum) {
+        if (root == NULL) {
+            return false;
+        }
+        // 需要进行减去
+        sum -= root->val;
+        // 当是叶子结点时候,判断当前结点的值是否等于sum-root->val == 0
+        if (root->left == NULL && root->right == NULL) {
+            return !sum;
+        }
+        // 中间
+        //  左
+        // 注意:这里是精简版，是已经通过回溯的,如果sum不满足,是可以回溯到原来的数字的
+        return root->left != NULL && dfs(root->left, sum) ||
+               root->right != NULL && dfs(root->right, sum);
+    }
+
+    bool hasPathSum(TreeNode *root, int targetSum) {
+        if (root == NULL) {
+            return false;
+        }
+        return dfs(root, targetSum);
+    }
+
+    // 使用前序迭代法
+    bool hasPathSum(TreeNode *root, int targetSum) {
+        if (root == NULL) {
+            return false;
+        }
+        // 使用前序迭代法
+        stack<pair<TreeNode *, int>> tree_root;
+        // 压入栈中,第二个值代表的是包含本节点的该条路径上的总和值
+        tree_root.push(pair<TreeNode *, int>(root, root->val));
+        while (!tree_root.empty()) {
+            // 取出栈顶元素
+            // 这道题目很重要，因为不能使用sum进行回溯，比较难，有特殊情况要处理
+            pair<TreeNode *, int> cur = tree_root.top();
+            if (cur.first != NULL) {
+                // 先出栈
+                tree_root.pop();
+                // 右
+                if (cur.first->right) {
+                    tree_root.push(pair<TreeNode *, int>(
+                        cur.first->right, cur.second + cur.first->right->val));
+                }
+                // 左
+                if (cur.first->left) {
+                    tree_root.push(pair<TreeNode *, int>(
+                        cur.first->left, cur.second + cur.first->left->val));
+                }
+                // 中
+                tree_root.push(pair<TreeNode *, int>(cur.first, cur.second));
+                tree_root.push(pair<TreeNode *, int>(NULL, 0));
+            } else {
+                tree_root.pop(); // 出空指针
+                pair<TreeNode *, int> temp = tree_root.top();
+                tree_root.pop(); // 出当前节点
+                if (temp.first->left == NULL && temp.first->right == NULL &&
+                    temp.second == targetSum) {
+                    return true;
+                }
+            }
+        }
+        // 如果不返回true，那么肯定是返回false
+        return false;
+    }
+};
+```
+
+# 113 [路径总和II](https://leetcode.cn/problems/path-sum-ii/description/)
+
+## 题目
+
+给你二叉树的根节点 `root` 和一个整数目标和 `targetSum` ，找出所有 **从根节点到叶子节点** 路径总和等于给定目标和的路径。
+
+**叶子节点** 是指没有子节点的节点。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2021/01/18/pathsumii1.jpg)
+
+```
+输入：root = [5,4,8,11,null,13,4,7,2,null,null,5,1], targetSum = 22
+输出：[[5,4,11,2],[5,8,4,5]]
+```
+
+**示例 2**
+
+![img](https://assets.leetcode.com/uploads/2021/01/18/pathsum2.jpg)
+
+```
+输入：root = [1,2,3], targetSum = 5
+输出：[]
+```
+
+**示例 3：**
+
+```
+输入：root = [1,2], targetSum = 0
+输出：[]
+```
+
+ 
+
+**提示：**
+
+- 树中节点总数在范围 `[0, 5000]` 内
+- `-1000 <= Node.val <= 1000`
+- `-1000 <= targetSum <= 1000`
+
+## 题目大意
+
+>和112很相似，只不过需要另外用返回所有的路径
+
+
+
+## 解题思路
+
+>`递归法:`
+>
+>- 前序递归，请注意,path和result设置为全局变量，当使用全局变量的时候，就需要使用到回溯的思想
+>
+>`迭代法`
+>
+>- 需要另外设置一个类来存放路径和总和,消耗空间较为大，我下面代码是O(n^2)，因为new类的时间较为慢，所以时间复杂度较大
+
+
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-01 19:16:20
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-01 23:19:02
+ * @FilePath: \code\tree_leetcode113.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+
+// 构建一个PathNode类
+struct PathNode {
+    TreeNode *node;
+    vector<int> path; // 存放该节点到根节点所有的节点值
+    int sum;          // 存放路径总和
+    PathNode() : node(NULL), path({0}), sum(0) {}
+    PathNode(TreeNode *node_, vector<int> path_, int sum_)
+        : node(node_), path(path_), sum(sum_) {}
+};
+
+class Solution {
+  public:
+    // 先尝试前序遍历迭代法
+    vector<vector<int>> pathSum(TreeNode *root, int targetSum) {
+        // 返回所有等于targetSum的路径
+        vector<vector<int>> result; // 结果集合
+        if (root == NULL) {
+            return result;
+        }
+        stack<PathNode *> tree_stack;
+        tree_stack.push(new PathNode(root, {root->val}, root->val));
+        while (!tree_stack.empty()) {
+            PathNode *cur = tree_stack.top();
+            if (cur->node != NULL) {
+                tree_stack.pop();
+                if (cur->node->right) {
+                    // cur->path.push_back(cur->node->right->val);
+                    vector<int> temp = cur->path;
+                    temp.push_back(cur->node->right->val);
+                    tree_stack.push(
+                        new PathNode(cur->node->right, temp,
+                                     cur->sum + cur->node->right->val));
+                }
+                if (cur->node->left) {
+                    // 不能这么写，会影响原来的节点的路径
+                    // cur->path.push_back(cur->node->left->val);
+                    vector<int> temp = cur->path;
+                    temp.push_back(cur->node->left->val);
+                    tree_stack.push(
+                        new PathNode(cur->node->left, temp,
+                                     cur->sum + cur->node->left->val));
+                }
+                // 中
+                // cur->path.push_back(cur->node->val);
+                tree_stack.push(new PathNode(cur->node, cur->path, cur->sum));
+                tree_stack.push(new PathNode());
+            } else {
+                // 出栈
+                tree_stack.pop();
+                PathNode *temp = tree_stack.top();
+                // 判断当前节点是否是叶子节点
+                if (temp->sum == targetSum && temp->node->left == NULL &&
+                    temp->node->right == NULL) {
+                    result.push_back(temp->path);
+                }
+                tree_stack.pop();
+            }
+        }
+        return result;
+    }
+
+    // 递归法和113很相似，两道作为比较,都是全局变量递归
+    // 递归法
+    vector<int> path;
+    vector<vector<int>> result;
+    void dfs(TreeNode *root, int sum) {
+        // 终止条件
+        if (root == NULL) {
+            return;
+        }
+        sum -= root->val; // 需要减去
+        // 叶子节点
+        if (root->left == NULL && root->right == NULL) {
+            if (!sum) {
+                result.push_back(path);
+                return;
+            } else {
+                return;
+            }
+        }
+        if (root->left) {
+            path.push_back(root->left->val);
+            dfs(root->left, sum);
+            path.pop_back(); // 回溯,全局变量就需要回溯
+        }
+        if (root->right) {
+            path.push_back(root->right->val);
+            dfs(root->right, sum);
+            path.pop_back(); // 回溯
+        }
+        return;
+    }
+    vector<vector<int>> pathSum(TreeNode *root, int targetSum) {
+        if (root == NULL) {
+            return result;
+        }
+        path.push_back(root->val); // 添加头节点
+        dfs(root, targetSum);
+        return result;
+    }
+};
+```
+
