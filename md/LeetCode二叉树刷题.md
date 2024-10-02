@@ -3294,3 +3294,238 @@ class Solution {
 };
 ```
 
+
+
+# 105 [从前序与中序遍历序列构建二叉树](https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/description/)
+
+## 题目
+
+给定两个整数数组 `preorder` 和 `inorder` ，其中 `preorder` 是二叉树的**先序遍历**， `inorder` 是同一棵树的**中序遍历**，请构造二叉树并返回其根节点。
+
+ 
+
+**示例 1:**
+
+![img](https://assets.leetcode.com/uploads/2021/02/19/tree.jpg)
+
+```
+输入: preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]
+输出: [3,9,20,null,null,15,7]
+```
+
+**示例 2:**
+
+```
+输入: preorder = [-1], inorder = [-1]
+输出: [-1]
+```
+
+ 
+
+**提示:**
+
+- `1 <= preorder.length <= 3000`
+- `inorder.length == preorder.length`
+- `-3000 <= preorder[i], inorder[i] <= 3000`
+- `preorder` 和 `inorder` 均 **无重复** 元素
+- `inorder` 均出现在 `preorder`
+- `preorder` **保证** 为二叉树的前序遍历序列
+- `inorder` **保证** 为二叉树的中序遍历序列
+
+## 题目大意
+
+>从前序和中序的遍历数组中构建出唯一的二叉树中
+
+## 解题思路
+
+>与106同理
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-02 11:43:02
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-02 11:58:34
+ * @FilePath: \code\tree_leetcode105.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+
+class Solution {
+  public:
+    // Y神的思想讲解非常清楚，建议学习Y神的思路
+    // 模拟一下前序数组和中序数组可以得到一个非常清晰的过程
+    unordered_map<int, int> hash_map; // 哈希表，用来进行中序数:下标的映射
+    TreeNode *buildTree(vector<int> &preorder, vector<int> &inorder) {
+        for (int i = 0; i < inorder.size(); i++) {
+            hash_map[inorder[i]] = i; // 根据数:下标映射查找下标是O(1)时间复杂度
+        }
+        // 进行递归
+        return build(preorder,inorder,0,preorder.size()-1,0,inorder.size()-1);
+    }
+    TreeNode *build(vector<int> &preorder, vector<int> &inorder, int pl, int pr,
+                    int il, int ir) {
+        // 终止条件
+        if (pl > pr) {
+            return NULL;
+        }
+        auto root =
+            new TreeNode(preorder[pl]); // 前序遍历数组中第一个节点就是根节点
+        // 找到其根节点的值对应的在中序遍历中的下标
+        int k = hash_map[root->val];
+        // 然后构建左子树
+        root->left =
+            build(preorder, inorder, pl + 1, pl + 1 + k - 1 - il, il, k - 1);
+        root->right =
+            build(preorder, inorder, pl + 1 + k - 1 - il + 1, pr, k + 1, ir);
+        return root;
+    }
+};
+```
+
+
+
+
+
+# 106 [从中序与后序遍历序列构建二叉树](https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/description/)
+
+## 题目
+
+给定两个整数数组 `inorder` 和 `postorder` ，其中 `inorder` 是二叉树的中序遍历， `postorder` 是同一棵树的后序遍历，请你构造并返回这颗 *二叉树* 。
+
+ 
+
+**示例 1:**
+
+![img](https://assets.leetcode.com/uploads/2021/02/19/tree.jpg)
+
+```
+输入：inorder = [9,3,15,20,7], postorder = [9,15,7,20,3]
+输出：[3,9,20,null,null,15,7]
+```
+
+**示例 2:**
+
+```
+输入：inorder = [-1], postorder = [-1]
+输出：[-1]
+```
+
+ 
+
+**提示:**
+
+- `1 <= inorder.length <= 3000`
+- `postorder.length == inorder.length`
+- `-3000 <= inorder[i], postorder[i] <= 3000`
+- `inorder` 和 `postorder` 都由 **不同** 的值组成
+- `postorder` 中每一个值都在 `inorder` 中
+- `inorder` **保证**是树的中序遍历
+- `postorder` **保证**是树的后序遍历
+
+## 题目大意
+
+>从中序和后序的遍历数组中构建出唯一的二叉树中
+
+## 解题思路
+
+![](https://pic.superbed.cc/item/66fccbcb991d0115df1063d0.png)
+
+
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-02 10:26:01
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-02 12:23:19
+ * @FilePath: \code\tree_leetcode106.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+
+class Solution {
+  public:
+    // Y神的思想讲解非常清楚，建议学习Y神的思路
+    // 模拟一下前序数组和中序数组可以得到一个非常清晰的过程
+    unordered_map<int, int> hash_map; // 哈希表，用来进行中序数:下标的映射
+    TreeNode *buildTree(vector<int> &inorder, vector<int> &postorder) {
+        for (int i = 0; i < inorder.size(); i++) {
+            hash_map[inorder[i]] = i; // 根据数:下标映射查找下标是O(1)时间复杂度
+        }
+        // 进行递归
+        return build(inorder, postorder, 0, inorder.size() - 1, 0,
+                     postorder.size() - 1);
+    }
+    TreeNode *build(vector<int> &inorder, vector<int> &postorder, int il,
+                    int ir, int pl, int pr) {
+        if (pl > pr) {
+            return NULL;
+        }
+        // 根据后序遍历找到根节点，最后一个节点必然是根节点
+        auto root = new TreeNode(postorder[pr]);
+        // 找到其下标
+        int k = hash_map[root->val];
+        root->left =
+            build(inorder, postorder, il, k - 1, pl, pr - 1 - (ir - k - 1) - 1);
+        root->right =
+            build(inorder, postorder, k + 1, ir, pr - 1 - (ir - k - 1), pr - 1);
+        return root;
+    }
+};
+```
+
