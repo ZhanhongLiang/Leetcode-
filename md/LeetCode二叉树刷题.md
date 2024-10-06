@@ -3529,3 +3529,789 @@ class Solution {
 };
 ```
 
+# 654 [最大二叉树](https://leetcode.cn/problems/maximum-binary-tree/description/)
+
+## 题目
+
+给定一个不重复的整数数组 `nums` 。 **最大二叉树** 可以用下面的算法从 `nums` 递归地构建:
+
+1. 创建一个根节点，其值为 `nums` 中的最大值。
+2. 递归地在最大值 **左边** 的 **子数组前缀上** 构建左子树。
+3. 递归地在最大值 **右边** 的 **子数组后缀上** 构建右子树。
+
+返回 *nums 构建的* **最大二叉树** 。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2020/12/24/tree1.jpg)
+
+```
+输入：nums = [3,2,1,6,0,5]
+输出：[6,3,5,null,2,0,null,null,1]
+解释：递归调用如下所示：
+- [3,2,1,6,0,5] 中的最大值是 6 ，左边部分是 [3,2,1] ，右边部分是 [0,5] 。
+    - [3,2,1] 中的最大值是 3 ，左边部分是 [] ，右边部分是 [2,1] 。
+        - 空数组，无子节点。
+        - [2,1] 中的最大值是 2 ，左边部分是 [] ，右边部分是 [1] 。
+            - 空数组，无子节点。
+            - 只有一个元素，所以子节点是一个值为 1 的节点。
+    - [0,5] 中的最大值是 5 ，左边部分是 [0] ，右边部分是 [] 。
+        - 只有一个元素，所以子节点是一个值为 0 的节点。
+        - 空数组，无子节点。
+```
+
+**示例 2：**
+
+![img](https://assets.leetcode.com/uploads/2020/12/24/tree2.jpg)
+
+```
+输入：nums = [3,2,1]
+输出：[3,null,2,null,1]
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums.length <= 1000`
+- `0 <= nums[i] <= 1000`
+- `nums` 中的所有整数 **互不相同**
+
+## 题目大意
+
+>就是按照题意进行构建即可
+
+## 解题思路
+
+>改变树的操作，需要进行前序遍历
+>
+>`需要优化的地方是，怎么才能找到分割区间的最大值??，使得时间复杂度为O(1)`
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-02 21:47:52
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-02 22:43:41
+ * @FilePath: \code\tree_leetcode654.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+
+class Solution {
+  public:
+    // 这道题就是二叉搜索树的变异版本
+    // 建议将这道题和大根堆作为比较,到底和大根堆有什么区别???
+    unordered_map<int, int> hash_map;
+    TreeNode *constructMaximumBinaryTree(vector<int> &nums) {
+        for (int i = 0; i < nums.size(); i++) {
+            hash_map[nums[i]] = i;
+        }
+        return build(nums,0,nums.size()-1);
+    }
+    // 需要像快排那个样子吗??
+    // 找最大值作为基准
+    // 需要O(1),查询到最大值,所以需要哈希表
+    TreeNode *build(vector<int> &nums, int left, int right) {
+        if (left > right) {
+            return NULL;
+        }
+        int max_value = INT_MIN;
+        // 找最大值,如何做到O(1),答案没有,只能O(N)
+        for (int i = left; i <= right; i++) {
+            if (nums[i] > max_value) {
+                max_value = nums[i];
+            }
+        }
+        int k = hash_map[max_value]; // 找到最大值的下标
+        auto root = new TreeNode(max_value); // 中
+        root->left = build(nums, left, k - 1); // 左 
+        root->right = build(nums, k + 1, right); // 右
+        return root;
+    }
+};
+```
+
+# 617 [合并二叉树](https://leetcode.cn/problems/merge-two-binary-trees/description/)
+
+## 题目
+
+给你两棵二叉树： `root1` 和 `root2` 。
+
+想象一下，当你将其中一棵覆盖到另一棵之上时，两棵树上的一些节点将会重叠（而另一些不会）。你需要将这两棵树合并成一棵新二叉树。合并的规则是：如果两个节点重叠，那么将这两个节点的值相加作为合并后节点的新值；否则，**不为** null 的节点将直接作为新二叉树的节点。
+
+返回合并后的二叉树。
+
+**注意:** 合并过程必须从两个树的根节点开始。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2021/02/05/merge.jpg)
+
+```
+输入：root1 = [1,3,2,5], root2 = [2,1,3,null,4,null,7]
+输出：[3,4,5,5,4,null,7]
+```
+
+**示例 2：**
+
+```
+输入：root1 = [1], root2 = [1,2]
+输出：[2,2]
+```
+
+ 
+
+**提示：**
+
+- 两棵树中的节点数目在范围 `[0, 2000]` 内
+- `-104 <= Node.val <= 104`
+
+## 题目大意
+
+>按照题目意思即可
+
+## 解题思路
+
+>- 递归法
+>  - 前序递归
+>  - 后序递归
+>- 迭代法
+>  - 层序迭代
+>  - 前序迭代
+>  - 后序迭代
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-02 22:46:18
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-02 23:27:20
+ * @FilePath: \code\tree_leetcode617.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+
+class Solution {
+  public:
+    // 将两棵树进行合并,如果重叠的节点就进行加和,如果不重叠，那么直接覆盖
+    TreeNode *mergeTrees(TreeNode *root1, TreeNode *root2) {
+        if (root1 == NULL && root2 == NULL) {
+            return NULL;
+        }
+        if (root1 == NULL && root2 != NULL) {
+            return root2;
+        }
+        if (root1 != NULL && root2 == NULL) {
+            return root1;
+        }
+        return dfs(root1, root2);
+    }
+
+    // 需要同时对两颗树进行递归
+    TreeNode *dfs(TreeNode *root1, TreeNode *root2) {
+        // 如果同时两个节点为空则返回
+        if (root1 == NULL && root2 == NULL) {
+            return NULL;
+        }
+        // 终止条件
+        if (root1 == NULL) {
+            return root2;
+        }
+        if (root2 == NULL) {
+            return root1;
+        }
+        auto root = new TreeNode(0);
+        root->val = root1->val + root2->val;
+        root->left = dfs(root1->left, root2->left);
+        root->right = dfs(root1->right, root2->right);
+        return root;
+    }
+
+    // // 迭代法??
+    // // 必然可以用迭代法的，因为都能用前序递归了
+    // // 那么使用BFS还是DFS的迭代呢??
+    // // 如果我们考虑用DFS的迭代,那么就会出现一个问题怎么让访问的两个节点同时访问到
+    // // 我们尝试一下前序遍历的迭代法
+    // TreeNode *mergeTrees(TreeNode *root1, TreeNode *root2) {
+    //     if (root1 == NULL && root2 == NULL) {
+    //         return NULL;
+    //     }
+    //     if (root1 == NULL && root2 != NULL) {
+    //         return root2;
+    //     }
+    //     if (root1 != NULL && root2 == NULL) {
+    //         return root1;
+    //     }
+    //     // 需要设置两个栈
+    //     stack<TreeNode *> tree1_stack;
+    //     stack<TreeNode *> tree2_stack;
+    //     TreeNode *root = new TreeNode();
+    //     tree1_stack.push(root1);
+    //     tree2_stack.push(root2);
+    //     while (!tree1_stack.empty() || !tree2_stack.empty()) {
+    //         TreeNode* cur1 = tree1_stack.top();
+    //         TreeNode* cur2 = tree2_stack.top();
+    //         if(cur1 != NULL || cur2 != NULL){
+    //             // 需要区分开到底是那个不为空
+    //             if(cur1 != NULL && cur2 == NULL){
+    //                 tree1_stack.pop(); // 出栈
+    //             }
+    //         }
+    //     }
+    // }
+};
+```
+
+# 700 [二叉搜索树中的搜索](https://leetcode.cn/problems/search-in-a-binary-search-tree/description/)
+
+## 题目
+
+给定二叉搜索树（BST）的根节点 `root` 和一个整数值 `val`。
+
+你需要在 BST 中找到节点值等于 `val` 的节点。 返回以该节点为根的子树。 如果节点不存在，则返回 `null` 。
+
+ 
+
+**示例 1:**
+
+![img](https://assets.leetcode.com/uploads/2021/01/12/tree1.jpg)
+
+```
+输入：root = [4,2,7,1,3], val = 2
+输出：[2,1,3]
+```
+
+**示例 2:**
+
+![img](https://assets.leetcode.com/uploads/2021/01/12/tree2.jpg)
+
+```
+输入：root = [4,2,7,1,3], val = 5
+输出：[]
+```
+
+ 
+
+**提示：**
+
+- 树中节点数在 `[1, 5000]` 范围内
+- `1 <= Node.val <= 107`
+- `root` 是二叉搜索树
+- `1 <= val <= 107`
+
+## 题目大意
+
+>题目就是要求在二叉搜索数中找到对应的数
+
+## 解题思路
+
+>怎么才能找到的
+>
+>- 中序递归法: 因为二叉树的中序遍历天然有序
+>
+>- 中序迭代法
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-02 23:34:46
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-03 00:27:03
+ * @FilePath: \code\tree_BTS_leetcode700.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+
+class Solution {
+  public:
+    // 二叉搜索树就是左子树所有的节点都小于根节点,
+    // 右子树所有的节点都大于根节点
+    // 左子树和右子树都为二叉树搜索树
+    // 二叉搜索树的中序递归是有序的,左中右,那就是递增的排序
+    // 返回子树
+    TreeNode *result = NULL;
+    // TreeNode* result = new TreeNode();
+    TreeNode *searchBST(TreeNode *root, int val) {
+        // 这道题直接前序递归即可即可
+        if (root == NULL) {
+            return NULL;
+        }
+        // dfs(root, val);
+        // 这个是筛选出特殊情况，就是当val != 0,且 返回的是初始化的result的时候
+        // 那么就是代表找不到的特殊情况
+        // 因为按照这个递归，如果不筛选这种情况，那么就可能出现val!=0，且返回result.val==0的情况
+        // 这种时候返回result是错误的，不符合题意,因为我们按照题意应该是找不到的
+        // if (val != 0 && result->val == 0 && result->left == NULL &&
+        //     result->right == NULL) {
+        //     return NULL;
+        // }
+        dfs(root, val);
+        return result;
+    }
+    void dfs(TreeNode *root, int val) {
+        // 终止条件
+        if (root == NULL) {
+            return;
+        }
+        // 中
+        if (root->val == val) {
+            result = root;
+        }
+        // 左
+        if (root->val > val) {
+            dfs(root->left, val);
+        }
+        // 右
+        if (root->val < val) {
+            dfs(root->right, val);
+        }
+        return;
+    }
+
+    // 代码随想录的写法
+    TreeNode *searchBST(TreeNode *root, int val) {
+        // 终止条件
+        if (root == NULL || root->val == val) {
+            return root;
+        }
+        TreeNode *ans = NULL;
+        if (root->val > val) {
+            ans = searchBST(root->left, val);
+        }
+        if (root->val < val) {
+            ans = searchBST(root->right, val);
+        }
+        return ans;
+    }
+
+    // 迭代写法
+    // 最简单理解的，因为二叉搜索树的有序性
+    // 其中序遍历是递增有序的
+    TreeNode *searchBST(TreeNode *root, int val) {
+        if (root == NULL) {
+            return NULL;
+        }
+        // 按照二叉搜索树的特性进行筛查
+        // 也不用借助栈或者队列
+        while (root != NULL) {
+            if (root->val == val) {
+                return root;
+            }
+            if (root->val > val) {
+                root = root->left;
+                continue;
+            }
+            if (root->val < val) {
+                root = root->right;
+                continue;
+            }
+        }
+        return NULL;
+    }
+};
+```
+
+# 530 [二叉搜索树中最小的绝对值差值](https://leetcode.cn/problems/minimum-absolute-difference-in-bst/description/)
+
+## 题目
+
+给你一个二叉搜索树的根节点 `root` ，返回 **树中任意两不同节点值之间的最小差值** 。
+
+差值是一个正数，其数值等于两值之差的绝对值。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2021/02/05/bst1.jpg)
+
+```
+输入：root = [4,2,6,1,3]
+输出：1
+```
+
+**示例 2**
+
+![img](https://assets.leetcode.com/uploads/2021/02/05/bst2.jpg)
+
+```
+输入：root = [1,0,48,null,null,12,49]
+输出：1
+```
+
+ 
+
+**提示：**
+
+- 树中节点的数目范围是 `[2, 104]`
+- `0 <= Node.val <= 105`
+
+## 题目大意
+
+>找到二叉搜索树找到节点的最小绝对值差值
+
+## 解题思路
+
+>- 中序递归-关键在于怎么记录前一个节点，用pre来记录
+>- 输出中序遍历数组，然后直接俩俩差值，找最小差值
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-06 22:33:27
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-06 23:57:41
+ * @FilePath: \code\tree_leetcode530.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+
+class Solution {
+  public:
+    // int res; // 结果值
+    int min_abs_difference = INT_MAX;
+    vector<int> ans;
+    int getMinimumDifference(TreeNode *root) {
+        // 找出二叉搜索树中绝对值差最小的值
+        // 思路一: 直接设置结果值
+        // 直接前序递归
+        if (root == NULL) {
+            return 0;
+        }
+        // 在中序遍历的数组中找到最小差值
+        for (int i = 1; i < ans.size(); i++) {
+            min_abs_difference =
+                min(min_abs_difference, abs(ans[i] - ans[i - 1]));
+        }
+        return min_abs_difference;
+    }
+
+    void inorder(TreeNode *root) {
+        if (root == NULL) {
+            return;
+        }
+        // 左
+        inorder(root->left);
+        // 中
+        ans.push_back(root->val);
+        inorder(root->right);
+    }
+
+    // 中序递归法，用pre记录
+    TreeNode *pre = NULL; // 记录前一个节点
+    int res = INT_MAX;
+    int getMinimumDifference(TreeNode *root) {
+        if (root == NULL) {
+            return 0;
+        }
+        dfs(root);
+        return res;
+    }
+    // 中序递归法
+    void dfs(TreeNode *root) {
+        if (root == NULL) {
+            return;
+        }
+        // 左
+        dfs(root->left);
+        // 中
+        if (pre != NULL) {
+            res = min(res, abs(pre->val - root->val));
+        }
+        // 记录前一个
+        pre = root;
+        // 右
+        dfs(root->right);
+    }
+};
+```
+
+# 501 [二叉搜索树中的众数](https://leetcode.cn/problems/find-mode-in-binary-search-tree/description/)
+
+## 题目
+
+给你一个含重复值的二叉搜索树（BST）的根节点 `root` ，找出并返回 BST 中的所有 [众数](https://baike.baidu.com/item/众数/44796)（即，出现频率最高的元素）。
+
+如果树中有不止一个众数，可以按 **任意顺序** 返回。
+
+假定 BST 满足如下定义：
+
+- 结点左子树中所含节点的值 **小于等于** 当前节点的值
+- 结点右子树中所含节点的值 **大于等于** 当前节点的值
+- 左子树和右子树都是二叉搜索树
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2021/03/11/mode-tree.jpg)
+
+```
+输入：root = [1,null,2,2]
+输出：[2]
+```
+
+**示例 2：**
+
+```
+输入：root = [0]
+输出：[0]
+```
+
+ 
+
+**提示：**
+
+- 树中节点的数目在范围 `[1, 104]` 内
+- `-105 <= Node.val <= 105`
+
+## 题目大意
+
+>找出二叉搜索树中出现最多的数，可以重复出现
+
+## 解题思路
+
+>- 中序遍历输出数组，然后哈希表统计
+>- 中序递归数组，用pre进行比较
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-07 02:05:19
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-07 02:31:52
+ * @FilePath: \code\tree_leetcode502.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+
+class Solution {
+  public:
+    vector<int> res;
+    vector<int> findMode(TreeNode *root) {
+        if (root == NULL) {
+            return res;
+        }
+        inorder(root);
+        // 得到res数组
+        unordered_map<int, int> hash_map;
+        for (auto x : res) {
+            hash_map[x]++;
+        }
+        vector<int> ans;
+        // 找出哈希表中频率最多的数
+        // 找出哈希表中频率最高的数
+        int count = 0;
+        for (const auto &x : hash_map) {
+            if (x.second > count) {
+                count = x.second;
+            }
+        }
+        for (const auto &x : hash_map) {
+            if (x.second == count) {
+                ans.push_back(x.first);
+            }
+        }
+        return ans;
+    }
+
+    // 法一,先中序遍历成数组
+    // 然后哈希表进行记录频率
+    // 最后输出
+
+    void inorder(TreeNode *root) {
+        if (root == NULL) {
+            return;
+        }
+        // 左
+        inorder(root->left);
+        // 中
+        res.push_back(root->val);
+        // 右
+        inorder(root->right);
+    }
+
+    // 法2:使用中序遍历??
+    // vector<pair<int, int>> res;
+    // 这类题目最适合用哈希表
+    // 遍历每个节点的时候直接假如哈希表
+    unordered_map<int, int> hash_map;
+    void dfs(TreeNode *root) {
+        if (root == NULL) {
+            return;
+        }
+        // 左
+        dfs(root->left);
+        // 中
+        hash_map[root->val]++;
+        dfs(root->right);
+    }
+
+    vector<int> findMode(TreeNode *root) {
+        vector<int> ans;
+        if (root == NULL) {
+            return ans;
+        }
+        dfs(root);
+        // 找出哈希表中频率最多的数
+        // 找出哈希表中频率最高的数
+        int count = 0;
+        for (const auto &x : hash_map) {
+            if (x.second > count) {
+                count = x.second;
+            }
+        }
+        for (const auto &x : hash_map) {
+            if (x.second == count) {
+                ans.push_back(x.first);
+            }
+        }
+        return ans;
+    }
+};
+```
+
