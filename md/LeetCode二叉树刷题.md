@@ -4197,8 +4197,8 @@ class Solution {
  * @Author: Jean_Leung
  * @Date: 2024-10-07 02:05:19
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-10-07 02:31:52
- * @FilePath: \code\tree_leetcode502.cpp
+ * @LastEditTime: 2024-10-07 19:31:45
+ * @FilePath: \code\tree_leetcode501.cpp
  * @Description:
  *
  * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
@@ -4311,6 +4311,730 @@ class Solution {
             }
         }
         return ans;
+    }
+
+    // 法三,寻找众数另一种做法
+    // 中序遍历利用pre指针指向前一个遍历的节点
+    int count = 0;
+    int max_count = 0; // 记录最多的次数
+    TreeNode *pre = NULL;
+    vector<int> result; // 记录最后的结果数组
+    void dfsII(TreeNode *root) {
+        // 终止条件
+        if (root == NULL) {
+            return;
+        }
+        // 左
+        dfsII(root->left);
+        // 中
+        // 如何判断当前节点是否是
+        if (pre == NULL) {
+            count = 1; // 记录第一个节点
+        } else if (pre->val == root->val) {
+            count++;
+        } else {
+            // 如果前一个节点与后一个节点不等
+            // 那么就count = 1
+            count = 1;
+        }
+        // 如果当前count==max_count的话
+        pre = root; // 更新上一个节点
+        if (count == max_count) {
+            result.push_back(root->val);
+        }
+        if (count > max_count) {
+            // result.push_back(root->val);
+            result.clear();
+            max_count = count;
+            result.push_back(root->val);
+        }
+        dfsII(root->right);
+    }
+
+    vector<int> findMode(TreeNode *root) {
+        if (root == NULL) {
+            return result;
+        }
+        dfsII(root);
+        return result;
+    }
+};
+```
+
+# 236 [二叉树的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/description/)
+
+## 题目
+
+给定一个二叉树, 找到该树中两个指定节点的最近公共祖先。
+
+[百度百科](https://baike.baidu.com/item/最近公共祖先/8918834?fr=aladdin)中最近公共祖先的定义为：“对于有根树 T 的两个节点 p、q，最近公共祖先表示为一个节点 x，满足 x 是 p、q 的祖先且 x 的深度尽可能大（**一个节点也可以是它自己的祖先**）。”
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2018/12/14/binarytree.png)
+
+```
+输入：root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
+输出：3
+解释：节点 5 和节点 1 的最近公共祖先是节点 3 。
+```
+
+**示例 2：**
+
+![img](https://assets.leetcode.com/uploads/2018/12/14/binarytree.png)
+
+```
+输入：root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4
+输出：5
+解释：节点 5 和节点 4 的最近公共祖先是节点 5 。因为根据定义最近公共祖先节点可以为节点本身。
+```
+
+**示例 3：**
+
+```
+输入：root = [1,2], p = 1, q = 2
+输出：1
+```
+
+## 题目大意
+
+>找到二叉树的最近的公共祖先节点，可以包括自己
+
+
+
+## 解题思路
+
+>// 如何找到p和q的最近公共祖先呢?
+>    // 公共祖先的定义是: 尽量是深度最大的祖先，可以包括自己
+>    // 深度的定义: 根节点离某个节点的路劲长
+>    // 可以用上我们之前求深度的方法
+>    // 怎么判断p和q的节点的公共祖先呢?
+>    // 思路
+>    // 1. 如果当前节点是p或q,那么当前节点有可能是p和q的公共祖先
+>    // 2. 递归地在左右子树中查找p和q:
+>    //     如果p和q分别在当前节点的左右子树中，那么当前节点就是p和q的最近公共祖先
+>    //     如果p和q都在左子树或都在右子树中，那么继续在对应的子树中查找
+>    // 这个时间最坏复杂度为O(n)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-07 16:57:32
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-07 20:47:59
+ * @FilePath: \code\tree_leetcode236.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+
+class Solution {
+  public:
+    TreeNode *lowestCommonAncestor(TreeNode *root, TreeNode *p, TreeNode *q) {
+        // 寻找二叉树的最近公共祖先
+        if (root == NULL) {
+            return NULL;
+        }
+        return dfs(root, p, q);
+    }
+
+    // 如何找到p和q的最近公共祖先呢?
+    // 公共祖先的定义是: 尽量是深度最大的祖先，可以包括自己
+    // 深度的定义: 根节点离某个节点的路劲长
+    // 可以用上我们之前求深度的方法
+    // 怎么判断p和q的节点的公共祖先呢?
+    // 思路
+    // 1. 如果当前节点是p或q,那么当前节点有可能是p和q的公共祖先
+    // 2. 递归地在左右子树中查找p和q:
+    //     如果p和q分别在当前节点的左右子树中，那么当前节点就是p和q的最近公共祖先
+    //     如果p和q都在左子树或都在右子树中，那么继续在对应的子树中查找
+    // 这个时间最坏复杂度为O(n)
+    TreeNode *dfs(TreeNode *root, TreeNode *p, TreeNode *q) {
+        // 终止条件
+        if (root == NULL || root == p || root == q) {
+            return root;
+        }
+        // 后序遍历
+        // 分别在左右子树找
+        TreeNode *left_node = dfs(root->left, p, q);
+        TreeNode *right_node = dfs(root->right, p, q);
+        // 如果p和q分别在当前节点的左右子树中，那么当前节点就是p和q的最近公共祖先
+        if (left_node != NULL && right_node != NULL) {
+            return root;
+        }
+        // 如果p和q都在左子树或都在右子树中，那么继续在对应的子树中查找
+        return left_node != NULL ? left_node : right_node;
+    }
+};
+```
+
+# 235 [二叉搜索树的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-search-tree/description/)
+
+## 题目
+
+>给定一个二叉搜索树, 找到该树中两个指定节点的最近公共祖先。
+>
+>[百度百科](https://baike.baidu.com/item/最近公共祖先/8918834?fr=aladdin)中最近公共祖先的定义为：“对于有根树 T 的两个结点 p、q，最近公共祖先表示为一个结点 x，满足 x 是 p、q 的祖先且 x 的深度尽可能大（**一个节点也可以是它自己的祖先**）。”
+>
+>例如，给定如下二叉搜索树:  root = [6,2,8,0,4,7,9,null,null,3,5]
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/12/14/binarysearchtree_improved.png)
+
+**示例 1:**
+
+```
+输入: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8
+输出: 6 
+解释: 节点 2 和节点 8 的最近公共祖先是 6。
+```
+
+**示例 2:**
+
+```
+输入: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4
+输出: 2
+解释: 节点 2 和节点 4 的最近公共祖先是 2, 因为根据定义最近公共祖先节点可以为节点本身。
+```
+
+ 
+
+**说明:**
+
+- 所有节点的值都是唯一的。
+- p、q 为不同节点且均存在于给定的二叉搜索树中。
+
+## 题目大意
+
+>找到二叉搜索树中p和q的最近公共祖先
+
+## 解题思路
+
+>// 如何找到p和q的最近公共祖先呢?
+>    // 公共祖先的定义是: 尽量是深度最大的祖先，可以包括自己
+>    // 深度的定义: 根节点离某个节点的路劲长
+>    // 可以用上我们之前求深度的方法
+>    // 怎么判断p和q的节点的公共祖先呢?
+>    // 思路
+>    // 1. 如果当前节点是p或q,那么当前节点有可能是p和q的公共祖先
+>    // 2.    递归地在左右子树中查找p和q:
+>    //     如果p和q分别在当前节点的左右子树中，那么当前节点就是p和q的最近公共祖先,用p的值来做比较
+>    //     如果p和q都在左子树或都在右子树中，那么继续在对应的子树中查找
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-07 20:38:42
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-07 20:39:55
+ * @FilePath: \code\tree_leetcode235.cpp
+ * @Description: 二叉树的公共最近祖先
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+
+class Solution {
+  public:
+    // 查找二叉搜索树中的最近公共祖先
+    TreeNode *lowestCommonAncestor(TreeNode *root, TreeNode *p, TreeNode *q) {
+        // 因为二叉树存在中序关系
+        // 我们还是可以按照三种情况进行分类
+        // 1. 如果当前节点是p或q,那么当前节点有可能是p和q的公共祖先
+        // 2. 递归地在左右子树中查找p和q:
+        //     如果p和q分别在当前节点的左右子树中，那么当前节点就是p和q的最近公共祖先
+        //     如果p和q都在左子树或都在右子树中，那么继续在对应的子树中查找
+        if (root == NULL) {
+            return root;
+        }
+        return dfs(root, p, q);
+    }
+
+    TreeNode *dfs(TreeNode *root, TreeNode *p, TreeNode *q) {
+        if (p->val > q->val) {
+            swap(p, q); // 保证p是小于q的
+        }
+        // 当前节点为p或者q的时候,那么p和q有可能就是公共祖先
+        if (root->val >= p->val && root->val <= q->val) {
+            return root;
+        }
+        // 当前节点大于p节点的时候,那么需要继续往左子树遍历
+        if (root->val > p->val) {
+            return dfs(root->left, p, q);
+        }
+        // 否则节点小于p节点的时候,继续遍历右子树
+        return dfs(root->right, p, q);
+    }
+};
+```
+
+# 701 [二叉搜索树中的插入操作](https://leetcode.cn/problems/insert-into-a-binary-search-tree/description/)
+
+## 题目
+
+给定二叉搜索树（BST）的根节点 `root` 和要插入树中的值 `value` ，将值插入二叉搜索树。 返回插入后二叉搜索树的根节点。 输入数据 **保证** ，新值和原始二叉搜索树中的任意节点值都不同。
+
+**注意**，可能存在多种有效的插入方式，只要树在插入后仍保持为二叉搜索树即可。 你可以返回 **任意有效的结果** 。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2020/10/05/insertbst.jpg)
+
+```
+输入：root = [4,2,7,1,3], val = 5
+输出：[4,2,7,1,3,5]
+解释：另一个满足题目要求可以通过的树是：
+```
+
+![img](https://assets.leetcode.com/uploads/2020/10/05/bst.jpg)
+
+**示例 2：**
+
+```
+输入：root = [40,20,60,10,30,50,70], val = 25
+输出：[40,20,60,10,30,50,70,null,null,25]
+```
+
+**示例 3：**
+
+```
+输入：root = [4,2,7,1,3,null,null,null,null,null,null], val = 5
+输出：[4,2,7,1,3,5]
+```
+
+ 
+
+**提示：**
+
+- 树中的节点数将在 `[0, 104]`的范围内。
+- `-108 <= Node.val <= 108`
+- 所有值 `Node.val` 是 **独一无二** 的。
+- `-108 <= val <= 108`
+- **保证** `val` 在原始BST中不存在。
+
+## 题目大意
+
+>就是找到合适的插入值的地方
+
+## 解题思路
+
+>迭代法
+>
+>递归法
+
+
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-07 21:25:42
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-08 11:10:45
+ * @FilePath: \code\tree_leetcode701.cpp
+ * @Description: 二叉搜索树的插入操作
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+
+class Solution {
+  public:
+    TreeNode *insertIntoBST(TreeNode *root, int val) {
+        // 二叉搜索树的插入操作
+        if (root == NULL) {
+            return new TreeNode(val);
+        }
+        dfs(root, val);
+        return root;
+    }
+    TreeNode *pre = NULL; // 记录遍历时节点的前一个父节点
+    void dfs(TreeNode *root, int val) {
+        // 当前节点为空节点时候
+        if (root == NULL) {
+            TreeNode *temp = new TreeNode(val);
+            if (pre->val > val) {
+                pre->left = temp;
+            } else {
+                pre->right = temp;
+            }
+            return;
+        }
+        pre = root; // 记录上个节点
+        // 二叉搜索树是选择性进入某个子树,所以需要if判断
+        if (root->val > val) {
+            dfs(root->left, val);
+        }
+        if (root->val < val) {
+            dfs(root->right, val);
+        }
+        return;
+    }
+
+    // Y神代码
+    TreeNode *insertIntoBST(TreeNode *root, int val) {
+        if (root == NULL) {
+            // 当前节点是空的时候
+            // 创建一个新的节点
+            return new TreeNode(val);
+        }
+        // 如果当前节点大于val的话
+        // 往左子树插入
+        // 否则往右子树插入
+        if (root->val > val) {
+            root->left = insertIntoBST(root->left, val);
+        } else {
+            root->right = insertIntoBST(root->right, val);
+        }
+        return root;
+    }
+
+    // 迭代写法
+    TreeNode *insertIntoBST(TreeNode *root, int val) {
+        // 不使用栈
+        if (root == NULL) {
+            return new TreeNode(val);
+        }
+        // 找到上一个结点
+        TreeNode *pre_node = NULL;
+        // 工作节点
+        TreeNode *cur = root;
+        while (cur != NULL) {
+            pre_node = cur;
+            if (cur->val > val) {
+                cur = cur->left;
+            } else {
+                cur = cur->right;
+            }
+            if (cur == NULL) {
+                // 前一个结点进行连接
+                if (pre_node->val > val) {
+                    pre_node->left = new TreeNode(val);
+                } else {
+                    pre_node->right = new TreeNode(val);
+                }
+            }
+        }
+        return root;
+    }
+};
+```
+
+# 450 [删除二叉搜索树中的节点](https://leetcode.cn/problems/delete-node-in-a-bst/description/)
+
+## 题目
+
+给定一个二叉搜索树的根节点 **root** 和一个值 **key**，删除二叉搜索树中的 **key** 对应的节点，并保证二叉搜索树的性质不变。返回二叉搜索树（有可能被更新）的根节点的引用。
+
+一般来说，删除节点可分为两个步骤：
+
+1. 首先找到需要删除的节点；
+2. 如果找到了，删除它。
+
+ 
+
+**示例 1**
+
+![img](https://assets.leetcode.com/uploads/2020/09/04/del_node_1.jpg)
+
+```
+输入：root = [5,3,6,2,4,null,7], key = 3
+输出：[5,4,6,2,null,null,7]
+解释：给定需要删除的节点值是 3，所以我们首先找到 3 这个节点，然后删除它。
+一个正确的答案是 [5,4,6,2,null,null,7], 如下图所示。
+另一个正确答案是 [5,2,6,null,4,null,7]。
+```
+
+![img](https://assets.leetcode.com/uploads/2020/09/04/del_node_supp.jpg)
+
+**示例 2:**
+
+```
+输入: root = [5,3,6,2,4,null,7], key = 0
+输出: [5,3,6,2,4,null,7]
+解释: 二叉树不包含值为 0 的节点
+```
+
+**示例 3:**
+
+```
+输入: root = [], key = 0
+输出: []
+```
+
+ 
+
+**提示:**
+
+- 节点数的范围 `[0, 104]`.
+- `-105 <= Node.val <= 105`
+- 节点值唯一
+- `root` 是合法的二叉搜索树
+- `-105 <= key <= 105`
+
+**进阶：** 要求算法时间复杂度为 O(h)，h 为树的高度
+
+## 题目大意
+
+>删除某个节点，并使得树满足二叉搜索树性质
+
+## 解题思路
+
+>递归法:
+>
+>​        // 二叉搜索树的删除是需要分三种情况的
+>
+>​        // 叶子节点：直接删除，无需其他操作。
+>
+>​        // 一个子节点：用该子节点替换要删除的节点。
+>
+>​        // 两个子节点：用前驱或后继节点的值替换要删除的节点，并删除前驱或后继节点
+>
+>​        // 我们这道题先按照后继节点的方式来做
+>
+>​        // 如果当前节点是空节点
+>
+>迭代法:
+>
+>​              // 二叉搜索树的删除是需要分三种情况的
+>
+>​        // 叶子节点：直接删除，无需其他操作。
+>
+>​        // 一个子节点：用该子节点替换要删除的节点。
+>
+>​        // 两个子节点：用前驱或后继节点的值替换要删除的节点，并删除前驱或后继节点
+>
+>​        // 我们这道题先按照后继节点的方式来做
+>
+>​        // 如果当前节点是空节点
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-08 11:11:55
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-08 13:09:39
+ * @FilePath: \code\tree_leetcode450.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+
+class Solution {
+  public:
+    // 参考Y神思路,Y神的思路基本都是最简洁的
+    TreeNode *deleteNode(TreeNode *root, int key) {
+        // 删除节点
+        if (root == NULL) {
+            return root;
+        }
+        del(root, key);
+        return root;
+    }
+    // 传入的是root节点,是一个引用来到
+    void del(TreeNode *&root, int key) {
+        // 二叉搜索树的删除是需要分三种情况的
+        // 叶子节点：直接删除，无需其他操作。
+        // 一个子节点：用该子节点替换要删除的节点。
+        // 两个子节点：用前驱或后继节点的值替换要删除的节点，并删除前驱或后继节点
+        // 我们这道题先按照后继节点的方式来做
+        // 如果当前节点是空节点
+        if (root == NULL) {
+            return;
+        }
+        if (key == root->val) {
+            // 叶子节点
+            if (root->left == NULL && root->right == NULL) {
+                root = NULL; // 因为传入的是引用，是可以直接影响root的
+            } else if (root->right == NULL) {
+                // 一个叶子节点
+                // 删除当前节点，然后用左子树替代其节点
+                root = root->left;
+            } else if (root->left == NULL) {
+                // 一个叶子节点
+                root = root->right;
+            } else {
+                // 递归找到其后继节点
+                // 也就是当前右子树
+                auto p = root->right;
+                while (p->left != NULL) {
+                    p = p->left;
+                }
+                root->val = p->val;
+                del(root->right, p->val); // 直接递归在root->right里面删除p节点
+            }
+        } else if (root->val > key) {
+            del(root->left, key);
+        } else {
+            del(root->right, key);
+        }
+    }
+
+    // 迭代法
+    // 这一步就是核心的思想
+    // 还是分三种情况讨论
+    TreeNode *delNode(TreeNode *node) {
+        if (node == NULL) {
+            return node;
+        }
+        // 如果当前结点是叶子结点则删除，且返回
+        if (node->left == NULL && node->right == NULL) {
+            return NULL;
+        } else if (node->right == NULL) {
+            return node->left;
+        }
+        // 找到当前结点的右子树中最小的点
+        TreeNode *cur = node->right;
+        while (cur->left) {
+            cur = cur->left;
+        }
+        // 将当前找到的cur的左边变为node的左边
+        cur->left = node->left;
+        return node->right;
+    }
+
+    TreeNode *deleteNode(TreeNode *root, int key) {
+        // 找到对应删除的节点
+        if (root == NULL) {
+            return root;
+        }
+        // 否则进行删除操作
+        // 记录遍历工作节点
+        TreeNode *cur = root;
+        // 记录要删除节点的前一个父亲节点
+        TreeNode *pre = NULL;
+        while (cur != NULL) {
+            // 当遍历的工作节点的值是key的时候
+            if (cur->val == key) {
+                break;
+            }
+            // 记录前一个结点
+            pre = cur;
+            if (cur->val > key) {
+                cur = cur->left;
+            } else {
+                cur = cur->right;
+            }
+        }
+
+        // 如果pre结点还是NULL的话
+        // 证明没找到结点,返回root即可
+        if (pre == NULL) {
+            return delNode(cur);
+        }
+        // 否则是找到对应key的结点了
+        // 这个时候对cur进行讨论
+        if (pre->left && pre->left->val == key) {
+            pre->left = delNode(cur);
+        } else {
+            pre->right = delNode(cur);
+        }
+        return root;
     }
 };
 ```
