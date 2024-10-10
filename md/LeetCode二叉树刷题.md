@@ -5039,3 +5039,415 @@ class Solution {
 };
 ```
 
+# 669 [修剪二叉搜索](https://leetcode.cn/problems/trim-a-binary-search-tree/description/)
+
+## 题目
+
+给你二叉搜索树的根节点 `root` ，同时给定最小边界`low` 和最大边界 `high`。通过修剪二叉搜索树，使得所有节点的值在`[low, high]`中。修剪树 **不应该** 改变保留在树中的元素的相对结构 (即，如果没有被移除，原有的父代子代关系都应当保留)。 可以证明，存在 **唯一的答案** 。
+
+所以结果应当返回修剪好的二叉搜索树的新的根节点。注意，根节点可能会根据给定的边界发生改变。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2020/09/09/trim1.jpg)
+
+```
+输入：root = [1,0,2], low = 1, high = 2
+输出：[1,null,2]
+```
+
+**示例 2：**
+![img](https://assets.leetcode.com/uploads/2020/09/09/trim2.jpg)
+
+```
+输入：root = [3,0,4,null,2,null,null,1], low = 1, high = 3
+输出：[3,2,null,1]
+```
+
+ 
+
+**提示：**
+
+- 树中节点数在范围 `[1, 104]` 内
+- `0 <= Node.val <= 104`
+- 树中每个节点的值都是 **唯一** 的
+- 题目数据保证输入是一棵有效的二叉搜索树
+- `0 <= low <= high <= 104`
+
+## 题目大意
+
+>就是给定一个范围[low,right],在这个范围里面进行修剪二叉搜索树
+
+## 解题思路
+
+>递归解决
+
+
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-09 09:37:29
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-09 11:09:50
+ * @FilePath: \code\tree_leetcode669.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+
+class Solution {
+  public:
+    TreeNode *trimBST(TreeNode *root, int low, int high) {
+        if (root == NULL) {
+            return NULL;
+        }
+        return dfs(root, low, high);
+    }
+
+    // 还是通过递归实现
+    // 想的太复杂
+    TreeNode *dfs(TreeNode *&root, int low, int high) {
+        if (root == NULL) {
+            return NULL;
+        }
+        // 如果是小于low
+        if (root->val < low) {
+            return dfs(root->right, low, high);
+        }
+        // 如果是大于high
+        if (root->val > high) {
+            return dfs(root->left, low, high);
+        }
+        // 这里不是O(h),因为都要遍历寻找,并不用加if来判断
+        root->left = dfs(root->left, low, high);
+        root->right = dfs(root->right, low, high);
+        return root;
+    }
+
+    // // 迭代法
+    // TreeNode *trimBST(TreeNode *root, int low, int high) {
+    //     if (root == NULL) {
+    //         return NULL;
+    //     }
+    //     TreeNode *cur = root;
+    //     TreeNode *pre = NULL; // 前一个结点接住
+    //     //pre是cur的前一个父亲结点
+    //     while(cur != NULL){
+    //         // 当前节点小于low的时候
+    //         if(cur->val < low && pre != NULL){
+    //             // 直接将cur->right保存,将cur和cur->left删除
+    //             // 
+    //         }
+    //     }
+    // }
+};
+```
+
+
+
+# 108 [将有序数组转换为二叉搜索树](https://leetcode.cn/problems/convert-sorted-array-to-binary-search-tree/description/)
+
+## 题目
+
+给你一个整数数组 `nums` ，其中元素已经按 **升序** 排列，请你将其转换为一棵 
+
+平衡二叉搜索树。
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2021/02/18/btree1.jpg)
+
+
+
+```
+输入：nums = [-10,-3,0,5,9]
+输出：[0,-3,9,-10,null,5]
+解释：[0,-10,5,null,-3,null,9] 也将被视为正确答案：
+```
+
+![img](https://assets.leetcode.com/uploads/2021/02/18/btree2.jpg)
+
+**示例 2：**
+
+![img](https://assets.leetcode.com/uploads/2021/02/18/btree.jpg)
+
+```
+输入：nums = [1,3]
+输出：[3,1]
+解释：[1,null,3] 和 [3,1] 都是高度平衡二叉搜索树。
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums.length <= 104`
+- `-104 <= nums[i] <= 104`
+- `nums` 按 **严格递增** 顺序排列
+
+## 题目大意
+
+>给出一个`升序数组`,按照升序数组构建一个平衡二叉搜索树
+
+## 解题思路
+
+>`只要证明如果每次按照数组的中间节点作为根`,然后进行左右子树构建，就能保证二叉树是平衡的
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-09 11:44:31
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-09 11:54:10
+ * @FilePath: \code\tree_leetcode108.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+
+class Solution {
+  public:
+    TreeNode *root = NULL;
+    // 递归，每次从数组中的中间分出根节点,必然可以构建成平衡二叉搜索树
+    // 数学证明: 需要证明左右子树是不大于 log2(n+1)向上取整
+    TreeNode *sortedArrayToBST(vector<int> &nums) {
+        // 取中间
+        return dfs(nums, 0, nums.size() - 1);
+    }
+
+    TreeNode *dfs(vector<int> &nums, int left, int right) {
+        // 终止条件
+        if (left > right) {
+            return NULL;
+        }
+        int mid = left + right >> 1;
+        // 找到中间节点
+        auto p = new TreeNode(nums[mid]);
+        // 然后根据中间节点进行递归
+        p->left = dfs(nums, left, mid - 1);
+        p->right = dfs(nums, mid + 1, right);
+        return p;
+    }
+};
+```
+
+# 538 [把二叉搜索树转换为累加树](https://leetcode.cn/problems/convert-bst-to-greater-tree/description/)
+
+## 题目
+
+给出二叉 **搜索** 树的根节点，该树的节点值各不相同，请你将其转换为累加树（Greater Sum Tree），使每个节点 `node` 的新值等于原树中大于或等于 `node.val` 的值之和。
+
+提醒一下，二叉搜索树满足下列约束条件：
+
+- 节点的左子树仅包含键 **小于** 节点键的节点。
+- 节点的右子树仅包含键 **大于** 节点键的节点。
+- 左右子树也必须是二叉搜索树。
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2019/05/03/tree.png)
+
+```
+输入：[4,1,6,0,2,5,7,null,null,null,3,null,null,null,8]
+输出：[30,36,21,36,35,26,15,null,null,null,33,null,null,null,8]
+```
+
+**示例 2：**
+
+```
+输入：root = [0,null,1]
+输出：[1,null,1]
+```
+
+**示例 3：**
+
+```
+输入：root = [1,0,2]
+输出：[3,3,2]
+```
+
+**示例 4：**
+
+```
+输入：root = [3,2,4,1]
+输出：[7,9,4,10]
+```
+
+**提示：**
+
+- 树中的节点数介于 `0` 和 `104` 之间。
+- 每个节点的值介于 `-104` 和 `104` 之间。
+- 树中的所有值 **互不相同** 。
+- 给定的树为二叉搜索树。
+
+## 题目大意
+
+>​    // 累加树（Greater Sum Tree 或 Accumulation Tree）是一个二叉树变种，
+>
+>​    // 它通常基于二叉搜索树（BST）来进行转换。
+>
+>​    // 累加树的特点是：对于每个节点，
+>
+>​    // 它的值被更新为原树中所有大于或等于该节点值的节点值的总和。
+
+## 解题思路
+
+>反序的中序遍历`右根左`
+>
+>递归和迭代都可解决
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-09 12:58:24
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-09 13:23:36
+ * @FilePath: \code\tree_leetcdoe538.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+
+class Solution {
+  public:
+    // 累加树（Greater Sum Tree 或 Accumulation Tree）是一个二叉树变种，
+    // 它通常基于二叉搜索树（BST）来进行转换。
+    // 累加树的特点是：对于每个节点，
+    // 它的值被更新为原树中所有大于或等于该节点值的节点值的总和。
+    TreeNode *convertBST(TreeNode *root) {
+        // 思路: 通过反向的中序遍历: 右根左,也就是从大到小开始遍历
+        if (root == NULL) {
+            return NULL;
+        }
+        int sum = 0;
+        dfs(root, sum);
+        return root;
+    }
+
+    void dfs(TreeNode *root, int &sum) {
+        // 反向中序遍历
+        if (root == NULL) {
+            return;
+        }
+        dfs(root->right, sum);
+        sum += root->val;
+        root->val = sum;
+        dfs(root->left, sum);
+    }
+
+    // 中序遍历迭代法
+    TreeNode *convertBST(TreeNode *root) {
+        if (root == NULL) {
+            return NULL;
+        }
+        stack<TreeNode *> tree_stack;
+        int sum = 0;
+        tree_stack.push(root);
+        while (!tree_stack.empty()) {
+            TreeNode *cur = tree_stack.top();
+            if (cur != NULL) {
+                tree_stack.pop(); // 先出栈
+                // 先左入栈
+                if (cur->left) {
+                    tree_stack.push(cur->left);
+                }
+                tree_stack.push(cur);
+                tree_stack.push(NULL);
+                if (cur->right) {
+                    tree_stack.push(cur->right);
+                }
+            } else {
+                tree_stack.pop();
+                TreeNode *temp = tree_stack.top();
+                sum += temp->val;
+                temp->val = sum;
+                tree_stack.pop();
+            }
+        }
+        return root;
+    }
+};
+```
+
