@@ -1120,3 +1120,638 @@ int main() {
 }
 ```
 
+
+
+# 78 [子集](https://leetcode.cn/problems/subsets/description/)
+
+## 题目
+
+给你一个整数数组 `nums` ，数组中的元素 **互不相同** 。返回该数组所有可能的
+
+子集
+
+
+
+（幂集）。
+
+
+
+解集 **不能** 包含重复的子集。你可以按 **任意顺序** 返回解集。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [1,2,3]
+输出：[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+```
+
+**示例 2：**
+
+```
+输入：nums = [0]
+输出：[[],[0]]
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums.length <= 10`
+- `-10 <= nums[i] <= 10`
+- `nums` 中的所有元素 **互不相同**
+
+## 题目大意
+
+>在集合里面寻找不同的子集,然后返回
+
+## 解题思路
+
+>回溯法
+>
+>![78.子集](https://code-thinking.cdn.bcebos.com/pics/78.%E5%AD%90%E9%9B%86.png)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-13 15:13:07
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-13 16:45:36
+ * @FilePath: \code\backtracking_leetcode78.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+/**
+ * void backtracking(参数) {
+        if (终⽌条件) {
+            存放结果;
+            return;
+        }
+        for (选择：本层集合中元素（树中节点孩⼦的数量就是集合的⼤⼩）) {
+            处理节点;
+            backtracking(路径，选择列表); // 递归
+            回溯，撤销处理结果
+        }
+    }
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+class Solution {
+  public:
+    vector<vector<int>> res; // 总包含一个空集
+    vector<int> path;
+    vector<vector<int>> subsets(vector<int> &nums) {
+        if (nums.size() == 0) {
+            return res;
+        }
+        // res.push_back({});
+        dfs(nums, 0);
+        return res;
+    }
+    // 这道题和回文字串很相似
+    void dfs(vector<int> &nums, int start_index) {
+        // 无论如何都要添加子集,不需要满足才添加
+        res.push_back(path);
+        if (start_index >= nums.size()) {
+            return;
+        }
+        // for
+        for (int i = start_index; i < nums.size(); i++) {
+            // 需要像字符串那种给分割出来
+            // vector<int> temp(nums.begin() + start_index, nums.begin() + i);
+            path.push_back(nums[i]);
+            dfs(nums, i + 1);
+            path.pop_back();
+        }
+    }
+};
+```
+
+# 90 [子集II](https://leetcode.cn/problems/subsets-ii/description/)
+
+## 题目
+
+给你一个整数数组 `nums` ，其中可能包含重复元素，请你返回该数组所有可能的 
+
+子集
+
+
+
+（幂集）。
+
+
+
+解集 **不能** 包含重复的子集。返回的解集中，子集可以按 **任意顺序** 排列。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [1,2,2]
+输出：[[],[1],[1,2],[1,2,2],[2],[2,2]]
+```
+
+**示例 2：**
+
+```
+输入：nums = [0]
+输出：[[],[0]]
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums.length <= 10`
+- `-10 <= nums[i] <= 10`
+
+## 题目大意
+
+>不能包含重复的子集,因为原数组存在重复元素，那么分割的时候就有可能存在重复元素
+
+## 解题思路
+
+>![90.子集II](https://code-thinking-1253855093.file.myqcloud.com/pics/20201124195411977.png)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-13 15:35:52
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-13 16:38:23
+ * @FilePath: \code\backtracking_leetcode90.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+/**
+ * void backtracking(参数) {
+        if (终⽌条件) {
+            存放结果;
+            return;
+        }
+        for (选择：本层集合中元素（树中节点孩⼦的数量就是集合的⼤⼩）) {
+            处理节点;
+            backtracking(路径，选择列表); // 递归
+            回溯，撤销处理结果
+        }
+    }
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+class Solution {
+  public:
+    vector<vector<int>> res;
+    vector<int> path;
+    vector<vector<int>> subsetsWithDup(vector<int> &nums) {
+        vector<bool> used(nums.size(), false);
+        if (nums.size() == 0) {
+            return res;
+        }
+        sort(nums.begin(), nums.end()); // 需要先排序
+        dfs(nums, 0, used);
+        return res;
+    }
+
+    void dfs(vector<int> &nums, int start_index, vector<bool> &used) {
+        // 需要判断是否重合
+        res.push_back(path);
+        if (start_index >= nums.size()) {
+            return;
+        }
+        for (int i = start_index; i < nums.size(); i++) {
+            // 需要判断是否是重复的
+            // 这题关键在于怎么判断分割的数据集是否重复
+            // 这道题和前面leetcode40组合总和很相似
+            // 还是一样，需要判断同一个树层是否满足
+            // used[i - 1] == true，说明同⼀树枝candidates[i - 1]使⽤过
+            // used[i - 1] == false，说明同⼀树层candidates[i - 1]使⽤过
+            if (i > 0 && nums[i] == nums[i - 1] && used[i - 1] == false) {
+                continue;
+            }
+            path.push_back(nums[i]);
+            used[i] = true; // 代表同一个数枝条使用过
+            dfs(nums, i + 1, used);
+            used[i] = false; // 代表同一层使用过
+            path.pop_back();
+        }
+    }
+};
+```
+
+# 491 [非递减子序列](https://leetcode.cn/problems/non-decreasing-subsequences/description/)
+
+## 题目
+
+给你一个整数数组 `nums` ，找出并返回所有该数组中不同的递增子序列，递增子序列中 **至少有两个元素** 。你可以按 **任意顺序** 返回答案。
+
+数组中可能含有重复元素，如出现两个整数相等，也可以视作递增序列的一种特殊情况。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [4,6,7,7]
+输出：[[4,6],[4,6,7],[4,6,7,7],[4,7],[4,7,7],[6,7],[6,7,7],[7,7]]
+```
+
+**示例 2：**
+
+```
+输入：nums = [4,4,3,2,1]
+输出：[[4,4]]
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums.length <= 15`
+- `-100 <= nums[i] <= 100`
+
+## 题目大意
+
+>依据题意解题即可
+
+## 解题思路
+
+>回溯法
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-13 16:47:25
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-13 17:38:45
+ * @FilePath: \code\backtracking_leetcode491.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+/**
+ * void backtracking(参数) {
+        if (终⽌条件) {
+            存放结果;
+            return;
+        }
+        for (选择：本层集合中元素（树中节点孩⼦的数量就是集合的⼤⼩）) {
+            处理节点;
+            backtracking(路径，选择列表); // 递归
+            回溯，撤销处理结果
+        }
+    }
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+class Solution {
+  public:
+    vector<vector<int>> ans;
+    vector<int> path;
+    vector<vector<int>> findSubsequences(vector<int> &nums) {
+        if (nums.size() == 0) {
+            return ans;
+        }
+        vector<bool> used(nums.size(), false);
+        dfs(nums, 0);
+        // set<vector<int>> unique_set(ans.begin(), ans.end());
+        // vector<vector<int>> unique_ans(unique_set.begin(), unique_set.end());
+        return ans;
+    }
+    // path_size记录当前子集的数量,保证子集里面数量必须大于等于2
+    void dfs(vector<int> &nums, int start_index) {
+        if (path.size() > 1) {
+            ans.push_back(path);
+        }
+        if (start_index >= nums.size()) {
+            return;
+        }
+        // for
+        // set是该层的去重，并不是迭代的去重
+        unordered_set<int> unique_set;
+        // find函数，如果找到返回指向该元素的迭代器
+        // 如果没找到返回end()迭代器
+        for (int i = start_index; i < nums.size(); i++) {
+            if ((!path.empty() && nums[i] < path.back()) ||
+                unique_set.find(nums[i]) != unique_set.end()) {
+                continue;
+            }
+            unique_set.insert(nums[i]);
+            path.push_back(nums[i]);
+            dfs(nums, i + 1);
+            path.pop_back();
+        }
+    }
+
+    // 需要额外判断一个数组是否有序吗?
+    bool isSort(vector<int> path) {
+        if (path.size() == 0) {
+            return true;
+        }
+        for (int i = 0; i < path.size(); i++) {
+            if (i > 0 && path[i] < path[i - 1]) {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+```
+
+# 46 [全排列](https://leetcode.cn/problems/permutations/description/)
+
+## 题目
+
+给定一个不含重复数字的数组 `nums` ，返回其 *所有可能的全排列* 。你可以 **按任意顺序** 返回答案。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [1,2,3]
+输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+```
+
+**示例 2：**
+
+```
+输入：nums = [0,1]
+输出：[[0,1],[1,0]]
+```
+
+**示例 3：**
+
+```
+输入：nums = [1]
+输出：[[1]]
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums.length <= 6`
+- `-10 <= nums[i] <= 10`
+- `nums` 中的所有整数 **互不相同**
+
+## 题目大意
+
+>按题意解题即可
+
+## 解题思路
+
+>回溯法
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-13 17:43:26
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-13 18:25:21
+ * @FilePath: \code\backtracking_leetcode46.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+/**
+ * void backtracking(参数) {
+        if (终⽌条件) {
+            存放结果;
+            return;
+        }
+        for (选择：本层集合中元素（树中节点孩⼦的数量就是集合的⼤⼩）) {
+            处理节点;
+            backtracking(路径，选择列表); // 递归
+            回溯，撤销处理结果
+        }
+    }
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+class Solution {
+  public:
+    vector<vector<int>> res;
+    vector<int> path;
+    vector<vector<int>> permute(vector<int> &nums) {
+        // 全排列
+        if (nums.size() == 0) {
+            return res;
+        }
+        vector<bool> used(nums.size(), false);
+        dfs(nums, used);
+        return res;
+    }
+
+    void dfs(vector<int> &nums, vector<bool> used) {
+        if (path.size() == nums.size()) {
+            res.push_back(path);
+            return;
+        }
+        for (int i = 0; i < nums.size(); i++) {
+            // true代表该位置已经用过
+            if (used[i]) {
+                continue;
+            }
+            path.push_back(nums[i]);
+            used[i] = true;
+            dfs(nums, used);
+            used[i] = false;
+            path.pop_back();
+        }
+    }
+};
+```
+
+# 47 [全排列II](https://leetcode.cn/problems/permutations-ii/description/)
+
+## 题目
+
+给定一个可包含重复数字的序列 `nums` ，***按任意顺序*** 返回所有不重复的全排列。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [1,1,2]
+输出：
+[[1,1,2],
+ [1,2,1],
+ [2,1,1]]
+```
+
+**示例 2：**
+
+```
+输入：nums = [1,2,3]
+输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums.length <= 8`
+- `-10 <= nums[i] <= 10`
+
+## 题目大意
+
+>返回不重复的全排列
+
+## 解题思路
+
+>回溯法，用used标识且用set去重
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-13 18:27:05
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-13 18:42:20
+ * @FilePath: \code\backtracking_leetcode47.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+/**
+ * void backtracking(参数) {
+        if (终⽌条件) {
+            存放结果;
+            return;
+        }
+        for (选择：本层集合中元素（树中节点孩⼦的数量就是集合的⼤⼩）) {
+            处理节点;
+            backtracking(路径，选择列表); // 递归
+            回溯，撤销处理结果
+        }
+    }
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+class Solution {
+  public:
+    vector<vector<int>> ans;
+    vector<int> path;
+    vector<vector<int>> permuteUnique(vector<int> &nums) {
+        if (nums.size() == 0) {
+            return ans;
+        }
+        vector<bool> used(nums.size(), false);
+        dfs(nums, used);
+        return ans;
+    }
+
+    void dfs(vector<int> &nums, vector<bool> used) {
+        // 需要用set来判断每个树层的去重
+        if (path.size() == nums.size()) {
+            ans.push_back(path);
+            return;
+        }
+        unordered_set<int> uset;
+        for (int i = 0; i < nums.size(); i++) {
+            if (used[i] || uset.find(nums[i]) != uset.end()) {
+                continue;
+            }
+            uset.insert(nums[i]);
+            path.push_back(nums[i]);
+            used[i] = true;
+            dfs(nums, used);
+            used[i] = false;
+            path.pop_back();
+        }
+    }
+};
+```
+

@@ -2,7 +2,7 @@
  * @Author: Jean_Leung
  * @Date: 2024-10-11 14:03:55
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-10-11 15:00:06
+ * @LastEditTime: 2024-10-13 14:49:51
  * @FilePath: \code\backtracking_leetcode131.cpp
  * @Description:
  *
@@ -47,45 +47,37 @@ class Solution {
         if (s.size() == 0) {
             return res;
         }
-        dfs(s,0);
+        dfs(s, 0);
         return res;
     }
-    bool isPalindrome(string str, int start, int end) {
-        // 串是否为空
-        // if (str.empty()) {
-        //     return false;
-        // }
-        for (int left = start, right = end; left <= right; left++, right--) {
-            if (str[left] != str[right]) {
+    void dfs(string &s, int start_index) {
+        // 需要使用剪枝
+        if (start_index == s.size()) {
+            res.push_back(path);
+            return;
+        }
+        // 循环
+        for (int i = start_index; i < s.size(); i++) {
+            // 如果是回文子串
+            if (isPandrome(s, start_index, i)) {
+                path.push_back(s.substr(start_index, i - start_index + 1));
+            } else {
+                continue;
+            }
+            dfs(s, i + 1);
+            path.pop_back();
+        }
+    }
+
+    bool isPandrome(const string &s, int start, int end) {
+        if (s.size() == 0) {
+            return false;
+        }
+        for (int i = start; i <= end; i++) {
+            if (s[start] != s[end]) {
                 return false;
             }
         }
         return true;
-    }
-
-    // 如何进行截取,
-    void dfs(string s, int start_index) {
-        // 终止条件
-        if (start_index >= s.size()) {
-            res.push_back(path);
-            return;
-        }
-        // for循环
-        for (int i = start_index; i < s.size(); i++) {
-            // 需要将path添加字符
-            // 进行剪枝
-            // 当前节点层的遍历中，从start_index开始位置到i位置是否是回文串
-            if (isPalindrome(s, start_index, i)) {
-                // 切割出来子字符串
-                // 获取[startIndex,i]在s中的⼦串
-                // i-start_index+1是长度
-                string temp = s.substr(start_index, i - start_index + 1);
-                path.push_back(temp);
-            } else {
-                continue;
-            }
-            dfs(s, i + 1); // 继续遍历下个位置
-            path.pop_back();
-        }
     }
 };
