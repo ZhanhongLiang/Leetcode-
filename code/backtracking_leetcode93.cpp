@@ -2,7 +2,7 @@
  * @Author: Jean_Leung
  * @Date: 2024-10-12 10:22:31
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-10-12 12:52:22
+ * @LastEditTime: 2024-10-13 15:09:57
  * @FilePath: \code\backtracking_leetcode93.cpp
  * @Description:
  *
@@ -54,59 +54,23 @@ class Solution {
         dfs(s, 0, 0);
         return res;
     }
-    /**
-     * @description: 校验现在字符串是否合法
-     * @param {string} str
-     * @return {*}
-     */
-    bool isValid(const string &str, int start, int end) {
-        if (start > end) {
-            return false;
-        }
-        if (start != end && str[start] == '0') {
-            return false;
-        }
-        // int digits = std::stoi(str);
-        // if (digits > 255 || digits < 0) {
-        //     return false;
-        // }
-        int num = 0;
-        for (int i = start; i <= end; i++) {
-            if (str[i] > '9' || str[i] < '0') {
-                return false;
-            }
-            num = num * 10 + (str[i] - '0');
-            if (num > 255) {
-                return false;
-            }
-        }
-        return true;
-    }
-    // 还是属于切割穷举问题
-    /**
-     * @description: 穷举回溯算法
-     * @param {string} s
-     * @param {int} start_index
-     * @param {string} path
-     * @return {*}
-     */
+
+    // 需要穷举出所有的情况
+    // 当标点符号==3的时候就是终止条件
     void dfs(string &s, int start_index, int point_num) {
-        // 终止条件
-        // 终止条件是出现三个逗号就结束
         if (point_num == 3) {
-            // 判断第四段子字符串是否合法
+            // 需要再判断最后的位置是否符合题意
             if (isValid(s, start_index, s.size() - 1)) {
                 res.push_back(s);
             }
             return;
         }
-
-        // 节点遍历
         for (int i = start_index; i < s.size(); i++) {
-            // 将当前的截取出来
-            // string temp = s.substr(start_index, i - start_index + 1);
+            // 判断该字串是否符合题意
+            // 为什么需要在if里面进行判断，
+            // 因为是在原基础上进行更改的
             if (isValid(s, start_index, i)) {
-                // 如果符合,则将其分割出来
+                // 在i后面添加.进行分割
                 s.insert(s.begin() + i + 1, '.');
                 point_num++;
                 dfs(s, i + 2, point_num);
@@ -115,18 +79,28 @@ class Solution {
             } else {
                 break;
             }
-            // string temp = s.substr(start_index, i - start_index + 1);
-            // if (isValidII(temp)) {
-            //     temp += '.';
-            //     path.append(temp);
-            //     point_num++;
-            // } else {
-            //     continue;
-            // }
-            // dfs(s, i + 1, point_num);
-            // point_num--;
-            // path.erase(start_index, i - start_index + 1);
         }
+    }
+
+    // 判断一个字串是否符合题意
+    bool isValid(const string &s, int start, int end) {
+        if (s.size() == 0) {
+            return false;
+        }
+        // 继续判断
+        // 先判断是否有前置零
+        if (s.size() > 0 && s[start] == '0') {
+            return false;
+        }
+        // 再判断是否小于等于255
+        int num = 0;
+        for (int i = start; i <= end; i++) {
+            num = num * 10 + s[i] - '0';
+        }
+        if (num > 255) {
+            return false;
+        }
+        return true;
     }
 
     bool isValidII(const string &str) {
