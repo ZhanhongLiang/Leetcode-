@@ -1755,3 +1755,182 @@ class Solution {
 };
 ```
 
+# 332 [重新安排行程](https://leetcode.cn/problems/reconstruct-itinerary/)
+
+## 题目
+
+给你一份航线列表 `tickets` ，其中 `tickets[i] = [fromi, toi]` 表示飞机出发和降落的机场地点。请你对该行程进行重新规划排序。
+
+所有这些机票都属于一个从 `JFK`（肯尼迪国际机场）出发的先生，所以该行程必须从 `JFK` 开始。如果存在多种有效的行程，请你按字典排序返回最小的行程组合。
+
+- 例如，行程 `["JFK", "LGA"]` 与 `["JFK", "LGB"]` 相比就更小，排序更靠前。
+
+假定所有机票至少存在一种合理的行程。且所有的机票 必须都用一次 且 只能用一次。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2021/03/14/itinerary1-graph.jpg)
+
+```
+输入：tickets = [["MUC","LHR"],["JFK","MUC"],["SFO","SJC"],["LHR","SFO"]]
+输出：["JFK","MUC","LHR","SFO","SJC"]
+```
+
+**示例 2：**
+
+![img](https://assets.leetcode.com/uploads/2021/03/14/itinerary2-graph.jpg)
+
+```
+输入：tickets = [["JFK","SFO"],["JFK","ATL"],["SFO","ATL"],["ATL","JFK"],["ATL","SFO"]]
+输出：["JFK","ATL","JFK","SFO","ATL","SFO"]
+解释：另一种有效的行程是 ["JFK","SFO","ATL","JFK","ATL","SFO"] ，但是它字典排序更大更靠后。
+```
+
+ 
+
+**提示：**
+
+- `1 <= tickets.length <= 300`
+- `tickets[i].length == 2`
+- `fromi.length == 3`
+- `toi.length == 3`
+- `fromi` 和 `toi` 由大写英文字母组成
+- `fromi != toi`
+
+## 题目大意
+
+>起点必须是"JFK"，然后从JFK出发找到一条字典排序最小的路径
+
+## 解题思路
+
+>- 代码随想录方法
+>  - 利用unordered_map<string, map<string, int>> targets来记录unordered_map<出发机场, map<到达机场, 航班次数>> targets
+>  - 终止条件位当遍历的result.size()==总的航班次数数(tickets.size())
+>  - 谨记航班次数是需要进行记录的
+>
+>![332.重新安排行程1](https://code-thinking-1253855093.file.myqcloud.com/pics/2020111518065555-20230310121223600.png)
+>
+>- Y神的写法
+>  - 这道题等价于求解欧拉路径,"JFK"就是起点
+>  - 需要利用// unordered_map<出发机场, 到达机场的集合> targets
+>    // 且multiset默认是字典序进行排序了，基于红黑树的排序
+>    unordered_map<string, multiset<string>> uset;
+>  - 注意当每次遍历当前节点，如果当前节点是不存在路径的话,那么就进行回溯
+>
+>![](https://pic.superbed.cc/item/670c9ed9fa9f77b4dcbafefd.png)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-14 10:51:51
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-14 12:12:01
+ * @FilePath: \code\backtracking_leetcode332.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+/**
+ * void backtracking(参数) {
+        if (终⽌条件) {
+            存放结果;
+            return;
+        }
+        for (选择：本层集合中元素（树中节点孩⼦的数量就是集合的⼤⼩）) {
+            处理节点;
+            backtracking(路径，选择列表); // 递归
+            回溯，撤销处理结果
+        }
+    }
+ */
+
+class Solution {
+  public:
+    // unordered_map<出发机场, map<到达机场, 航班次数>>
+    // 记录到达的航班次数很重要,因为需要防止遍历过重复的航班航线
+    unordered_map<string, map<string, int>> targets;
+    vector<string> findItinerary(vector<vector<string>> &tickets) {
+        // 先记录在targets上
+        for (const vector<string> &vec : tickets) {
+            targets[vec[0]][vec[1]]++; // 记录映射关系
+        }
+        vector<string> result;
+        result.push_back("JFK");     // 起点确定
+        dfs(tickets.size(), result); //
+        return result;
+    }
+
+    // 这道题目难点在于如何构建映射
+    // 如何判定终止条件
+    // 如何进行单层逻辑
+    bool dfs(int ticketnum, vector<string> &result) {
+        // 如何确定终止条件
+        if (result.size() == ticketnum + 1) {
+            return true;
+        }
+        // 最难就是怎么确定遍历
+        for (pair<const string, int> &target :
+             targets[result[result.size() - 1]]) {
+            if (target.second > 0) {
+                result.push_back(target.first);
+                target.second--;
+                if (dfs(ticketnum, result)) {
+                    return true;
+                }
+                target.second++;
+                result.pop_back();
+            }
+        }
+    }
+    
+    vector<string> ans;
+    // 法二:利用这个来做
+    // unordered_map<出发机场, 到达机场的集合> targets
+    // 且multiset默认是字典序进行排序了，基于红黑树的排序
+    unordered_map<string, multiset<string>> uset;
+    // Y神写法,求解欧拉路径的思路
+    // 利用multiset来存储路径
+    vector<string> findItinerary(vector<vector<string>> &tickets) {
+        for (auto &e : tickets) {
+            // 这个代表往该地点的出发multiset里面插入数据
+            uset[e[0]].insert(e[1]);
+        }
+        dfs("JFK");
+        reverse(ans.begin(), ans.end());
+        return ans;
+    }
+
+    void dfs(string u) {
+        // 也就是当前的节点没有存在需要遍历的路径时候,就开始回溯
+        while (uset[u].size()) {
+            auto ver = *uset[u].begin();
+            uset[u].erase(uset[u].begin());
+            dfs(ver);
+        }
+        ans.push_back(u);
+    }
+};
+```
+

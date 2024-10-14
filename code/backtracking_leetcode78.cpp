@@ -2,7 +2,7 @@
  * @Author: Jean_Leung
  * @Date: 2024-10-13 15:13:07
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-10-13 16:45:36
+ * @LastEditTime: 2024-10-14 12:54:02
  * @FilePath: \code\backtracking_leetcode78.cpp
  * @Description:
  *
@@ -46,21 +46,19 @@ class Solution {
         if (nums.size() == 0) {
             return res;
         }
-        // res.push_back({});
         dfs(nums, 0);
         return res;
     }
-    // 这道题和回文字串很相似
+
     void dfs(vector<int> &nums, int start_index) {
-        // 无论如何都要添加子集,不需要满足才添加
+        // 当start_index >= nums.size()返回
+        // 因为需要记录沿途的路径
         res.push_back(path);
         if (start_index >= nums.size()) {
             return;
         }
-        // for
         for (int i = start_index; i < nums.size(); i++) {
-            // 需要像字符串那种给分割出来
-            // vector<int> temp(nums.begin() + start_index, nums.begin() + i);
+            // 添加到路径里面
             path.push_back(nums[i]);
             dfs(nums, i + 1);
             path.pop_back();
