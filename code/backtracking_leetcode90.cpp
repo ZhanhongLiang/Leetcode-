@@ -2,7 +2,7 @@
  * @Author: Jean_Leung
  * @Date: 2024-10-13 15:35:52
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-10-13 16:38:23
+ * @LastEditTime: 2024-10-14 13:07:58
  * @FilePath: \code\backtracking_leetcode90.cpp
  * @Description:
  *
@@ -43,35 +43,30 @@ class Solution {
     vector<vector<int>> res;
     vector<int> path;
     vector<vector<int>> subsetsWithDup(vector<int> &nums) {
-        vector<bool> used(nums.size(), false);
         if (nums.size() == 0) {
             return res;
         }
-        sort(nums.begin(), nums.end()); // 需要先排序
+        vector<bool> used(nums.size(), false);
+        sort(nums.begin(), nums.end());
         dfs(nums, 0, used);
         return res;
     }
 
-    void dfs(vector<int> &nums, int start_index, vector<bool> &used) {
-        // 需要判断是否重合
+    void dfs(vector<int> &nums, int start_index, vector<bool> used) {
+        // used数组代表是否有访问过该数
         res.push_back(path);
         if (start_index >= nums.size()) {
             return;
         }
         for (int i = start_index; i < nums.size(); i++) {
-            // 需要判断是否是重复的
-            // 这题关键在于怎么判断分割的数据集是否重复
-            // 这道题和前面leetcode40组合总和很相似
-            // 还是一样，需要判断同一个树层是否满足
-            // used[i - 1] == true，说明同⼀树枝candidates[i - 1]使⽤过
-            // used[i - 1] == false，说明同⼀树层candidates[i - 1]使⽤过
             if (i > 0 && nums[i] == nums[i - 1] && used[i - 1] == false) {
                 continue;
             }
+            // 如果当前
             path.push_back(nums[i]);
-            used[i] = true; // 代表同一个数枝条使用过
+            used[i] = true;
             dfs(nums, i + 1, used);
-            used[i] = false; // 代表同一层使用过
+            used[i] = false;
             path.pop_back();
         }
     }
