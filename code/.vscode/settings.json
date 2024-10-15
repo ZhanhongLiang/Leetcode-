@@ -42,6 +42,7 @@
         "unordered_set": "cpp",
         "queue": "cpp",
         "stack": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "set": "cpp"
     }
 }
