@@ -1934,3 +1934,308 @@ class Solution {
 };
 ```
 
+
+
+# 51 [N皇后](https://leetcode.cn/problems/n-queens/description/)
+
+## 题目
+
+按照国际象棋的规则，皇后可以攻击与之处在同一行或同一列或同一斜线上的棋子。
+
+**n 皇后问题** 研究的是如何将 `n` 个皇后放置在 `n×n` 的棋盘上，并且使皇后彼此之间不能相互攻击。
+
+给你一个整数 `n` ，返回所有不同的 **n 皇后问题** 的解决方案。
+
+每一种解法包含一个不同的 **n 皇后问题** 的棋子放置方案，该方案中 `'Q'` 和 `'.'` 分别代表了皇后和空位。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2020/11/13/queens.jpg)
+
+```
+输入：n = 4
+输出：[[".Q..","...Q","Q...","..Q."],["..Q.","Q...","...Q",".Q.."]]
+解释：如上图所示，4 皇后问题存在两个不同的解法。
+```
+
+**示例 2：**
+
+```
+输入：n = 1
+输出：[["Q"]]
+```
+
+ 
+
+**提示：**
+
+- `1 <= n <= 9`
+
+## 题目大意
+
+>给出n*n的棋盘，n个皇后，保证这n个皇后不能同行同列同斜线方向
+>
+>给出方案数
+>
+>⾸先来看⼀下皇后们的约束条件
+>1. 不能同⾏
+>2. 不能同列
+>3. 不能同斜线
+
+## 解题思路
+
+>回溯法
+>
+>![51.N皇后](https://code-thinking-1253855093.file.myqcloud.com/pics/20210130182532303.jpg)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-15 09:48:01
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-15 10:28:50
+ * @FilePath: \code\backtracking_leetcode51.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+/**
+ * void backtracking(参数) {
+        if (终⽌条件) {
+            存放结果;
+            return;
+        }
+        for (选择：本层集合中元素（树中节点孩⼦的数量就是集合的⼤⼩）) {
+            处理节点;
+            backtracking(路径，选择列表); // 递归
+            回溯，撤销处理结果
+        }
+    }
+ */
+
+class Solution {
+  public:
+    vector<vector<string>> res; // 答案数组
+    vector<vector<string>> solveNQueens(int n) {
+        res.clear();
+        std::vector<std::string> chessboard(n, std::string(n, '.'));
+        dfs(n, 0, chessboard);
+        return res;
+    }
+
+    void dfs(int n, int row, vector<string> &chess) {
+        // 从代码随想录画的流程图可以知道
+        // row是递归深度的体现,当row==n的时候，存进res中
+        if (row == n) {
+            res.push_back(chess);
+            return;
+        }
+        for (int col = 0; col < n; col++) {
+            // 需要判断当前的棋盘是否存在列行斜重合
+            if (isValid(row, col, chess, n)) {
+                chess[row][col] = 'Q';
+                dfs(n, row + 1, chess);
+                // 回溯
+                chess[row][col] = '.';
+            }
+        }
+    }
+
+    bool isValid(int row, int col, vector<string> &chess, int n) {
+        // 不用判断行，因为递归控制的每次放的行都是不一样的
+        // 先判断列
+        for (int i = 0; i < row; i++) {
+            if (chess[i][col] == 'Q') {
+                return false;
+            }
+        }
+        // 检查45度是否存在皇后
+        for (int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--) {
+            if (chess[i][j] = 'Q') {
+                return false;
+            }
+        }
+        // 检查135度是否存在皇后
+        for (int i = row - 1, j = col + 1; i >= 0 && j < n; i--, j++) {
+            if (chess[i][j] == 'Q') {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+```
+
+# 37 [解数独](https://leetcode.cn/problems/sudoku-solver/description/)
+
+## 题目
+
+>编写一个程序，通过填充空格来解决数独问题。
+>
+>数独的解法需 **遵循如下规则**：
+>
+>1. 数字 `1-9` 在每一行只能出现一次。
+>2. 数字 `1-9` 在每一列只能出现一次。
+>3. 数字 `1-9` 在每一个以粗实线分隔的 `3x3` 宫内只能出现一次。（请参考示例图）
+>
+>数独部分空格内已填入了数字，空白格用 `'.'` 表示。
+>
+> 
+>
+>**示例 1：**
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2021/04/12/250px-sudoku-by-l2g-20050714svg.png)
+
+```
+输入：board = [["5","3",".",".","7",".",".",".","."],["6",".",".","1","9","5",".",".","."],[".","9","8",".",".",".",".","6","."],["8",".",".",".","6",".",".",".","3"],["4",".",".","8",".","3",".",".","1"],["7",".",".",".","2",".",".",".","6"],[".","6",".",".",".",".","2","8","."],[".",".",".","4","1","9",".",".","5"],[".",".",".",".","8",".",".","7","9"]]
+输出：[["5","3","4","6","7","8","9","1","2"],["6","7","2","1","9","5","3","4","8"],["1","9","8","3","4","2","5","6","7"],["8","5","9","7","6","1","4","2","3"],["4","2","6","8","5","3","7","9","1"],["7","1","3","9","2","4","8","5","6"],["9","6","1","5","3","7","2","8","4"],["2","8","7","4","1","9","6","3","5"],["3","4","5","2","8","6","1","7","9"]]
+解释：输入的数独如上图所示，唯一有效的解决方案如下所示：
+```
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2021/04/12/250px-sudoku-by-l2g-20050714_solutionsvg.png)
+
+**提示：**
+
+- `board.length == 9`
+- `board[i].length == 9`
+- `board[i][j]` 是一位数字或者 `'.'`
+- 题目数据 **保证** 输入数独仅有一个解
+
+## 题目大意
+
+>数独游戏
+>
+>给出最终解
+
+## 解题思路
+
+![37.解数独](https://code-thinking-1253855093.file.myqcloud.com/pics/2020111720451790-20230310131816104.png)
+
+>明显看出来dfs的深度更深,是需要先控制行，再控制列进行穷举
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-15 10:33:31
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-15 10:59:22
+ * @FilePath: \code\backtracking_leetcode37.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+/**
+ * void backtracking(参数) {
+        if (终⽌条件) {
+            存放结果;
+            return;
+        }
+        for (选择：本层集合中元素（树中节点孩⼦的数量就是集合的⼤⼩）) {
+            处理节点;
+            backtracking(路径，选择列表); // 递归
+            回溯，撤销处理结果
+        }
+    }
+ */
+
+class Solution {
+  public:
+    void solveSudoku(vector<vector<char>> &board) { dfs(board); }
+
+    bool dfs(vector<vector<char>> &board) {
+        // 终止条件???
+        // 这道题目适合返回布尔值
+        // 因为递归到最后的叶子节点的时候,自动填满就会返回true
+        // 因为这题需要整行都填满数字,所以我们需要双层for
+        // 因为遍历节点就是先控制i后,控制j
+        for (int i = 0; i < board.size(); i++) {
+            for (int j = 0; j < board[0].size(); j++) {
+                if (board[i][j] != '.') {
+                    continue;
+                }
+                for (char k = '1'; k <= '9'; k++) {
+                    if (isValid(i, j, k, board)) {
+                        board[i][j] = k;
+                        if (dfs(board)) {
+                            return true;
+                        }
+                        board[i][j] = '.';
+                    }
+                }
+                return false; // 9个数都试玩，不行返回false
+            }
+        }
+        return true;
+    }
+
+    // 判断当前要填的位置是否满足数独要求
+    bool isValid(int row, int col, char val, vector<vector<char>> &board) {
+        // 先判断行
+        for (int i = 0; i < 9; i++) {
+            if (board[row][i] == val) {
+                return false;
+            }
+        }
+        // 再判断列
+        for (int i = 0; i < 9; i++) {
+            if (board[i][col] == val) {
+                return false;
+            }
+        }
+        // 再判断九宫格
+        int start_row = (row / 3) * 3;
+        int start_col = (col / 3) * 3;
+        for (int i = start_row; i < start_row + 3; i++) {
+            for (int j = start_col; j < start_col + 3; j++) {
+                if (board[i][j] == val) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+};
+```
+
