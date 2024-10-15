@@ -1,3 +1,7 @@
+![回溯算法大纲](https://code-thinking-1253855093.file.myqcloud.com/pics/20210219192050666.png)
+
+
+
 # 77 [组合](https://leetcode.cn/problems/combinations/description/)
 
 ## 题目
@@ -2238,4 +2242,6 @@ class Solution {
     }
 };
 ```
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20211030124742.png)
 
