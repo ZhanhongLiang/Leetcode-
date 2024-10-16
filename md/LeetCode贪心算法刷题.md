@@ -348,3 +348,552 @@ class Solution {
 };
 ```
 
+# 53 [最大子数组和](https://leetcode.cn/problems/maximum-subarray/description/)
+
+## 题目
+
+给你一个整数数组 `nums` ，请你找出一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。
+
+
+
+**子数组**
+
+
+
+是数组中的一个连续部分。
+
+
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [-2,1,-3,4,-1,2,1,-5,4]
+输出：6
+解释：连续子数组 [4,-1,2,1] 的和最大，为 6 。
+```
+
+**示例 2：**
+
+```
+输入：nums = [1]
+输出：1
+```
+
+**示例 3：**
+
+```
+输入：nums = [5,4,-1,7,8]
+输出：23
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums.length <= 105`
+- `-104 <= nums[i] <= 104`
+
+ 
+
+**进阶：**如果你已经实现复杂度为 `O(n)` 的解法，尝试使用更为精妙的 **分治法** 求解
+
+## 题目大意
+
+>给定⼀个整数数组 nums ，找到⼀个具有最⼤和的连续⼦数组（⼦数组最少包含⼀个元素），返回其最
+>⼤和。
+
+## 解题思路
+
+>这⼀题可以⽤ DP 求解也可以不⽤ DP。
+>题⽬要求输出数组中某个区间内数字之和最⼤的那个值。 dp[i] 表示 [0,i] 区间内各个⼦区间
+>和的最⼤值，状态转移⽅程是 dp[i] = nums[i] + dp[i-1] (dp[i-1] > 0) ， dp[i] =
+>nums[i] (dp[i-1] ≤ 0) 。
+
+>贪心算法思想也可以
+>
+>`局部最优:`保证当前count非负,如果是负数,重新置0,然后从下一个数开始重新求和
+>
+>局部最优推出全局最优: 明显贪心思想
+>
+>
+>
+>贪⼼算法局部最优解：每次取最⼤跳跃步数（取最⼤覆盖范围），整体最优解：最后得到整体最⼤覆盖范围，看是否能到终点。
+>
+>局部最优推出全局最优，找不出反例，试试贪⼼
+>
+>![53.最大子序和](https://code-thinking.cdn.bcebos.com/gifs/53.%E6%9C%80%E5%A4%A7%E5%AD%90%E5%BA%8F%E5%92%8C.gif)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-16 16:21:38
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-16 16:51:17
+ * @FilePath: \code\greedy_leetcode53.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+/**
+ *贪⼼算法⼀般分为如下四步：
+    将问题分解为若⼲个⼦问题
+    找出适合的贪⼼策略
+    求解每⼀个⼦问题的最优解
+    将局部最优解堆叠成全局最优解
+        这个四步其实过于理论化了，我们平时在做贪⼼类的题⽬
+        很难去按照这四步去思考，真是有点“鸡肋”。 做题的时候，只要想清楚 局部最优
+        是什么，如果推导出全局最优，其实就够了。
+ */
+
+class Solution {
+  public:
+    int maxSubArray(vector<int> &nums) {
+        // 贪心算法: 如何辨别出这道题是用贪心算法呢??
+        // 我们尝试用滑动窗口法解决,但是发现数组是无序且不符合单调性,不能用滑动窗口法解决
+        // 尝试一下找出局部最优: 记录count,当现在count是负数的时候
+        //                       就需要重置count为0了,重新从nums[i+1]位置进行加和
+        //                        `尽量找出count为正数的时候,保证当前连续加和是为正数`
+        // 每部局部最优就能找出全局最优解
+        int count = 0;     // 记录局部加和
+        int res = INT_MIN; // 记录答案
+        for (int i = 0; i < nums.size(); i++) {
+            count += nums[i]; // 进行加和
+            if (count > res) {
+                res = count;
+            }
+            if (count < 0) {
+                // 立即重置count
+                count = 0;
+            }
+        }
+        return res;
+    }
+};
+```
+
+# 55 [跳跃游戏](https://leetcode.cn/problems/jump-game/description/)
+
+## 题目
+
+给你一个非负整数数组 `nums` ，你最初位于数组的 **第一个下标** 。数组中的每个元素代表你在该位置可以跳跃的最大长度。
+
+判断你是否能够到达最后一个下标，如果可以，返回 `true` ；否则，返回 `false` 。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [2,3,1,1,4]
+输出：true
+解释：可以先跳 1 步，从下标 0 到达下标 1, 然后再从下标 1 跳 3 步到达最后一个下标。
+```
+
+**示例 2：**
+
+```
+输入：nums = [3,2,1,0,4]
+输出：false
+解释：无论怎样，总会到达下标为 3 的位置。但该下标的最大跳跃长度是 0 ， 所以永远不可能到达最后一个下标。
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums.length <= 104`
+- `0 <= nums[i] <= 105`
+
+## 题目大意
+
+>给定⼀个⾮负整数数组，最初位于数组的第⼀个位置。数组中的每个元素代表在该位置可以跳跃的最⼤
+>⻓度。判断是否能够到达最后⼀个位置。
+
+## 解题思路
+
+>那么这个问题就转化为跳跃覆盖范围究竟可不可以覆盖到终点
+>
+>`贪⼼算法局部最优解：每次取最⼤跳跃步数（取最⼤覆盖范围），整体最优解：最后得到整体最⼤覆盖范围，看是否能到终点`。
+>
+>`局部最优推出全局最优，找不出反例，试试贪⼼`
+
+
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-16 17:21:36
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-16 17:21:47
+ * @FilePath: \code\greedy_leetcode55.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+/**
+ *贪⼼算法⼀般分为如下四步：
+    将问题分解为若⼲个⼦问题
+    找出适合的贪⼼策略
+    求解每⼀个⼦问题的最优解
+    将局部最优解堆叠成全局最优解
+        这个四步其实过于理论化了，我们平时在做贪⼼类的题⽬
+        很难去按照这四步去思考，真是有点“鸡肋”。 做题的时候，只要想清楚 局部最优
+        是什么，如果推导出全局最优，其实就够了。
+ */
+
+class Solution {
+  public:
+    bool canJump(vector<int> &nums) {
+        // 这道题有难度,我没想出来cover的思想
+        // cover表示当前整个数组能cover到最大下标值
+        int cover = 0;
+        for (int i = 0; i <= cover; i++) {
+            // 需要更新当前走到的cover数
+            cover = max(i + nums[i], cover);
+            if (cover >= nums.size() - 1) {
+                return true;
+            }
+        }
+        return false;
+    }
+};
+```
+
+# 122 [买卖股票的最佳时机 II](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/description/)
+
+## 题目
+
+给你一个整数数组 `prices` ，其中 `prices[i]` 表示某支股票第 `i` 天的价格。
+
+在每一天，你可以决定是否购买和/或出售股票。你在任何时候 **最多** 只能持有 **一股** 股票。你也可以先购买，然后在 **同一天** 出售。
+
+返回 *你能获得的 **最大** 利润* 。
+
+ 
+
+**示例 1：**
+
+```
+输入：prices = [7,1,5,3,6,4]
+输出：7
+解释：在第 2 天（股票价格 = 1）的时候买入，在第 3 天（股票价格 = 5）的时候卖出, 这笔交易所能获得利润 = 5 - 1 = 4。
+随后，在第 4 天（股票价格 = 3）的时候买入，在第 5 天（股票价格 = 6）的时候卖出, 这笔交易所能获得利润 = 6 - 3 = 3。
+最大总利润为 4 + 3 = 7 。
+```
+
+**示例 2：**
+
+```
+输入：prices = [1,2,3,4,5]
+输出：4
+解释：在第 1 天（股票价格 = 1）的时候买入，在第 5 天 （股票价格 = 5）的时候卖出, 这笔交易所能获得利润 = 5 - 1 = 4。
+最大总利润为 4 。
+```
+
+**示例 3：**
+
+```
+输入：prices = [7,6,4,3,1]
+输出：0
+解释：在这种情况下, 交易无法获得正利润，所以不参与交易可以获得最大利润，最大利润为 0。
+```
+
+## 题目大意
+
+>`求出股票交易的最大利润`
+
+## 解题思路
+
+>可以采用摆动序列的做法,找单调递增的区间
+>
+>pre_diff <= 0 && cur_diff >0 || pre_diff > 0 && cur_diff > 0
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-16 16:56:23
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-16 17:16:24
+ * @FilePath: \code\greedy_leetcode122.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+/**
+ *贪⼼算法⼀般分为如下四步：
+    将问题分解为若⼲个⼦问题
+    找出适合的贪⼼策略
+    求解每⼀个⼦问题的最优解
+    将局部最优解堆叠成全局最优解
+        这个四步其实过于理论化了，我们平时在做贪⼼类的题⽬
+        很难去按照这四步去思考，真是有点“鸡肋”。 做题的时候，只要想清楚 局部最优
+        是什么，如果推导出全局最优，其实就够了。
+ */
+
+class Solution {
+  public:
+    // 贪心1:
+    int maxProfit(vector<int> &prices) {
+        int pre_diff = 0;
+        int cur_diff = 0;
+        int res = 0;
+        for (int i = 0; i < prices.size() - 1; i++) {
+            cur_diff = prices[i + 1] - prices[i]; // 当前差值
+            // 当特殊情况
+            // 1. 上下坡出现平坡,那么pre_diff == 0 && cur_diff > 0
+            //                 就进行加和
+            // 2. 一直为单调递增坡的时候
+            //                 就需要pre_diff >0 && cur_diff > 0
+            if ((pre_diff <= 0 && cur_diff > 0) ||
+                (pre_diff > 0 && cur_diff > 0)) {
+                res += cur_diff;
+            }
+            pre_diff = cur_diff;
+        }
+        return res;
+    }
+
+    // 法二还是贪心2:
+    // 代码随想录法
+    int maxProfit(vector<int> &prices) {
+        int res = 0;
+        for (int i = 1; i < prices.size(); i++) {
+            res += max(prices[i] - prices[i - 1], 0);
+        }
+        return res;
+    }
+};
+```
+
+# 45 [跳跃游戏II](https://leetcode.cn/problems/jump-game-ii/description/)
+
+## 题目
+
+给定一个长度为 `n` 的 **0 索引**整数数组 `nums`。初始位置为 `nums[0]`。
+
+每个元素 `nums[i]` 表示从索引 `i` 向前跳转的最大长度。换句话说，如果你在 `nums[i]` 处，你可以跳转到任意 `nums[i + j]` 处:
+
+- `0 <= j <= nums[i]` 
+- `i + j < n`
+
+返回到达 `nums[n - 1]` 的最小跳跃次数。生成的测试用例可以到达 `nums[n - 1]`。
+
+ 
+
+**示例 1:**
+
+```
+输入: nums = [2,3,1,1,4]
+输出: 2
+解释: 跳到最后一个位置的最小跳跃数是 2。
+     从下标为 0 跳到下标为 1 的位置，跳 1 步，然后跳 3 步到达数组的最后一个位置。
+```
+
+**示例 2:**
+
+```
+输入: nums = [2,3,0,1,4]
+输出: 2
+```
+
+ 
+
+**提示:**
+
+- `1 <= nums.length <= 104`
+- `0 <= nums[i] <= 1000`
+- 题目保证可以到达 `nums[n-1]`
+
+## 题目大意
+
+>找出该数组能跳跃到最后一步的`最小跳跃数`
+
+## 解题思路
+
+>贪⼼的思路，局部最优：当前可移动距离尽可能多⾛，如果还没到终点，步数再加⼀。整体最优：⼀步尽可能多⾛，从⽽达到最⼩步数。
+>
+>所以真正解题的时候，要从覆盖范围出发，不管怎么跳，覆盖范围内⼀定是可以跳到的，以最⼩的步数增加覆盖范围，覆盖范围⼀旦覆盖了终点，得到的就是最⼩步数
+>
+>这⾥需要统计两个覆盖范围，当前这⼀步的最⼤覆盖和下⼀步最⼤覆盖。
+>
+>![45.跳跃游戏II](https://code-thinking-1253855093.file.myqcloud.com/pics/20201201232309103.png)
+>
+>方法1:
+>
+>这⾥还是有个特殊情况需要考虑，当移动下标达到了当前覆盖的最远距离下标时
+>如果当前覆盖最远距离下标不是是集合终点，步数就加⼀，还需要继续⾛。
+>如果当前覆盖最远距离下标就是是集合终点，步数不⽤加⼀，因为不能再往后⾛了。
+
+>DP思想:
+>
+>​    // 解法2:DP思想
+>
+>​    // Y神代码
+>
+>​    // f[i]表示跳到点i的最小步数。
+>
+>​    // f[i]可以用反证法证明是单调递增的
+>
+>​    // 反证: 假设f[i]<f[i-1]
+>
+>​    //          但是i必定是有i-1前面跳到i的，那么必然f[i]>=f[i-1]
+>
+>​    //           所以存在矛盾，那么f[i]必定是单调递增的
+>
+>​    // 且f[i]是单调递增1的，这个显然易见，因为都表示最小步数了,那必然
+>
+>​    // f[i] = f[i-1]+1;
+>
+>![](https://pic.superbed.cc/item/670fa29bfa9f77b4dcfadc69.png)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-16 17:46:37
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-16 18:40:16
+ * @FilePath: \code\greedy_leetcode45.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+/**
+ *贪⼼算法⼀般分为如下四步：
+    将问题分解为若⼲个⼦问题
+    找出适合的贪⼼策略
+    求解每⼀个⼦问题的最优解
+    将局部最优解堆叠成全局最优解
+        这个四步其实过于理论化了，我们平时在做贪⼼类的题⽬
+        很难去按照这四步去思考，真是有点“鸡肋”。 做题的时候，只要想清楚 局部最优
+        是什么，如果推导出全局最优，其实就够了。
+ */
+
+class Solution {
+  public:
+    // 解法1: 贪心算法
+    int jump(vector<int> &nums) {
+        if (nums.size() == 1) {
+            return 0;
+        }
+        int cur_distance = 0;  // 当前覆盖的最远距离下标
+        int ans = 0;           // 记录走到最大步数
+        int next_distance = 0; // 下一步覆盖的最远距离下标
+        for (int i = 0; i < nums.size(); i++) {
+            // 更新下一步覆盖的最远距离下标
+            next_distance = max(i + nums[i], next_distance);
+            if (i == cur_distance) {
+                ans++;                        // 跳跃一步
+                cur_distance = next_distance; // 更新当前覆盖最远的下标
+                if (next_distance >= nums.size() - 1) {
+                    break;
+                }
+            }
+        }
+        return ans;
+    }
+
+    // 解法2:DP思想
+    // Y神代码
+    // f[i]表示跳到点i的最小步数。
+    // f[i]可以用反证法证明是单调递增的
+    // 反证: 假设f[i]<f[i-1]
+    //          但是i必定是有i-1前面跳到i的，那么必然f[i]>=f[i-1]
+    //           所以存在矛盾，那么f[i]必定是单调递增的
+    // 且f[i]是单调递增1的，这个显然易见，因为都表示最小步数了,那必然
+    // f[i] = f[i-1]+1;
+    int jump(vector<int> &nums) {
+        int n = nums.size();
+        vector<int> f(n);
+        for (int i = 0, j = 0; i < n; i++) {
+            while (j + nums[j] < i) {
+                j++;
+            }
+            f[i] = f[j] + 1;
+        }
+        return f[n - 1];
+    }
+};
+```
+

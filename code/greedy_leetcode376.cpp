@@ -2,7 +2,7 @@
  * @Author: Jean_Leung
  * @Date: 2024-10-15 13:26:06
  * @LastEditors: Jean_Leung
- * @LastEditTime: 2024-10-15 14:12:01
+ * @LastEditTime: 2024-10-16 16:20:27
  * @FilePath: \code\greedy_leetcode376.cpp
  * @Description:
  *
@@ -39,33 +39,29 @@ using namespace std;
 
 class Solution {
   public:
-    // 摆动序列,返回nums中最长的摆动序列
-    // 摆动序列就是数组中连续的数之间的差是正负交替的
-    // 必须正负，零也不行
-    // 数的大小为0<=nums[i]<=1000
-    // 数组长度大小为 1 <= nums.length <= 1000
+    // 贪心算法
+    // 局部最优解是:找到波谷和波峰位置
+    // 全局最优解:波谷二号波峰最多就是摆动序列最长
+    // 注意: 找到波谷和波峰位置也是要分情况的
+    //         1.上下坡出现平坡:
+    //             1.1 定义pre_diff = 0 && cur_diff > 0 || pre_diff = 0 &&
+    //             cur_diff < 0
+    //         2.当出现两个数的时候,我们需要将两个数前面第一个数扩充,使得变成三数数组
+    //         3.当单调坡出现平坡:
+    //         需要坡度变化的时候才能将当前先前的波峰或波谷赋予给当前波峰波谷
     int wiggleMaxLength(vector<int> &nums) {
-        // 局部最优解就是: 出现峰值的点
-        // 全局最优解:统计整个数组出现峰值的点就行
         if (nums.size() <= 1) {
             return nums.size();
         }
         int pre_diff = 0;
         int cur_diff = 0;
-        int res = 1; // 必然存在一个,两个数也存在一个
-        // 情况一: 当上下坡出现平坡时候---pre_diff >= 0 && cur_diff < 0
-        //             或者 pre_diff <= 0 && cur_diff < 0
-        //                这就是坡度发生变化的情况
-        // 情况二:
-        // 当单调坡出现出现平坡时候---当出现坡度变化才令pre_diff=cur_diff更新坡度
-        // 情况三: 数组首部和尾部的情况,当数组大小为2的时候
+        int res = 1; // 怎么都有一个答案
+        // 判断数组出现波峰和波谷
         for (int i = 0; i < nums.size() - 1; i++) {
-            // 记录当前的坡度
-            cur_diff = nums[i + 1] - nums[i];
-            //
+            cur_diff = nums[i + 1] - nums[i]; // 当前的坡度变化
             if ((pre_diff >= 0 && cur_diff < 0) ||
                 (pre_diff <= 0 && cur_diff > 0)) {
-                res++; // 波谷波峰+1
+                res++;
                 pre_diff = cur_diff;
             }
         }
