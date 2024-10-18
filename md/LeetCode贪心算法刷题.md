@@ -1718,3 +1718,634 @@ class Solution {
 };
 ```
 
+# 435 [无重叠区间](https://leetcode.cn/problems/non-overlapping-intervals/description/)
+
+## 题目
+
+给定一个区间的集合 `intervals` ，其中 `intervals[i] = [starti, endi]` 。返回 *需要移除区间的最小数量，使剩余区间互不重叠* 。
+
+**注意** 只在一点上接触的区间是 **不重叠的**。例如 `[1, 2]` 和 `[2, 3]` 是不重叠的。
+
+ 
+
+**示例 1:**
+
+```
+输入: intervals = [[1,2],[2,3],[3,4],[1,3]]
+输出: 1
+解释: 移除 [1,3] 后，剩下的区间没有重叠。
+```
+
+**示例 2:**
+
+```
+输入: intervals = [ [1,2], [1,2], [1,2] ]
+输出: 2
+解释: 你需要移除两个 [1,2] 来使剩下的区间没有重叠。
+```
+
+**示例 3:**
+
+```
+输入: intervals = [ [1,2], [2,3] ]
+输出: 0
+解释: 你不需要移除任何区间，因为它们已经是无重叠的了。
+```
+
+ 
+
+**提示:**
+
+- `1 <= intervals.length <= 105`
+- `intervals[i].length == 2`
+- `-5 * 104 <= starti < endi <= 5 * 104`
+
+## 题目大意
+
+>给定⼀个区间的集合，找到需要移除区间的最⼩数量，使剩余区间互不重叠。
+>注意:
+>1. 可以认为区间的终点总是⼤于它的起点。
+>2. 区间 [1,2] 和 [2,3] 的边界相互“接触”，但没有相互重叠。
+
+## 解题思路
+
+![](https://pic.imgdb.cn/item/67122dbbd29ded1a8ca75fb0.png)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-18 09:50:00
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-18 11:17:21
+ * @FilePath: \code\greedy_leetcode435.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+class Solution {
+  public:
+    //
+    int eraseOverlapIntervals(vector<vector<int>> &intervals) {
+        if (intervals.size() <= 1) {
+            return 0;
+        }
+        int ans = 1; // 答案, 是1的原因就是数组中第一个区间必然为非交叉区间
+        // 快排，需要先按右边界进行排序
+        sort(intervals.begin(), intervals.end(), cmp);
+        // 记录第一个区间的右边界为非交叉点的边界
+        // 从左往右开始遍历，判断下一个区间的左边界是否大于前一个区间的右边界
+        int right_board = intervals[0][1];
+        for (int i = 1; i < intervals.size(); i++) {
+            // 记录前一个区间的右边界为非交叉点的边界
+            // 判断下一个区间是否大于前一个区间的左边界
+            if (intervals[i][0] >= right_board) {
+                right_board = intervals[i][1];
+                ans++;
+            }
+        }
+        return intervals.size() - ans;
+    }
+
+    // 优先右边界小的进行排序
+    bool static cmp(const vector<int> &a, const vector<int> &b) {
+        return a[1] < b[1];
+    }
+};
+```
+
+# 763 [划分字母区间](https://leetcode.cn/problems/partition-labels/description/)
+
+## 题目
+
+给你一个字符串 `s` 。我们要把这个字符串划分为尽可能多的片段，同一字母最多出现在一个片段中。
+
+注意，划分结果需要满足：将所有划分结果按顺序连接，得到的字符串仍然是 `s` 。
+
+返回一个表示每个字符串片段的长度的列表。
+
+ 
+
+示例 1：
+
+
+
+```
+输入：s = "ababcbacadefegdehijhklij"
+输出：[9,7,8]
+解释：
+划分结果为 "ababcbaca"、"defegde"、"hijhklij" 。
+每个字母最多出现在一个片段中。
+像 "ababcbacadefegde", "hijhklij" 这样的划分是错误的，因为划分的片段数较少。 
+```
+
+**示例 2：**
+
+```
+输入：s = "eccbbbbdec"
+输出：[10]
+```
+
+ 
+
+**提示：**
+
+- `1 <= s.length <= 500`
+- `s` 仅由小写英文字母组成
+
+## 题目大意
+
+>这道题考察的是滑动窗⼝的问题。
+>
+>给出⼀个字符串，要求输出满⾜条件窗⼝的⻓度，条件是在这个窗⼝内，字⺟中出现在这⼀个窗⼝内，
+>不出现在其他窗⼝内。
+>
+>贪心
+
+## 解题思路
+
+![](https://pic.imgdb.cn/item/67122e82d29ded1a8ca8343e.png)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-18 11:20:15
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-18 11:55:39
+ * @FilePath: \code\greedy_leecode763.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+// 尽可能多划分字符串
+class Solution {
+  public:
+    vector<int> partitionLabels(string s) {
+        vector<int> result;
+        result.clear();
+        if (s.size() == 0) {
+            return result;
+        }
+        // 如果不用哈希表,
+        // 初始化,s[i]-'a' 是属于0~27之间
+        int hash[27] = {0};
+        // 记录每个字符的最远出现位置
+        for (int i = 0; i < s.size(); i++) {
+            hash[s[i] - 'a'] = i;
+        }
+        // 定义滑动窗口位置
+        // 就是通过滑动窗口来分辨出分割的区间
+        for (int i = 0, left = 0, right = 0; i < s.size(); i++) {
+            // 找到当前字符的最远边界
+            right = max(right, hash[s[i] - 'a']);
+            if (i == right) {
+                // 更新答案数组
+                result.push_back(right - left + 1);
+                // 更新左边界
+                left = i + 1;
+            }
+        }
+        return result;
+    }
+    // 法二用unordered_map
+    vector<int> partitionLabels(string s) {
+        vector<int> result;
+        result.clear();
+        if (s.size() == 0) {
+            return result;
+        }
+        unordered_map<char, int> hash_map; // 记录每个字符的最远出现位置
+        for (int i = 0; i < s.size(); i++) {
+            hash_map[s[i]] = i;
+        }
+        // 定义滑动窗口位置
+        // 就是通过滑动窗口来分辨出分割的区间
+        for (int i = 0, left = 0, right = 0; i < s.size(); i++) {
+            // 找到当前字符的最远边界
+            right = max(right, hash_map[s[i] - 'a']);
+            if (i == right) {
+                // 更新答案数组
+                result.push_back(right - left + 1);
+                // 更新左边界
+                left = i + 1;
+            }
+        }
+        return result;
+    }
+};
+```
+
+# 56 [合并区间](https://leetcode.cn/problems/merge-intervals/description/)
+
+## 题目
+
+以数组 `intervals` 表示若干个区间的集合，其中单个区间为 `intervals[i] = [starti, endi]` 。请你合并所有重叠的区间，并返回 *一个不重叠的区间数组，该数组需恰好覆盖输入中的所有区间* 。
+
+ 
+
+**示例 1：**
+
+```
+输入：intervals = [[1,3],[2,6],[8,10],[15,18]]
+输出：[[1,6],[8,10],[15,18]]
+解释：区间 [1,3] 和 [2,6] 重叠, 将它们合并为 [1,6].
+```
+
+**示例 2：**
+
+```
+输入：intervals = [[1,4],[4,5]]
+输出：[[1,5]]
+解释：区间 [1,4] 和 [4,5] 可被视为重叠区间。
+```
+
+ 
+
+**提示：**
+
+- `1 <= intervals.length <= 104`
+- `intervals[i].length == 2`
+- `0 <= starti <= endi <= 104`
+
+## 题目大意
+
+>合并给的多个区间，区间有重叠的要进⾏区间合并。
+
+## 解题思路
+
+![](https://pic.imgdb.cn/item/67122f0bd29ded1a8ca8c1eb.png)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-18 15:03:08
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-18 15:37:58
+ * @FilePath: \code\greedy_leetcode56.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+class Solution {
+  public:
+    vector<vector<int>> merge(vector<vector<int>> &intervals) {
+        list<vector<int>> ans; // 答案数组
+        if (intervals.size() <= 1) {
+            return intervals;
+        }
+        sort(intervals.begin(), intervals.end(), cmp);
+        // 首先优先以右边界从小到大进行排序
+        ans.push_back(intervals[0]);
+        for (int i = 1; i < intervals.size(); i++) {
+            if (intervals[i][0] <= ans.back()[1]) {
+                // 需要合并
+                // 将结果数组中最后一位的右边界换成两者中最大的
+                ans.back()[1] = max(ans.back()[1], intervals[i][1]);
+                // 将这个替换掉前一个数
+            } else {
+                ans.push_back(intervals[i]);
+            }
+        }
+        return vector<vector<int>>(ans.begin(), ans.end());
+    }
+
+    bool static cmp(const vector<int> &a, const vector<int> &b) {
+        // 优先以左边界进行从小到大的排序
+        return a[0] < b[0];
+    }
+};
+```
+
+# 738 [单调递增的数字](https://leetcode.cn/problems/monotone-increasing-digits/description/)
+
+## 题目
+
+当且仅当每个相邻位数上的数字 `x` 和 `y` 满足 `x <= y` 时，我们称这个整数是**单调递增**的。
+
+给定一个整数 `n` ，返回 *小于或等于 n 的最大数字，且数字呈 **单调递增*** 。
+
+ 
+
+**示例 1:**
+
+```
+输入: n = 10
+输出: 9
+```
+
+**示例 2:**
+
+```
+输入: n = 1234
+输出: 1234
+```
+
+**示例 3:**
+
+```
+输入: n = 332
+输出: 299
+```
+
+ 
+
+**提示:**
+
+- `0 <= n <= 109`
+
+## 题目大意
+
+>按照题目即可
+
+## 解题思路
+
+![](https://pic.imgdb.cn/item/67122f89d29ded1a8ca9584a.png)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-18 15:40:47
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-18 16:11:12
+ * @FilePath: \code\greedy_leetcode738.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+class Solution {
+  public:
+    int monotoneIncreasingDigits(int n) {
+        // 先将n变成字符串
+        string ans = to_string(n);
+        // 然后从后往前开始遍历,假如遇到前面一位比后面一位大
+        // 将前面一位--,当前一位不变,记录一次前面一位的下标i-1
+        // 当前位为i，前面位置为i-1
+        int index = 0;
+        for (int i = ans.size() - 1; i > 0; i--) {
+            if (ans[i] < ans[i - 1]) {
+                // 将字符转换为int
+                int num = ans[i - 1] - '0';
+                num--;
+                // 将int转换为字符
+                ans[i - 1] = num + '0';
+                // 记录暂时没变9的位数
+                index = i;
+            }
+        }
+        // 校验1234的特殊情况
+        if (index == 0) {
+            return n;
+        }
+        // 找到index位置，然后将index后面(包括index)全部置为9
+        for (int i = index; i < ans.size(); i++) {
+            int num = ans[i] - '0';
+            num = 9;
+            ans[i] = num + '0';
+        }
+        n = stoi(ans);
+        return n;
+    }
+};
+```
+
+# 968 [监控二叉树](https://leetcode.cn/problems/binary-tree-cameras/description/)
+
+## 题目
+
+给定一个二叉树，我们在树的节点上安装摄像头。
+
+节点上的每个摄影头都可以监视**其父对象、自身及其直接子对象。**
+
+计算监控树的所有节点所需的最小摄像头数量。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/12/29/bst_cameras_01.png)
+
+```
+输入：[0,0,null,0,0]
+输出：1
+解释：如图所示，一台摄像头足以监控所有节点。
+```
+
+**示例 2：**
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/12/29/bst_cameras_02.png)
+
+```
+输入：[0,0,null,0,null,0,null,null,0]
+输出：2
+解释：需要至少两个摄像头来监视树的所有节点。 上图显示了摄像头放置的有效位置之一。
+```
+
+
+**提示：**
+
+1. 给定树的节点数的范围是 `[1, 1000]`。
+2. 每个节点的值都是 0。
+
+## 题目大意
+
+>给定⼀个⼆叉树，我们在树的节点上安装摄像头。节点上的每个摄影头都可以监视其⽗对象、⾃身及其
+>直接⼦对象。计算监控树的所有节点所需的最⼩摄像头数量。
+>提示：
+>1. 给定树的节点数的范围是 [1, 1000]。
+>2. 每个节点的值都是 0。
+
+## 解题思路
+
+![](https://pic.imgdb.cn/item/67123022d29ded1a8caa1066.png)
+
+![968.监控二叉树2](https://code-thinking-1253855093.file.myqcloud.com/pics/20201229203710729.png)
+
+![968.监控二叉树1](https://code-thinking-1253855093.file.myqcloud.com/pics/2020122920362355.png)
+
+![968.监控二叉树3](https://code-thinking-1253855093.file.myqcloud.com/pics/20201229203742446.png)
+
+## 代码
+
+```c++
+#include <algorithm>
+#include <iostream>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left),
+ * right(right) {}
+ * };
+ */
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+
+class Solution {
+  public:
+    int result = 0; // 摄像头的数量
+    int minCameraCover(TreeNode *root) {
+        // 前序遍历递归
+        if (root == NULL) {
+            return result;
+        }
+        // 需要额外判断root节点
+        if (!postorder(root)) {
+            result++;
+        }
+        return result;
+    }
+
+    // 局部最优:
+    //          让叶子节点的父节点安装摄像头
+    //          所用摄像头最少
+    // 整体最优:
+    //          全部摄像头数量所用最少
+    // 这道题目很难，需要仔细分析
+    // 可以定义每个节点的状态
+    //      无覆盖(包括无摄像头):0
+    //      有摄像头:1
+    //      有覆盖: 2
+    // 再来分析父节点的情况:
+    //        情况1: 左右节点都有覆盖--->父节点没覆盖(自己),返回0
+    //        情况2:
+    //           左右节点至少有一个无覆盖--->父节点需要放置摄像头,保证其中一个子节点被覆盖,返回1
+    //        情况3:
+    //           左右节点至少有一个有摄像头--->父节点就是被覆盖了(自己),返回2
+    //        情况4:
+    //           头节点有无覆盖需要额外判断
+    // 分析空节点的情况:
+    //        应该返回2有覆盖,如果返回0的话,会导致叶子节点放置摄像头
+    //          这样会导致不是局部最优解,导致数量不是最少
+    int postorder(TreeNode *root) {
+        // 终止条件
+        if (root == NULL) {
+            return 2;
+        }
+        // 为什么不需要加上if来判断是否有左右子树呢
+        // 因为我们最终还是要返回int的，如果加上if那么就不会进到终止条件里面了
+        int left = postorder(root->left);
+        int right = postorder(root->right);
+        // 中
+        // 情况1:
+        if (left == 2 && right == 2) {
+            return 0;
+        }
+        // 情况2:
+        if (left == 0 || right == 0) {
+            result++;
+            return 1;
+        }
+        // 情况3:
+        if (left == 1 || right == 1) {
+            return 2;
+        }
+        return -1;
+    }
+};
+```
+
