@@ -10,7 +10,9 @@
 
 
 
-![](https://pic.imgdb.cn/item/6714d2fad29ded1a8caa62f8.png)
+![](https://pic.imgdb.cn/item/6714d8c5d29ded1a8cb48d08.png)
+
+
 
 # 509 [斐波那契数](https://leetcode.cn/problems/fibonacci-number/description/)
 
