@@ -8,6 +8,10 @@
 
 ![img](https://kstar-1253855093.cos.ap-nanjing.myqcloud.com/baguwenpdf/_%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE_%E9%9D%92.png)
 
+
+
+![](https://pic.imgdb.cn/item/6714d2fad29ded1a8caa62f8.png)
+
 # 509 [斐波那契数](https://leetcode.cn/problems/fibonacci-number/description/)
 
 ## 题目
@@ -173,7 +177,10 @@ class Solution {
 
 ## 解题思路
 
->
+```c++
+        // 明显dp[i] = dp[i - 1] + dp[i - 2]
+        // 因为第i个台阶是有第i-1个台阶跳一步或者由第i-2个台阶跳两步得到的
+```
 
 ## 代码
 
@@ -616,6 +623,466 @@ class Solution {
             }
         }
         return dp[m - 1][n - 1];
+    }
+};
+```
+
+# 343 [整数拆分](https://leetcode.cn/problems/integer-break/description/)
+
+## 题目
+
+给定一个正整数 `n` ，将其拆分为 `k` 个 **正整数** 的和（ `k >= 2` ），并使这些整数的乘积最大化。
+
+返回 *你可以获得的最大乘积* 。
+
+ 
+
+**示例 1:**
+
+```
+输入: n = 2
+输出: 1
+解释: 2 = 1 + 1, 1 × 1 = 1。
+```
+
+**示例 2:**
+
+```
+输入: n = 10
+输出: 36
+解释: 10 = 3 + 3 + 4, 3 × 3 × 4 = 36。
+```
+
+ 
+
+**提示:**
+
+- `2 <= n <= 58`
+
+## 题目大意
+
+>找出可以分解成n的k个正整数的最大乘积
+
+## 解题思路
+
+>动态规划
+>
+>​        // dp[i]代表第i个数的最大拆分乘积
+>
+>​        //  dp[i] = max(dp[i],j*(i-j),dp[i - j]* j)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-20 12:22:18
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-20 12:55:33
+ * @FilePath: \code\dp_leetcode343.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+class Solution {
+  public:
+    int integerBreak(int n) {
+        // dp[i]代表第i个数的最大拆分乘积
+        //  dp[i] = max(dp[i],j*(i-j),dp[i - j]* j)
+        // 不用初始化dp[1]和dp[0]，
+        // 因为这两个数没有含义
+        // 关键在于j <= i / 2
+        vector<int> dp(n + 2);
+        dp[2] = 1;
+        for (int i = 3; i <= n; i++) {
+            for (int j = 1; j <= i / 2; j++) {
+                dp[i] = max(dp[i], max(j * (i - j), j * dp[i - j]));
+            }
+        }
+        return dp[n];
+    }
+};
+```
+
+# 96 [不同的二叉搜索树](https://leetcode.cn/problems/unique-binary-search-trees/description/)
+
+## 题目
+
+给你一个整数 `n` ，求恰由 `n` 个节点组成且节点值从 `1` 到 `n` 互不相同的 **二叉搜索树** 有多少种？返回满足题意的二叉搜索树的种数。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.com/uploads/2021/01/18/uniquebstn3.jpg)
+
+```
+输入：n = 3
+输出：5
+```
+
+**示例 2：**
+
+```
+输入：n = 1
+输出：1
+```
+
+ 
+
+**提示：**
+
+- `1 <= n <= 19`
+
+## 题目大意
+
+>找出从1到n构建的不同二叉搜索树的总量
+
+## 解题思路
+
+![96.不同的二叉搜索树2](https://code-thinking-1253855093.file.myqcloud.com/pics/20210107093226241.png)
+
+dp[3]，就是 元素1为头结点搜索树的数量 + 元素2为头结点搜索树的数量 + 元素3为头结点搜索树的数量
+
+元素1为头结点搜索树的数量 = 右子树有2个元素的搜索树数量 * 左子树有0个元素的搜索树数量
+
+元素2为头结点搜索树的数量 = 右子树有1个元素的搜索树数量 * 左子树有1个元素的搜索树数量
+
+元素3为头结点搜索树的数量 = 右子树有0个元素的搜索树数量 * 左子树有2个元素的搜索树数量
+
+有2个元素的搜索树数量就是dp[2]。
+
+有1个元素的搜索树数量就是dp[1]。
+
+有0个元素的搜索树数量就是dp[0]。
+
+所以dp[3] = dp[2] * dp[0] + dp[1] * dp[1] + dp[0] * dp[2]
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-20 12:57:17
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-20 13:33:47
+ * @FilePath: \code\dp_leetcode96.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+class Solution {
+  public:
+    int numTrees(int n) {
+        // dp[i] += dp[j - 1]* dp[i - j];
+        // dp[i]为从1到i的不同二叉搜索树的个数
+        // dp[j - 1]是以j为头节点，其左子树不同二叉搜索树的个数
+        // dp[i - j]是以j为头节点,其右子树不同二叉树的个数
+        // 初始化,将dp[0]初始化为1,因为但0为节点时候,空集也是一种二叉搜索树
+        vector<int> dp(n + 1);
+        dp[0] = 1;
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= i; j++) {
+                dp[i] += dp[j - 1] * dp[i - j];
+            }
+        }
+        return dp[n];
+    }
+};
+```
+
+# 416 [分割等和子集](https://leetcode.cn/problems/partition-equal-subset-sum/description/)
+
+## 题目
+
+给你一个 **只包含正整数** 的 **非空** 数组 `nums` 。请你判断是否可以将这个数组分割成两个子集，使得两个子集的元素和相等。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [1,5,11,5]
+输出：true
+解释：数组可以分割成 [1, 5, 5] 和 [11] 。
+```
+
+**示例 2：**
+
+```
+输入：nums = [1,2,3,5]
+输出：false
+解释：数组不能分割成两个元素和相等的子集。
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums.length <= 200`
+- `1 <= nums[i] <= 100`
+
+## 题目大意
+
+>按照题目解题即可
+
+## 解题思路
+
+![416.分割等和子集2](https://code-thinking-1253855093.file.myqcloud.com/pics/20210110104240545.png)
+
+![](https://pic.imgdb.cn/item/6714d125d29ded1a8ca85a12.png)
+
+
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-20 15:07:48
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-20 16:54:01
+ * @FilePath: \code\dp_leetcode416.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+
+/**
+ * 如果背包容量为target， dp[target]就是装满 背包之后的重量，所以
+ * 当 dp[target] == target 的时候，背包装满了。
+ */
+class Solution {
+  public:
+    bool canPartition(vector<int> &nums) {
+        // dp[j] = max(dp[j],dp[j- weight[i]] + value[i])
+        // dp[j]表示
+        // 背包总容量（所能装的总重量）是j，放进物品后，背的最⼤重量为dp[j]
+        // 初始化为0
+        // 题⽬中说：每个数组中的元素不会超过 100，数组的⼤⼩不会超过 200
+        // 总和不会⼤于20000，背包最⼤只需要其中⼀半，所以10001⼤⼩就可以了
+        vector<int> dp(10001, 0);
+        int sum = 0; // nums总和
+        for (int i = 0; i < nums.size(); i++) {
+            sum += nums[i];
+        }
+        if (sum % 2 == 1) {
+            return false;
+        }
+        int target = sum / 2;
+        // nums[i]代表该背包的重量和价值，都是同一个数
+        // 当dp[sum / 2] == sum / 2;
+        // 那么就证明能装满
+        for (int i = 0; i < nums.size(); i++) {
+            for (int j = target; j >= nums[i]; j--) {
+                dp[j] = max(dp[j], dp[j - nums[i]] + nums[i]);
+            }
+        }
+        if (dp[target] == target) {
+            return true;
+        }
+        return false;
+    }
+};
+```
+
+# 1049 [最后一块石头的重量II](https://leetcode.cn/problems/last-stone-weight-ii/)
+
+## 题目
+
+有一堆石头，用整数数组 `stones` 表示。其中 `stones[i]` 表示第 `i` 块石头的重量。
+
+每一回合，从中选出**任意两块石头**，然后将它们一起粉碎。假设石头的重量分别为 `x` 和 `y`，且 `x <= y`。那么粉碎的可能结果如下：
+
+- 如果 `x == y`，那么两块石头都会被完全粉碎；
+- 如果 `x != y`，那么重量为 `x` 的石头将会完全粉碎，而重量为 `y` 的石头新重量为 `y-x`。
+
+最后，**最多只会剩下一块** 石头。返回此石头 **最小的可能重量** 。如果没有石头剩下，就返回 `0`。
+
+ 
+
+**示例 1：**
+
+```
+输入：stones = [2,7,4,1,8,1]
+输出：1
+解释：
+组合 2 和 4，得到 2，所以数组转化为 [2,7,1,8,1]，
+组合 7 和 8，得到 1，所以数组转化为 [2,1,1,1]，
+组合 2 和 1，得到 1，所以数组转化为 [1,1,1]，
+组合 1 和 1，得到 0，所以数组转化为 [1]，这就是最优值。
+```
+
+**示例 2：**
+
+```
+输入：stones = [31,26,33,21,40]
+输出：5
+```
+
+ 
+
+**提示：**
+
+- `1 <= stones.length <= 30`
+- `1 <= stones[i] <= 100`
+
+## 题目大意
+
+>要使得粉碎完的石头最小
+
+## 解题思路
+
+![1049.最后一块石头的重量II](https://code-thinking-1253855093.file.myqcloud.com/pics/20210121115805904.jpg)
+
+最后dp[target]里是容量为target的背包所能背的最大重量。
+
+那么分成两堆石头，一堆石头的总重量是dp[target]，另一堆就是sum - dp[target]。
+
+**在计算target的时候，target = sum / 2 因为是向下取整，所以sum - dp[target] 一定是大于等于dp[target]的**。
+
+那么相撞之后剩下的最小石头重量就是 (sum - dp[target]) - dp[target]。
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-20 17:06:27
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-20 17:36:23
+ * @FilePath: \code\dp_leetcode1049.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+
+class Solution {
+  public:
+    int lastStoneWeightII(vector<int> &stones) {
+        // dp[j]的含义是j背包容量时候，放进物品后
+        //       所能容纳的最大容量
+        // dp[j] = max(dp[j],dp[j- stones[i]] + stones[i])
+        // 最核心的思想是: 分出两堆重量相当的区间,然后俩俩进行碰撞
+        // 最后剩下必然是最小的石头
+        // 30 * 100 / 2 = 150000
+        vector<int> dp(150001, 0);
+        int weight = 0;
+        for (int i = 0; i < stones.size(); i++) {
+            weight += stones[i];
+        }
+        int target = weight / 2;
+        for (int i = 0; i < stones.size(); i++) {
+            for (int j = target; j >= stones[i]; j--) {
+                dp[j] = max(dp[j], dp[j - stones[i]] + stones[i]);
+            }
+        }
+        // 最后得到的必然是两堆重量差不多的区间
+        return weight - dp[target] - dp[target];
     }
 };
 ```
