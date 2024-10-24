@@ -2036,3 +2036,1853 @@ class Solution {
 };
 ```
 
+# 213 [打家劫舍II](https://leetcode.cn/problems/house-robber-ii/description/)
+
+## 题目
+
+你是一个专业的小偷，计划偷窃沿街的房屋，每间房内都藏有一定的现金。这个地方所有的房屋都 **围成一圈** ，这意味着第一个房屋和最后一个房屋是紧挨着的。同时，相邻的房屋装有相互连通的防盗系统，**如果两间相邻的房屋在同一晚上被小偷闯入，系统会自动报警** 。
+
+给定一个代表每个房屋存放金额的非负整数数组，计算你 **在不触动警报装置的情况下** ，今晚能够偷窃到的最高金额。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [2,3,2]
+输出：3
+解释：你不能先偷窃 1 号房屋（金额 = 2），然后偷窃 3 号房屋（金额 = 2）, 因为他们是相邻的。
+```
+
+**示例 2：**
+
+```
+输入：nums = [1,2,3,1]
+输出：4
+解释：你可以先偷窃 1 号房屋（金额 = 1），然后偷窃 3 号房屋（金额 = 3）。
+     偷窃到的最高金额 = 1 + 3 = 4 。
+```
+
+**示例 3：**
+
+```
+输入：nums = [1,2,3]
+输出：3
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums.length <= 100`
+- `0 <= nums[i] <= 1000`
+
+## 题目大意
+
+>房子是头尾相连的,也就是需要头尾相连的特殊情况考虑
+
+## 解题思路
+
+![](https://pic.superbed.cc/item/6719f91efa9f77b4dc4a2073.png)
+
+
+
+![](https://pic.superbed.cc/item/6719f937fa9f77b4dc4a221c.png)
+
+![](https://pic.superbed.cc/item/6719f95bfa9f77b4dc4a23c7.png)
+
+注意我这⾥⽤的是"考虑"，例如情况三，虽然是考虑包含尾元素，但不⼀定要选尾部元素！ 对于情况三，取
+nums[1] 和 nums[3]就是最⼤的。
+**⽽情况⼆ 和 情况三 都包含了情况⼀了，所以只考虑情况⼆和情况三就可以了。**
+
+![](https://pic.superbed.cc/item/6719f987fa9f77b4dc4a2632.png)
+
+
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-21 22:50:56
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-22 11:52:37
+ * @FilePath: \code\dp_leetcode213.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+
+class Solution {
+  public:
+    // 参考代码随想录的思想
+    // 将区间分为三种情况
+    // 1 {6 1 9} 1:情况1,代表括住的区间是要`考虑的`
+    // {1 6 1 9} 1:情况2,代表括住的区间是要考虑
+    // 1 {6 1 9 1}:情况3,代表括住的区间是要考虑
+    // 但是观察情况2和情况3是包含情况1的
+    int rob(vector<int> &nums) {
+        if (nums.size() == 0) {
+            return 0;
+        }
+        if (nums.size() == 1) {
+            return nums[0];
+        }
+        // 选择区间
+        int left = robFun(nums, 0, nums.size() - 2);
+        int right = robFun(nums, 1, nums.size() - 1);
+        return max(left, right);
+    }
+
+    // 开始区间和结束区间
+    int robFun(vector<int> &nums, int start, int end) {
+        if (end == start) {
+            return nums[start];
+        }
+        vector<int> dp(nums.size() + 1, 0);
+        // 注意这里开始是start
+        // 并不是0,也就是将0替换成start开始位置
+        // start+1位置也不是1,将start+1替换成1
+        // 因为区间开始和结束是不一样的
+        dp[start] = nums[start];
+        // dp[i] = max(dp[i - 1], dp[i - 2] + nums[i - 2])
+        dp[start + 1] = max(nums[start], nums[start + 1]);
+        for (int i = start + 2; i <= end; i++) {
+            dp[i] = max(dp[i - 1], dp[i - 2] + nums[i]);
+        }
+        return dp[end];
+    }
+};
+```
+
+# 337 [打家劫舍III](https://leetcode.cn/problems/house-robber-iii/description/)
+
+## 题目
+
+小偷又发现了一个新的可行窃的地区。这个地区只有一个入口，我们称之为 `root` 。
+
+除了 `root` 之外，每栋房子有且只有一个“父“房子与之相连。一番侦察之后，聪明的小偷意识到“这个地方的所有房屋的排列类似于一棵二叉树”。 如果 **两个直接相连的房子在同一天晚上被打劫** ，房屋将自动报警。
+
+给定二叉树的 `root` 。返回 ***在不触动警报的情况下** ，小偷能够盗取的最高金额* 。
+
+ 
+
+**示例 1:**
+
+![img](https://assets.leetcode.com/uploads/2021/03/10/rob1-tree.jpg)
+
+```
+输入: root = [3,2,3,null,3,null,1]
+输出: 7 
+解释: 小偷一晚能够盗取的最高金额 3 + 3 + 1 = 7
+```
+
+**示例 2:**
+
+![img](https://assets.leetcode.com/uploads/2021/03/10/rob2-tree.jpg)
+
+```
+输入: root = [3,4,5,1,3,null,1]
+输出: 9
+解释: 小偷一晚能够盗取的最高金额 4 + 5 = 9
+```
+
+ 
+
+**提示：**
+
+
+
+- 树的节点数在 `[1, 104]` 范围内
+- `0 <= Node.val <= 104`
+
+## 题目大意
+
+>按照二叉树的来进行偷取,关键是要区分状态，每棵树的节点状态要区分
+
+## 解题思路
+
+- 这道题目是用后序递归来说的，因为是结合二叉树
+  - 如果用前序和中序遍历,那么对于当前的节点来说，是无法得知左右子树的情况的
+  - 只要在单层递归逻辑的中节点位置进行dp处理
+  - **下标为0记录不偷该节点所得到的的最⼤⾦钱，下标为1记录偷该节点所**
+    **得到的的最⼤⾦钱。**
+  - 返回的参数是dp数组才行,且长度为2，0位置是不偷该节点得到最大金钱
+  - 1位置是偷取该节点所得最大金钱
+  - 如果是偷当前节点，那么左右孩⼦就不能偷，val1 = cur->val + left[0] + right[0]; （如果对下标含义不理解就再回顾⼀下dp数组的含义）如果不偷当前节点，那么左右孩⼦就可以偷，⾄于到底偷不偷⼀定是选⼀个最⼤的，所以：val2 = max(left[0],left[1]) + max(right[0], right[1]);最后当前节点的状态就是{val2, val1}; 即：{不偷当前节点得到的最⼤⾦钱，偷当前节点得到的最⼤⾦钱}
+
+![](https://pic.superbed.cc/item/6719fd43fa9f77b4dc4a5e7c.png)
+
+
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-22 11:55:24
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-22 14:24:28
+ * @FilePath: \code\dp_leetcode337.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right)
+        : val(x), left(left), right(right) {}
+};
+
+// 树形DP,这道题可以作为模板题参考
+class Solution {
+  public:
+    int rob(TreeNode *root) {
+      vector<int> dp = robTreePostOrder(root);
+      return max(dp[0],dp[1]);
+    }
+
+    // 0:不取当前节点时候的最大值
+    // 1: 取当前节点时候的最大值
+    vector<int> robTreePostOrder(TreeNode *root) {
+        // 后序遍历
+        // 后序遍历终止条件
+        if (root == NULL) {
+            return {0, 0};
+        }
+        // 左
+        vector<int> left_value = robTreePostOrder(root->left);
+        vector<int> right_value = robTreePostOrder(root->right);
+        // 中
+        // 取当前节点
+        int value1 = root->val + left_value[0] + right_value[0];
+        // 不取当前节点
+        // 不取当前节点代表可以取左右子树的节点,或者不取左右子树的节点
+        int value2 = max(left_value[0],left_value[1]) + max(right_value[0],right_value[1]);
+        return {value2, value1};
+    }
+};
+```
+
+# 121 [买卖股票的最佳时机](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/description/)
+
+## 题目
+
+给定一个数组 `prices` ，它的第 `i` 个元素 `prices[i]` 表示一支给定股票第 `i` 天的价格。
+
+你只能选择 **某一天** 买入这只股票，并选择在 **未来的某一个不同的日子** 卖出该股票。设计一个算法来计算你所能获取的最大利润。
+
+返回你可以从这笔交易中获取的最大利润。如果你不能获取任何利润，返回 `0` 。
+
+ 
+
+**示例 1：**
+
+```
+输入：[7,1,5,3,6,4]
+输出：5
+解释：在第 2 天（股票价格 = 1）的时候买入，在第 5 天（股票价格 = 6）的时候卖出，最大利润 = 6-1 = 5 。
+     注意利润不能是 7-1 = 6, 因为卖出价格需要大于买入价格；同时，你不能在买入前卖出股票。
+```
+
+**示例 2：**
+
+```
+输入：prices = [7,6,4,3,1]
+输出：0
+解释：在这种情况下, 没有交易完成, 所以最大利润为 0。
+```
+
+ 
+
+**提示：**
+
+- `1 <= prices.length <= 105`
+- `0 <= prices[i] <= 104`
+
+## 题目大意
+
+>`只能`选择某一天买入一只股票，并选择在未来某一天不同日子卖出该股票
+>
+>计算获取的最大利润
+
+## 解题思路
+
+1. 确定dp数组（dp table）以及下标的含义
+   1. dp [i] [0] 表示第i天持有股票所得最多现⾦ ，这⾥可能有同学疑惑，本题中只能买卖⼀次，持有股票之后哪还有现⾦呢？
+   2. 注意这⾥说的是“持有”，“持有”不代表就是当天“买⼊”！也有可能是昨天就买⼊了，今天保持持有的状态
+2. 确定递推公式
+   1. ![](https://pic.superbed.cc/item/6719fe57fa9f77b4dc4a6d1d.png)
+3. dp数组如何初始化
+   1. 那么dp[0] [0]表示第0天持有股票，此时的持有股票就⼀定是买⼊股票了，因为不可能有前⼀天推出来，所以dp[0] [0] -= prices[0];
+   2. dp[0] [1]表示第0天不持有股票，不持有股票那么现⾦就是0，所以dp[0] [1] = 0;
+4. 确定遍历顺序
+   1. 从递推公式可以看出dp[i]都是由dp[i - 1]推导出来的，那么⼀定是从前向后遍历
+5. 举例推导dp数组
+
+![](https://pic.superbed.cc/item/6719febffa9f77b4dc4a7265.png)
+
+![](https://pic.superbed.cc/item/6719fed9fa9f77b4dc4a73c4.png)
+
+
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-22 14:26:39
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-22 15:30:33
+ * @FilePath: \code\dp_leetcode121.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+
+class Solution {
+  public:
+    int maxProfit(vector<int> &prices) {
+        // 贪心解法:
+        // 局部最优解是: 找到最小的左边值,然后找到最大的左边值
+        int low = INT_MAX;
+        int ans = 0;
+        for (int i = 0; i < prices.size(); i++) {
+            low = min(low, prices[i]);
+            ans = max(ans, prices[i] - low);
+        }
+        return ans;
+    }
+
+    // 动态规划
+    int maxProfitII(vector<int> &prices) {
+        if (prices.size() <= 1) {
+            return 0;
+        }
+        vector<vector<int>> dp(prices.size() + 1, vector<int>(2, 0));
+        // dp[i][0]代表第i天持有股票所得最多现金
+        // dp[i][1]代表第i天不持有股票所得最多现金
+        // 持有不代表买入,有可能是昨天就买入了,今天保持持有的状态
+        // 递推公式
+        // max{前一天不持有股票的现金,今天卖出后的持有的现金}
+        // dp[i][0] = max(dp[i - 1][0], -prices[i]);
+        // max{前一天不持有股票最多现金,前一天持有股票最多现金+今天卖出股票的价格}
+        // dp[i][1] = max(dp[i - 1][1], dp[i - 1][0] + prices[i])
+        dp[0][0] = -prices[0];
+        dp[0][1] = 0;
+        for (int i = 1; i < prices.size(); i++) {
+            dp[i][0] = max(dp[i - 1][0], -prices[i]);
+            dp[i][1] = max(dp[i - 1][1], dp[i - 1][0] + prices[i]);
+        }
+        return dp[prices.size() - 1][1];
+    }
+};
+```
+
+# 122 [买卖股票的最佳时机II](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/description/)
+
+## 题目
+
+给你一个整数数组 `prices` ，其中 `prices[i]` 表示某支股票第 `i` 天的价格。
+
+在每一天，你可以决定是否购买和/或出售股票。你在任何时候 **最多** 只能持有 **一股** 股票。你也可以先购买，然后在 **同一天** 出售。
+
+返回 *你能获得的 **最大** 利润* 。
+
+ 
+
+**示例 1：**
+
+```
+输入：prices = [7,1,5,3,6,4]
+输出：7
+解释：在第 2 天（股票价格 = 1）的时候买入，在第 3 天（股票价格 = 5）的时候卖出, 这笔交易所能获得利润 = 5 - 1 = 4。
+随后，在第 4 天（股票价格 = 3）的时候买入，在第 5 天（股票价格 = 6）的时候卖出, 这笔交易所能获得利润 = 6 - 3 = 3。
+最大总利润为 4 + 3 = 7 。
+```
+
+**示例 2：**
+
+```
+输入：prices = [1,2,3,4,5]
+输出：4
+解释：在第 1 天（股票价格 = 1）的时候买入，在第 5 天 （股票价格 = 5）的时候卖出, 这笔交易所能获得利润 = 5 - 1 = 4。
+最大总利润为 4 。
+```
+
+**示例 3：**
+
+```
+输入：prices = [7,6,4,3,1]
+输出：0
+解释：在这种情况下, 交易无法获得正利润，所以不参与交易可以获得最大利润，最大利润为 0。
+```
+
+ 
+
+**提示：**
+
+- `1 <= prices.length <= 3 * 104`
+- `0 <= prices[i] <= 104`
+
+## 题目大意
+
+>在每一天，你可以决定是否购买和/或出售股票。你在任何时候 **最多** 只能持有 **一股** 股票。你也可以先购买，然后在 **同一天** 出售。
+
+## 解题思路
+
+这⾥重申⼀下dp数组的含义：
+
+- dp[i] [0] 表示第i天持有股票所得现⾦。
+
+- dp[i] [1] 表示第i天不持有股票所得最多现⾦
+
+  如果第i天持有股票即dp[i] [0]， 那么可以由两个状态推出来
+
+如果第i天持有股票即dp[i] [0]， 那么可以由两个状态推出来
+
+- 第i-1天就持有股票，那么就保持现状，所得现⾦就是昨天持有股票的所得现⾦ 即：dp[i - 1] [0]
+- 第i天买⼊股票，所得现⾦就是昨天不持有股票的所得现⾦减去 今天的股票价格 即：dp[i - 1] [1] - prices[i]
+
+![](https://pic.superbed.cc/item/671a0015fa9f77b4dc4a8469.png)
+
+
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-22 15:31:14
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-22 15:54:28
+ * @FilePath: \code\dp_leetcode122.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+
+class Solution {
+  public:
+    int maxProfit(vector<int> &prices) {
+        // 动态规划
+        // dp[i][0]代表第i天持有股票的现金持有量
+        // dp[i][1]代表第i天不持有股票的所得的现金持有量
+        // max{前一天持有股票的现金,前一天不持有股票现金 - 当前买入的股票价格}
+        // dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] - prices[i])
+        // max{前一天不持有股票的现金, 前一天持有股票现金 + 当前卖出的股票价格}
+        // dp[i][1] = max(dp[i - 1][1], dp[i - 1][0] + prices[i])
+        vector<vector<int>> dp(prices.size() + 1, vector<int>(2));
+        dp[0][0] -= prices[0];
+        dp[0][1] = 0;
+        for (int i = 1; i < prices.size(); i++) {
+            dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] - prices[i]);
+            dp[i][1] = max(dp[i - 1][1], dp[i - 1][0] + prices[i]);
+        }
+        return dp[prices.size() - 1][1];
+    }
+};
+```
+
+# 123 [买卖股票的最佳时机III](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iii/description/)
+
+## 题目
+
+给定一个数组，它的第 `i` 个元素是一支给定的股票在第 `i` 天的价格。
+
+设计一个算法来计算你所能获取的最大利润。你最多可以完成 **两笔** 交易。
+
+**注意：**你不能同时参与多笔交易（你必须在再次购买前出售掉之前的股票）。
+
+ 
+
+**示例 1:**
+
+```
+输入：prices = [3,3,5,0,0,3,1,4]
+输出：6
+解释：在第 4 天（股票价格 = 0）的时候买入，在第 6 天（股票价格 = 3）的时候卖出，这笔交易所能获得利润 = 3-0 = 3 。
+     随后，在第 7 天（股票价格 = 1）的时候买入，在第 8 天 （股票价格 = 4）的时候卖出，这笔交易所能获得利润 = 4-1 = 3 。
+```
+
+**示例 2：**
+
+```
+输入：prices = [1,2,3,4,5]
+输出：4
+解释：在第 1 天（股票价格 = 1）的时候买入，在第 5 天 （股票价格 = 5）的时候卖出, 这笔交易所能获得利润 = 5-1 = 4 。   
+     注意你不能在第 1 天和第 2 天接连购买股票，之后再将它们卖出。   
+     因为这样属于同时参与了多笔交易，你必须在再次购买前出售掉之前的股票。
+```
+
+**示例 3：**
+
+```
+输入：prices = [7,6,4,3,1] 
+输出：0 
+解释：在这个情况下, 没有交易完成, 所以最大利润为 0。
+```
+
+**示例 4：**
+
+```
+输入：prices = [1]
+输出：0
+```
+
+## 题目大意
+
+>最多只能完成两笔交易
+
+## 解题思路
+
+![](https://pic.superbed.cc/item/671a0092fa9f77b4dc4a8be6.png)
+
+
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-22 16:04:21
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-22 17:33:54
+ * @FilePath: \code\dp_leetcode123.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+
+class Solution {
+  public:
+    int maxProfit(vector<int> &prices) {
+        // dp[i][1] 代表第i天第一次持有股票拥有的现金
+        // dp[i][2] 代表第i天第一次未持有股票拥有的现金
+        // dp[i][3] 代表第i天第二次持有股票拥有的现金
+        // dp[i][4] 代表第i天第二次未持有股票拥有的现金
+        // dp[i][1] = max(dp[i - 1][1],  - prices[i])
+        // dp[i][2]= max(dp[i - 1][2], dp[i - 1][1] + prices[i])
+        // dp[i][3] = max(dp[i - 1][3], dp[i - 1][2] - prices[i])
+        // dp[i][4]= max(dp[i - 1][4], dp[i - 1][3] + prices[i])
+        vector<vector<int>> dp(prices.size() + 1, vector<int>(5));
+        dp[0][1] -= prices[0];
+        dp[0][2] = 0;
+        dp[0][3] -= prices[0];
+        dp[0][4] = 0;
+        for (int i = 1; i < prices.size(); i++) {
+            // 为什么需要设置0状态
+            // dp[i][0] = dp[i - 1][0];
+            dp[i][1] = max(dp[i - 1][1], - prices[i]);
+            dp[i][2] = max(dp[i - 1][2], dp[i - 1][1] + prices[i]);
+            dp[i][3] = max(dp[i - 1][3], dp[i - 1][2] - prices[i]);
+            dp[i][4] = max(dp[i - 1][4], dp[i - 1][3] + prices[i]);
+            // for (int i = 0; i < dp.size(); i++) {
+            //     for (int j = 0; j < dp[0].size(); j++) {
+            //         std::cout << dp[i][j] << " ";
+            //     }
+            // }
+            // std::cout << std::endl;
+        }
+        return dp[prices.size() - 1][4];
+    }
+};
+
+int main() {
+    Solution solution;
+    vector<int> test{3, 3, 5, 0, 0, 3, 1, 4};
+    solution.maxProfit(test);
+}
+
+```
+
+# 188 [买卖股票的最佳时机IV](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/description/)
+
+## 题目
+
+给你一个整数数组 `prices` 和一个整数 `k` ，其中 `prices[i]` 是某支给定的股票在第 `i` 天的价格。
+
+设计一个算法来计算你所能获取的最大利润。你最多可以完成 `k` 笔交易。也就是说，你最多可以买 `k` 次，卖 `k` 次。
+
+**注意：**你不能同时参与多笔交易（你必须在再次购买前出售掉之前的股票）。
+
+ 
+
+**示例 1：**
+
+```
+输入：k = 2, prices = [2,4,1]
+输出：2
+解释：在第 1 天 (股票价格 = 2) 的时候买入，在第 2 天 (股票价格 = 4) 的时候卖出，这笔交易所能获得利润 = 4-2 = 2 。
+```
+
+**示例 2：**
+
+```
+输入：k = 2, prices = [3,2,6,5,0,3]
+输出：7
+解释：在第 2 天 (股票价格 = 2) 的时候买入，在第 3 天 (股票价格 = 6) 的时候卖出, 这笔交易所能获得利润 = 6-2 = 4 。
+     随后，在第 5 天 (股票价格 = 0) 的时候买入，在第 6 天 (股票价格 = 3) 的时候卖出, 这笔交易所能获得利润 = 3-0 = 3 。
+```
+
+ 
+
+**提示：**
+
+- `1 <= k <= 100`
+- `1 <= prices.length <= 1000`
+- `0 <= prices[i] <= 1000`
+
+## 题目大意
+
+要卖k次
+
+## 解题思路
+
+![](https://pic.superbed.cc/item/671a0125fa9f77b4dc4a9325.png)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-22 18:21:56
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-22 21:33:34
+ * @FilePath: \code\dp_leetcode188.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+
+class Solution {
+  public:
+    int maxProfit(int k, vector<int> &prices) {
+        // k次交易，最多获得的利润
+        // 所以有2 * k 次表示买入和卖出
+        vector<vector<int>> dp(prices.size() + 1, vector<int>(2 * k + 1, 0));
+        // 先要初始化
+        for (int i = 1; i < 2 * k; i += 2) {
+            dp[0][i] -= prices[0];
+        }
+        for (int i = 1; i < prices.size(); i++) {
+            for (int j = 0; j < 2 * k - 1; j += 2) {
+                dp[i][j + 1] = max(dp[i - 1][j + 1], dp[i - 1][j] - prices[i]);
+                dp[i][j + 2] =
+                    max(dp[i - 1][j + 2], dp[i - 1][j + 1] - prices[i]);
+            }
+        }
+        return dp[prices.size() - 1][2 * k];
+    }
+};
+```
+
+# 309 [买卖股票的最佳时机含冷冻期](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/description/)
+
+## 题目
+
+给定一个整数数组`prices`，其中第  `prices[i]` 表示第 `*i*` 天的股票价格 。
+
+设计一个算法计算出最大利润。在满足以下约束条件下，你可以尽可能地完成更多的交易（多次买卖一支股票）:
+
+- 卖出股票后，你无法在第二天买入股票 (即冷冻期为 1 天)。
+
+**注意：**你不能同时参与多笔交易（你必须在再次购买前出售掉之前的股票）。
+
+ 
+
+**示例 1:**
+
+```
+输入: prices = [1,2,3,0,2]
+输出: 3 
+解释: 对应的交易状态为: [买入, 卖出, 冷冻期, 买入, 卖出]
+```
+
+**示例 2:**
+
+```
+输入: prices = [1]
+输出: 0
+```
+
+ 
+
+**提示：**
+
+- `1 <= prices.length <= 5000`
+- `0 <= prices[i] <= 1000`
+
+## 题目大意
+
+>需要包含一天的冷冻期
+
+## 解题思路
+
+![](https://pic.superbed.cc/item/671a019ffa9f77b4dc4a995c.png)
+
+具体可以区分出如下四个状态：
+
+- 状态⼀：持有股票状态（今天买⼊股票，或者是之前就买⼊了股票然后没有操作，⼀直持有）
+- 不持有股票状态，这⾥就有两种卖出股票状态};
+  - 状态⼆：保持卖出股票的状态（两天前就卖出了股票，度过⼀天冷冻期。或者是前⼀天就是卖出股票状
+    态，⼀直没操作）
+  - 状态三：今天卖出股票
+- 状态四：今天为冷冻期状态，但冷冻期状态不可持续，只有⼀天！
+
+
+
+j的状态为：
+0：状态⼀
+1：状态⼆
+2：状态三
+3：状态四
+
+```c++
+dp[i][0] = max(dp[i - 1][0], max(dp[i - 1][3], dp[i - 1][1]) - prices[i]);
+dp[i][1] = max(dp[i - 1][1], dp[i - 1][3]);
+dp[i][2] = dp[i - 1][0] + prices[i];
+dp[i][3] = dp[i - 1][2];
+```
+
+![](https://pic.superbed.cc/item/671a025dfa9f77b4dc4aa06b.png)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-23 14:10:07
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-23 14:49:29
+ * @FilePath: \code\dp_leetcode309.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+
+class Solution {
+  public:
+    int maxProfit(vector<int> &prices) {
+        // 在122的条件进行改造
+        // dp[i][0] 代表第i天未持有股票的现金
+        // dp[i][1] 代表第i天持有股票的现金
+        // 冷静期通过for里面实现
+        // dp[0][0] = -prices[0]代表第0天持有股票时的现金,
+        // 也就是买入第0天股票时候的现金就是-prices[0]
+        // dp[1][0] = max(-prices[0], -prices[1]);
+        // 第1天未持有股票时候的现金
+        // dp[1][1] = max(dp[0][1], dp[0][0] + prices[1]);
+        if (prices.size() <= 1) {
+            return 0;
+        }
+        vector<vector<int>> dp(prices.size() + 1, vector<int>(2));
+        dp[0][0] = -prices[0];
+        dp[1][0] = max(-prices[0], -prices[1]);
+        dp[1][1] = max(dp[0][1], dp[0][0] + prices[1]);
+        for (int i = 2; i < prices.size(); i++) {
+            dp[i][0] = max(dp[i - 1][0], dp[i - 2][1] - prices[i]);
+            dp[i][1] = max(dp[i - 1][1], dp[i - 1][0] + prices[i]);
+        }
+        return dp[prices.size() - 1][1];
+    }
+
+    // 代码随想录做法
+    int maxProfitII(vector<int> &prices) {
+        if (prices.size() <= 1) {
+            return 0;
+        }
+        vector<vector<int>> dp(prices.size() + 1, vector<int>(4, 0));
+        // 0: 持有股票状态
+        // 1: 保持卖出状态
+        // 2: 今天卖出股票
+        // 3: 今天为冷冻期
+        dp[0][0] = -prices[0];
+        for (int i = 1; i < prices.size(); i++) {
+            dp[i][0] = max(dp[i - 1][0], max(dp[i - 1][3] - prices[i],
+                                             dp[i - 1][1] - prices[i]));
+            dp[i][1] = max(dp[i - 1][1], dp[i - 1][3]);
+            dp[i][2] = dp[i - 1][0] + prices[i];
+            dp[i][3] = dp[i - 1][2];
+        }
+        return max(dp[prices.size() - 1][3],
+                   max(dp[prices.size() - 1][1], dp[prices.size() - 1][2]));
+    }
+};
+```
+
+# 714 [买卖股票的最佳时机含手续费](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/description/)
+
+## 题目
+
+给定一个整数数组 `prices`，其中 `prices[i]`表示第 `i` 天的股票价格 ；整数 `fee` 代表了交易股票的手续费用。
+
+你可以无限次地完成交易，但是你每笔交易都需要付手续费。如果你已经购买了一个股票，在卖出它之前你就不能再继续购买股票了。
+
+返回获得利润的最大值。
+
+**注意：**这里的一笔交易指买入持有并卖出股票的整个过程，每笔交易你只需要为支付一次手续费。
+
+ 
+
+**示例 1：**
+
+```
+输入：prices = [1, 3, 2, 8, 4, 9], fee = 2
+输出：8
+解释：能够达到的最大利润:  
+在此处买入 prices[0] = 1
+在此处卖出 prices[3] = 8
+在此处买入 prices[4] = 4
+在此处卖出 prices[5] = 9
+总利润: ((8 - 1) - 2) + ((9 - 4) - 2) = 8
+```
+
+**示例 2：**
+
+```
+输入：prices = [1,3,7,5,10,3], fee = 3
+输出：6
+```
+
+ 
+
+**提示：**
+
+- `1 <= prices.length <= 5 * 104`
+- `1 <= prices[i] < 5 * 104`
+- `0 <= fee < 5 * 104`
+
+## 题目大意
+
+>需要包含手续费
+
+## 解题思路
+
+>在122原题加上手续费用即可，简单
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-23 15:12:54
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-23 15:32:06
+ * @FilePath: \code\dp_leetcode714.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+
+class Solution {
+  public:
+    int maxProfit(vector<int> &prices, int fee) {
+        vector<vector<int>> dp(prices.size() + 1, vector<int>(2));
+        dp[0][0] = -prices[0];
+        dp[0][1] = 0;
+        for (int i = 1; i < prices.size(); i++) {
+            dp[i][0] = max(dp[i - 1][0], dp[i - 1][1] - prices[i]);
+            dp[i][1] = max(dp[i - 1][1], dp[i - 1][0] + prices[i] - fee);
+        }
+        return dp[prices.size() - 1][1];
+    }
+};
+```
+
+# 300 [最长递增子序列](https://leetcode.cn/problems/longest-increasing-subsequence/)
+
+## 题目
+
+给你一个整数数组 `nums` ，找到其中最长严格递增子序列的长度。
+
+**子序列** 是由数组派生而来的序列，删除（或不删除）数组中的元素而不改变其余元素的顺序。例如，`[3,6,2,7]` 是数组 `[0,3,1,6,2,2,7]` 的
+
+子序列。
+
+**示例 1：**
+
+```
+输入：nums = [10,9,2,5,3,7,101,18]
+输出：4
+解释：最长递增子序列是 [2,3,7,101]，因此长度为 4 。
+```
+
+**示例 2：**
+
+```
+输入：nums = [0,1,0,3,2,3]
+输出：4
+```
+
+**示例 3：**
+
+```
+输入：nums = [7,7,7,7,7,7,7]
+输出：1
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums.length <= 2500`
+- `-104 <= nums[i] <= 104`
+
+## 题目大意
+
+>`找出其中最长的严格递增子序列`----是不连续的
+
+## 解题思路
+
+![](https://pic.superbed.cc/item/671a0349fa9f77b4dc4aa9bc.png)
+
+dp[i]表示i之前包括i的以nums[i]结尾的最⻓递增⼦序列的⻓度
+
+是要以nums[i]为结尾的，所以dp[nums.size() - 1]是以数组最后一位为结尾的最长递增子序列,所以其实不一定答案
+
+因为有可能是在前面的序列里面
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-23 15:32:53
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-23 17:27:01
+ * @FilePath: \code\dp_leetcode300.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+
+// 贪心算法是否可行??
+
+class Solution {
+  public:
+    // DP
+    int lengthOfLIS(vector<int> &nums) {
+        // dp[i]代表i下标(包括i)的最长严格递增序列,但不是连续的
+        if (nums.size() <= 1) {
+            return nums.size();
+        }
+        vector<int> dp(nums.size(), 1);
+        int res = 0;
+        for (int i = 1; i < nums.size(); i++) {
+            for (int j = 0; j < i; j++) {
+                if (nums[i] > nums[j]) {
+                    dp[i] = max(dp[i], dp[j] + 1);
+                }
+            }
+            for (int k = 1; k < dp.size(); k++) {
+                std::cout << dp[k] << " ";
+            }
+            std::cout << std::endl;
+            // 这里没搞懂，dp[i]我已经第一
+            //
+            if (res < dp[i]) {
+                res = dp[i];
+            }
+        }
+        return res;
+    }
+};
+
+int main() {
+    Solution solution;
+    vector<int> test{1, 3, 6, 7, 9, 4, 10, 5, 6};
+    solution.lengthOfLIS(test);
+}
+```
+
+# 674 [最长连续递增序列](https://leetcode.cn/problems/longest-continuous-increasing-subsequence/description/)
+
+## 题目
+
+给定一个未经排序的整数数组，找到最长且 **连续递增的子序列**，并返回该序列的长度。
+
+**连续递增的子序列** 可以由两个下标 `l` 和 `r`（`l < r`）确定，如果对于每个 `l <= i < r`，都有 `nums[i] < nums[i + 1]` ，那么子序列 `[nums[l], nums[l + 1], ..., nums[r - 1], nums[r]]` 就是连续递增子序列。
+
+
+
+**示例 1：**
+
+```
+输入：nums = [1,3,5,4,7]
+输出：3
+解释：最长连续递增序列是 [1,3,5], 长度为3。
+尽管 [1,3,5,7] 也是升序的子序列, 但它不是连续的，因为 5 和 7 在原数组里被 4 隔开。 
+```
+
+**示例 2：**
+
+```
+输入：nums = [2,2,2,2,2]
+输出：1
+解释：最长连续递增序列是 [2], 长度为1。
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums.length <= 104`
+- `-109 <= nums[i] <= 109`
+
+## 题目大意
+
+给定一个未经排序的整数数组，找到最长且 **连续递增的子序列**，并返回该序列的长度
+
+## 解题思路
+
+![](https://pic.superbed.cc/item/671a0779fa9f77b4dc4ad515.png)
+
+所以：if (nums[i] > nums[j]) dp[i] = max(dp[i], dp[j] + 1);
+注意这⾥不是要dp[i] 与 dp[j] + 1进⾏⽐较，⽽是我们要取dp[j] + 1的最⼤值。
+
+
+
+每⼀个i，对应的dp[i]（即最⻓递增⼦序列）起始⼤⼩⾄少都是1.
+
+dp[i] 是有0到i-1各个位置的最⻓递增⼦序列 推导⽽来，那么遍历i⼀定是从前向后遍历
+
+j其实就是遍历0到i-1，那么是从前到后，还是从后到前遍历都⽆所谓，只要吧 0 到 i-1 的元素都遍历了就⾏了。 所
+以默认习惯 从前向后遍历。
+
+![](https://pic.superbed.cc/item/671a1025fa9f77b4dc4b51cd.png)
+
+
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-23 17:30:42
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-23 17:33:01
+ * @FilePath: \code\dp_leetcode674.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+
+class Solution {
+  public:
+    int findLengthOfLCIS(vector<int> &nums) {
+        if (nums.size() <= 1) {
+            return nums.size();
+        }
+        // dp[i]代表以下标i为结尾的连续递增子序列长度
+        int res = 0;
+        vector<int> dp(nums.size(), 1);
+        for (int i = 1; i < nums.size(); i++) {
+            if (nums[i] > nums[i - 1]) {
+                dp[i] = dp[i - 1] + 1;
+            }
+            if (res < dp[i]) {
+                res = dp[i];
+            }
+            for (int k = 0; k < dp.size(); k++) {
+                std::cout << dp[k] << " ";
+            }
+            std::cout << std::endl;
+        }
+        return res;
+    }
+};
+
+int main() {
+    Solution solution;
+    vector<int> test{1, 3, 5, 4, 7};
+    solution.findLengthOfLCIS(test);
+}
+
+```
+
+# 718[最长重复子数组](https://leetcode.cn/problems/maximum-length-of-repeated-subarray/description/)
+
+## 题目
+
+给两个整数数组 `nums1` 和 `nums2` ，返回 *两个数组中 **公共的** 、长度最长的子数组的长度* 。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums1 = [1,2,3,2,1], nums2 = [3,2,1,4,7]
+输出：3
+解释：长度最长的公共子数组是 [3,2,1] 。
+```
+
+**示例 2：**
+
+```
+输入：nums1 = [0,0,0,0,0], nums2 = [0,0,0,0,0]
+输出：5
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums1.length, nums2.length <= 1000`
+- `0 <= nums1[i], nums2[i] <= 100`
+
+## 题目大意
+
+>找到最长的子数组的长度
+
+## 解题思路
+
+1. 确定dp数组（dp table）以及下标的含义
+
+dp[i]：以下标i为结尾的连续递增的⼦序列⻓度为dp[i]。
+
+2. 确定递推公式
+如果 nums[i] > nums[i - 1]，那么以 i 为结尾的连续递增的⼦序列⻓度 ⼀定等于 以i - 1为结尾的连续递增的⼦序列⻓度 + 1 。
+即：dp[i] = dp[i - 1] + 1;
+
+3. dp数组如何初始化
+以下标i为结尾的连续递增的⼦序列⻓度最少也应该是1，即就是nums[i]这⼀个元素。
+所以dp[i]应该初始1;
+4. 确定遍历顺序
+从递推公式上可以看出， dp[i + 1]依赖dp[i]，所以⼀定是从前向后遍历。
+
+![](https://pic.superbed.cc/item/671a10bafa9f77b4dc4b58a8.png)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-23 17:57:38
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-24 11:05:02
+ * @FilePath: \code\dp_leetcode718.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+
+class Solution {
+  public:
+    int findLength(vector<int> &nums1, vector<int> &nums2) {
+        // dp[i][j]代表以i为结尾的nums1，j为结尾的nums2中最长的公共数组
+        // dp[i][j]遍历顺序是以先
+        vector<vector<int>> dp(nums1.size() + 1,
+                               vector<int>(nums2.size() + 1, 0));
+        int res = 0; // ans
+        // 因为dp[i][j]是以A[i - 1]和B[j - 1]为结尾的公共最长数组
+        // 所以i需要遍历到nums1.size()位置
+        // j也需要遍历到nums2.size()位置
+        for (int i = 1; i <= nums1.size(); i++) {
+            for (int j = 1; j <= nums2.size(); j++) {
+                if (nums1[i - 1] == nums2[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                }
+                if (res < dp[i][j]) {
+                    res = dp[i][j];
+                }
+            }
+            // for (int k = 0; k <= nums1.size(); k++) {
+            //     for (int m = 0; m <= nums2.size(); m++) {
+            //         std::cout << dp[k][m] << " ";
+            //     }
+            //     std::cout << std::endl;
+            // }
+            // std::cout << std::endl;
+        }
+        return res;
+    }
+};
+
+int main() {
+    Solution solution;
+    vector<int> test1{1, 2, 3, 2, 1};
+    vector<int> test2{3, 2, 1, 4, 7};
+    solution.findLength(test1, test2);
+}
+```
+
+# 1143 [最长公共子序列](https://leetcode.cn/problems/longest-common-subsequence/description/)
+
+## 题目
+
+给定两个字符串 `text1` 和 `text2`，返回这两个字符串的最长 **公共子序列** 的长度。如果不存在 **公共子序列** ，返回 `0` 。
+
+一个字符串的 **子序列** 是指这样一个新的字符串：它是由原字符串在不改变字符的相对顺序的情况下删除某些字符（也可以不删除任何字符）后组成的新字符串。
+
+- 例如，`"ace"` 是 `"abcde"` 的子序列，但 `"aec"` 不是 `"abcde"` 的子序列。
+
+两个字符串的 **公共子序列** 是这两个字符串所共同拥有的子序列。
+
+ 
+
+**示例 1：**
+
+```
+输入：text1 = "abcde", text2 = "ace" 
+输出：3  
+解释：最长公共子序列是 "ace" ，它的长度为 3 。
+```
+
+**示例 2：**
+
+```
+输入：text1 = "abc", text2 = "abc"
+输出：3
+解释：最长公共子序列是 "abc" ，它的长度为 3 。
+```
+
+**示例 3：**
+
+```
+输入：text1 = "abc", text2 = "def"
+输出：0
+解释：两个字符串没有公共子序列，返回 0 。
+```
+
+ 
+
+**提示：**
+
+- `1 <= text1.length, text2.length <= 1000`
+- `text1` 和 `text2` 仅由小写英文字符组成。
+
+## 题目大意
+
+>返回两个字符串的最长公共子序列，是不连续的
+
+## 解题思路
+
+dp[i] [j]：⻓度为[0, i - 1]的字符串text1与⻓度为[0, j - 1]的字符串text2的最⻓公共⼦序列为dp[i] [j]
+
+如果text1[i - 1] 与 text2[j - 1]相同，那么找到了⼀个公共元素，所以dp[i] [j] = dp[i - 1] [j - 1] + 1;
+
+如果text1[i - 1] 与 text2[j - 1]不相同，那就看看text1[0, i - 2]与text2[0, j - 1]的最⻓公共⼦序列 和 text1[0, i - 1]与
+text2[0, j - 2]的最⻓公共⼦序列，取最⼤的。
+
+dp[i] [j] = max(dp[i - 1] [j], dp[i] [j - 1]);
+
+先看看dp[i] [0]应该是多少呢？
+test1[0, i-1]和空串的最⻓公共⼦序列⾃然是0，所以dp[i] [0] = 0;
+同理dp[0] [j]也是0。
+
+![](https://pic.superbed.cc/item/671a1181fa9f77b4dc4b6258.png)
+
+![](https://pic.superbed.cc/item/671a119efa9f77b4dc4b64de.png)
+
+![](https://pic.superbed.cc/item/671a11b9fa9f77b4dc4b667d.png)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-24 11:12:01
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-24 11:31:56
+ * @FilePath: \code\dp_leetcode1147.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+
+class Solution {
+  public:
+    int longestCommonSubsequence(string text1, string text2) {
+        // dp[i][j]代表以[0,i-1]为结尾的A, [0,j - 1]为结尾的B的最长公共子序列
+        // 当text1[i -1] == text2[j - 1]
+        // 也就是以i-1为结尾的A等于以j-1为结尾的B
+        // 则dp[i][j]是由上一个状态i-1和j-1推导出来
+        // 否则dp[i][j]是由左边和上边推导出来
+        vector<vector<int>> dp(text1.size() + 1,
+                               vector<int>(text2.size() + 1, 0));
+        int res = 0;
+        for (int i = 1; i <= text1.size(); i++) {
+            for (int j = 1; j <= text2.size(); j++) {
+                if (text1[i] == text2[j]) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                } else {
+                    // dp[i][j]由i-1
+                    dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
+                }
+                if (res < dp[i][j]) {
+                    res = dp[i][j];
+                }
+            }
+            for (int m = 0; m <= text1.size(); m++) {
+                for (int n = 0; n <= text2.size(); n++) {
+                    std::cout << dp[m][n] << " ";
+                }
+                std::cout << std::endl;
+            }
+            std::cout << std::endl;
+        }
+        return res;
+    }
+};
+
+int main() {
+    Solution solution;
+    string text1 = "abcde";
+    string text2 = "ace";
+    solution.longestCommonSubsequence(text1, text2);
+}
+```
+
+# 1035 [不相交的线](https://leetcode.cn/problems/uncrossed-lines/description/)
+
+## 题目
+
+在两条独立的水平线上按给定的顺序写下 `nums1` 和 `nums2` 中的整数。
+
+现在，可以绘制一些连接两个数字 `nums1[i]` 和 `nums2[j]` 的直线，这些直线需要同时满足：
+
+-  `nums1[i] == nums2[j]`
+- 且绘制的直线不与任何其他连线（非水平线）相交。
+
+请注意，连线即使在端点也不能相交：每个数字只能属于一条连线。
+
+以这种方法绘制线条，并返回可以绘制的最大连线数。
+
+![img](https://assets.leetcode.com/uploads/2019/04/26/142.png)
+
+```
+输入：nums1 = [1,4,2], nums2 = [1,2,4]
+输出：2
+解释：可以画出两条不交叉的线，如上图所示。 
+但无法画出第三条不相交的直线，因为从 nums1[1]=4 到 nums2[2]=4 的直线将与从 nums1[2]=2 到 nums2[1]=2 的直线相交。
+```
+
+**示例 2：**
+
+```
+输入：nums1 = [2,5,1,2,5], nums2 = [10,5,2,1,5,2]
+输出：3
+```
+
+**示例 3：**
+
+```
+输入：nums1 = [1,3,7,1,7,5], nums2 = [1,9,2,5,1]
+输出：2
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums1.length, nums2.length <= 500`
+- `1 <= nums1[i], nums2[j] <= 2000`
+
+## 题目大意
+
+>和1147是一样的
+
+## 解题思路
+
+>和1147一致，就是找最长公共序列
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-24 11:39:32
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-24 11:42:51
+ * @FilePath: \code\dp_leetcode1035.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+
+class Solution {
+  public:
+    int maxUncrossedLines(vector<int> &nums1, vector<int> &nums2) {
+        // dp[i][j] 代表[0, i - 1]的nums1和[0,j - 1]nums2的公共最长子序列
+        // 和1147题目一摸一样，就是求解两个数组的公共最长子序列
+        vector<vector<int>> dp(nums1.size() + 1,
+                               vector<int>(nums2.size() + 1, 0));
+        int res = 0;
+        for (int i = 1; i <= nums1.size(); i++) {
+            for (int j = 1; j <= nums2.size(); j++) {
+                if (nums1[i - 1] == nums2[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                } else {
+                    dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
+                }
+                if (res < dp[i][j]) {
+                    res = dp[i][j];
+                }
+            }
+        }
+        return res;
+    }
+};
+```
+
+# 53 [最大子数组和](https://leetcode.cn/problems/maximum-subarray/)
+
+## 题目
+
+给你一个整数数组 `nums` ，请你找出一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。
+
+**子数组**是数组中的一个连续部分。
+
+**示例 1：**
+
+```
+输入：nums = [-2,1,-3,4,-1,2,1,-5,4]
+输出：6
+解释：连续子数组 [4,-1,2,1] 的和最大，为 6 。
+```
+
+**示例 2：**
+
+```
+输入：nums = [1]
+输出：1
+```
+
+**示例 3：**
+
+```
+输入：nums = [5,4,-1,7,8]
+输出：23
+```
+
+ 
+
+**提示：**
+
+- `1 <= nums.length <= 105`
+- `-104 <= nums[i] <= 104`
+
+## 题目大意
+
+>找到数组中和最大的连续子数组
+
+## 解题思路
+
+![](https://pic.superbed.cc/item/671a12cafa9f77b4dc4b7692.png)
+
+![](https://pic.superbed.cc/item/671a12e0fa9f77b4dc4b7925.png)
+
+![](https://pic.superbed.cc/item/671a130dfa9f77b4dc4b7c43.png)
+
+
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-24 11:52:36
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-24 15:04:22
+ * @FilePath: \code\dp_leetcode53.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式ss
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+
+class Solution {
+  public:
+    // 先考虑dp怎么写
+    // dp[i]代表到i下标位置的连续数组拥有最大和
+    // dp[i] = max(dp[i - 1] + nums[i], nums[i])
+    // 如果dp[i - 1] + nums[i]是比nums[i]小的话,那么就代表nums[i]是负数
+    // 需要重新开始
+    int maxSubArray(vector<int> &nums) {
+        if (nums.size() == 0) {
+            return 0;
+        }
+        vector<int> dp(nums.size() + 1, 0);
+        dp[0] = nums[0];
+        int res = dp[0];
+        for (int i = 1; i < nums.size(); i++) {
+            // 因为如果dp[i - 1]加上当前位置的数，是变小的话
+            // 那么就代表nums[i]是负数
+            dp[i] = max(dp[i - 1] + nums[i], nums[i]);
+            if (res < dp[i]) {
+                res = dp[i];
+            }
+        }
+        return res;
+    }
+};
+```
+
