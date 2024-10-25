@@ -3886,3 +3886,523 @@ class Solution {
 };
 ```
 
+# 392 [判断子序列](https://leetcode.cn/problems/is-subsequence/description/)
+
+## 题目
+
+给定字符串 **s** 和 **t** ，判断 **s** 是否为 **t** 的子序列。
+
+字符串的一个子序列是原始字符串删除一些（也可以不删除）字符而不改变剩余字符相对位置形成的新字符串。（例如，`"ace"`是`"abcde"`的一个子序列，而`"aec"`不是）。
+
+**进阶：**
+
+如果有大量输入的 S，称作 S1, S2, ... , Sk 其中 k >= 10亿，你需要依次检查它们是否为 T 的子序列。在这种情况下，你会怎样改变代码？
+
+**致谢：**
+
+特别感谢 [@pbrother ](https://leetcode.com/pbrother/)添加此问题并且创建所有测试用例。
+
+ 
+
+**示例 1：**
+
+```
+输入：s = "abc", t = "ahbgdc"
+输出：true
+```
+
+**示例 2：**
+
+```
+输入：s = "axc", t = "ahbgdc"
+输出：false
+```
+
+ 
+
+**提示：**
+
+- `0 <= s.length <= 100`
+- `0 <= t.length <= 10^4`
+- 两个字符串都只由小写字符组成。
+
+## 题目大意
+
+>判断s字符串是否是t的公共子序列
+
+## 解题思路
+
+1. 确定dp数组（dp table）以及下标的含义
+dp[i] [j] 表示以下标i-1为结尾的字符串s，和以下标j-1为结尾的字符串t，相同⼦序列的⻓度为dp[i] [j]。
+2. 在确定递推公式的时候，⾸先要考虑如下两种操作，整理如下：
+  if (s[i - 1] == t[j - 1])
+  t中找到了⼀个字符在s中也出现了
+  if (s[i - 1] != t[j - 1])
+  相当于t要删除元素，继续匹配
+
+![](https://pic.superbed.cc/item/671b5300fa9f77b4dc57fb0c.png)
+
+3. 从递推公式可以看出dp[i] [j]都是依赖于dp[i - 1] [j - 1] 和 dp[i] j - 1]，所以dp[0] [0]和dp[i] [0]是⼀定要初始化的。这⾥⼤家已经可以发现，在定义dp[i] [j]含义的时候为什么要表示以下标i-1为结尾的字符串s，和以下标j-1为结尾的字符串t，相同⼦序列的⻓度为dp[i] [j]。
+4. ![](https://pic.superbed.cc/item/671b5357fa9f77b4dc57feb9.png)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-24 15:04:28
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-25 14:12:48
+ * @FilePath: \code\dp_leetcode392.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+
+class Solution {
+  public:
+    bool isSubsequence(string s, string t) {
+        // dp[i][j]表示以下标i-1为结尾的字符串s和以下标j-1为结尾的字符串t
+        // 相同⼦序列的⻓度，所以如果dp[s.size()] [t.size()] 与
+        // 字符串s的⻓度相同说明：s与t的最⻓相同⼦序列就是s，那么s 就是 t
+        // 的⼦序列。 当text1[i -1] == text2[j - 1]
+        // 也就是以i-1为结尾的A等于以j-1为结尾的B
+        // 则dp[i][j]是由上一个状态i-1和j-1推导出来
+        // 否则dp[i][j]是由左边和上边推导出来
+        // if (t.size() == 0 || s.size() == 0) {
+        //     return false;
+        // }
+        vector<vector<int>> dp(s.size() + 1, vector<int>(t.size() + 1, 0));
+        bool res = false;
+        for (int i = 1; i <= s.size(); i++) {
+            for (int j = 1; j <= t.size(); j++) {
+                // 如果两者的的字符相等
+                if (s[i - 1] == t[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                } else {
+                    dp[i][j] = dp[i][j - 1];
+                }
+            }
+        }
+        if (dp[s.size()][t.size()] == s.size()) {
+            return true;
+        }
+        return false;
+    }
+};
+```
+
+# 115. [不同的子序列](https://leetcode.cn/problems/distinct-subsequences/description/)
+
+## 题目
+
+给你两个字符串 `s` 和 `t` ，统计并返回在 `s` 的 **子序列** 中 `t` 出现的个数，结果需要对 109 + 7 取模。
+
+ 
+
+**示例 1：**
+
+```
+输入：s = "rabbbit", t = "rabbit"
+输出：3
+解释：
+如下所示, 有 3 种可以从 s 中得到 "rabbit" 的方案。
+rabb b it
+ra b bbit
+rab b bit
+```
+
+**示例 2：**
+
+```
+输入：s = "babgbag", t = "bag"
+输出：5
+解释：
+如下所示, 有 5 种可以从 s 中得到 "bag" 的方案。 
+ba b g bag
+ba bgba g
+b abgb ag
+ba b gb ag
+babg bag
+```
+
+ 
+
+**提示：**
+
+- `1 <= s.length, t.length <= 1000`
+- `s` 和 `t` 由英文字母组成
+
+## 题目大意
+
+>统计并返回在 `s` 的 **子序列** 中 `t` 出现的个数
+
+## 解题思路
+
+1. 确定dp数组（dp table）以及下标的含义
+dp[i] [j]：以i-1为结尾的s⼦序列中出现以j-1为结尾的t的个数为dp[i] [j]。
+2. s[i - 1] 与 t[j - 1]相等
+  s[i - 1] 与 t[j - 1] 不相等 所以当s[i - 1] 与 t[j - 1]相等时，dp[i] [j] = dp[i - 1] [j - 1] + dp[i - 1] [j];
+  当s[i - 1] 与 t[j - 1]不相等时，dp[i][j]只有⼀部分组成，不⽤s[i - 1]来匹配（就是模拟在s中删除这个元素），即：
+  dp[i - 1] [j]
+3.  dp数组如何初始化
+  从递推公式dp[i] [j] = dp[i - 1] [j - 1] + dp[i - 1] [j]; 和 dp[i] [j] = dp[i - 1] [j]; 中可以看出dp[i] [j] 是从上⽅和左上⽅推导⽽来，如图：，那么 dp[i] [0] 和dp[0] [j]是⼀定要初始化的。
+4. 从递推公式dp[i] [j] = dp[i - 1] [j - 1] + dp[i - 1] [j]; 和 dp[i] [j] = dp[i - 1] [j]; 中可以看出dp[i][j]都是根据左上⽅和正上⽅推出来的。
+5. ![](https://pic.superbed.cc/item/671b54a5fa9f77b4dc581348.png)
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-25 14:18:10
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-25 14:54:33
+ * @FilePath: \code\dp_leetcode115.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+
+class Solution {
+  public:
+    int numDistinct(string s, string t) {
+        // dp[i][j]是 以i-1为结尾的s子序列中出现j-1为结尾的t的个数为dp[i][j]
+        // 当s[i - 1] == t[i - 1]的时候
+        // dp[i][j] = dp[i - 1][j - 1] + dp[i - 1][j];
+        // 否则dp[i][j] = dp[i - 1][j]
+        // 这个我只能画图自己理解一遍,难以理解
+        // 为什么当以i-1，j-1为结尾不相等的时候,需要dp[i][j] = dp[i - 1][j - 1] + dp[i - 1][j]
+        vector<vector<uint64_t>> dp(s.size() + 1,
+                                    vector<uint64_t>(t.size() + 1));
+        int res = 0;
+        for (int i = 0; i <= s.size(); i++) {
+            dp[i][0] = 1;
+        }
+        for (int j = 1; j <= t.size(); j++) {
+            dp[0][j] = 0;
+        }
+        for (int i = 1; i <= s.size(); i++) {
+            for (int j = 1; j <= t.size(); j++) {
+                // dp[i][]是以i-1，j-1为结尾的子序列长度
+                if (s[i - 1] == t[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1] + dp[i - 1][j];
+                } else {
+                    dp[i][j] = dp[i - 1][j];
+                }
+            }
+        }
+        return dp[s.size()][t.size()];
+    }
+};
+```
+
+# 583 [两个字符串的删除操作](https://leetcode.cn/problems/delete-operation-for-two-strings/description/)
+
+## 题目
+
+给定两个单词 `word1` 和 `word2` ，返回使得 `word1` 和  `word2` **相同**所需的**最小步数**。
+
+**每步** 可以删除任意一个字符串中的一个字符。
+
+ 
+
+**示例 1：**
+
+```
+输入: word1 = "sea", word2 = "eat"
+输出: 2
+解释: 第一步将 "sea" 变为 "ea" ，第二步将 "eat "变为 "ea"
+```
+
+**示例  2:**
+
+```
+输入：word1 = "leetcode", word2 = "etco"
+输出：4
+```
+
+ 
+
+**提示：**
+
+- `1 <= word1.length, word2.length <= 500`
+- `word1` 和 `word2` 只包含小写英文字母
+
+## 题目大意
+
+>每步可以删除任意一个字符串中一个字符
+
+## 解题思路
+
+1. 确定dp数组（dp table）以及下标的含义
+dp[i] [j]：以i-1为结尾的字符串word1，和以j-1位结尾的字符串word2，想要达到相等，所需要删除元素的最少次数。
+2. 当word1[i - 1] 与 word2[j - 1]相同的时候
+  当word1[i - 1] 与 word2[j - 1]不相同的时候
+3. ![](https://pic.superbed.cc/item/671b5551fa9f77b4dc581d4d.png)
+4. 从递推公式 dp[i] [j] = min(dp[i - 1] [j - 1] + 2, min(dp[i - 1] [j], dp[i] [j - 1]) + 1); 和dp[i] [j] = dp[i - 1] [j - 1]可以看出dp[i] [j]都是根据左上⽅、正上⽅、正左⽅推出来的。
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-25 14:57:15
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-25 15:10:20
+ * @FilePath: \code\dp_leetcode583.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+
+class Solution {
+  public:
+    int minDistance(string word1, string word2) {
+        // dp[i][j]代表以i-1为结尾的字符串word1和以j-1为结尾的字符串
+        // word2,要达到相等,需要删除元素的最少步数
+
+        vector<vector<int>> dp(word1.size() + 1, vector<int>(word2.size() + 1));
+        for (int i = 0; i <= word1.size(); i++) {
+            dp[i][0] = i;
+        }
+        for (int j = 0; j <= word2.size(); j++) {
+            dp[0][j] = j;
+        }
+        for (int i = 1; i <= word1.size(); i++) {
+            for (int j = 1; j <= word2.size(); j++) {
+                if (word1[i - 1] == word2[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = min(dp[i - 1][j] + 1, dp[i][j - 1] + 1);
+                }
+            }
+        }
+        return dp[word1.size()][word2.size()];
+    }
+};
+```
+
+# 72 [编辑距离](https://leetcode.cn/problems/edit-distance/description/)
+
+## 题目
+
+给你两个单词 `word1` 和 `word2`， *请返回将 word1 转换成 word2 所使用的最少操作数*  。
+
+你可以对一个单词进行如下三种操作：
+
+- 插入一个字符
+- 删除一个字符
+- 替换一个字符
+
+ 
+
+**示例 1：**
+
+```
+输入：word1 = "horse", word2 = "ros"
+输出：3
+解释：
+horse -> rorse (将 'h' 替换为 'r')
+rorse -> rose (删除 'r')
+rose -> ros (删除 'e')
+```
+
+**示例 2：**
+
+```
+输入：word1 = "intention", word2 = "execution"
+输出：5
+解释：
+intention -> inention (删除 't')
+inention -> enention (将 'i' 替换为 'e')
+enention -> exention (将 'n' 替换为 'x')
+exention -> exection (将 'n' 替换为 'c')
+exection -> execution (插入 'u')
+```
+
+ 
+
+**提示：**
+
+- `0 <= word1.length, word2.length <= 500`
+- `word1` 和 `word2` 由小写英文字母组成
+
+## 题目大意
+
+>给你两个单词 `word1` 和 `word2`， *请返回将 word1 转换成 word2 所使用的最少操作数*  。
+>
+>你可以对一个单词进行如下三种操作：
+>
+>- 插入一个字符
+>- 删除一个字符
+>- 替换一个字符
+
+## 解题思路
+
+dp[i] [j] 表示以下标i-1为结尾的字符串word1，和以下标j-1为结尾的字符串word2，最近编辑距离为dp[i] [j]。
+
+```
+if (word1[i - 1] == word2[j - 1])
+ 不操作
+if (word1[i - 1] != word2[j - 1])
+ 增
+ 删
+ 换
+```
+
+![](https://pic.superbed.cc/item/671b5649fa9f77b4dc582c0b.png)
+
+![](https://pic.superbed.cc/item/671b565efa9f77b4dc582d7f.png)
+
+- 初始化
+
+dp[i] [j] 表示以下标i-1为结尾的字符串word1，和以下标j-1为结尾的字符串word2，最近编辑距离为dp[i] [j]。
+
+那么dp[i][0]就应该是i，对word1⾥的元素全部做删除操作，即：dp[i] [0] = i;
+
+
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-25 15:15:40
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-25 15:16:07
+ * @FilePath: \code\dp_leetcode72.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+
+class Solution {
+  public:
+    int minDistance(string word1, string word2) {
+        vector<vector<int>> dp(word1.size(), vector<int>(word2.size()));
+        // 动态规划来做
+        // dp[i][j] 代表以i-1为结尾的word1要变成以j-1为结尾的word2的最少操作数
+        for (int i = 0; i <= word1.size(); i++) {
+            dp[i][0] = i;
+        }
+        for (int j = 0; j <= word2.size(); j++) {
+            dp[0][j] = j;
+        }
+        for (int i = 1; i <= word1.size(); i++) {
+            for (int j = 1; j <= word2.size(); j++) {
+                if (word1[i - 1] == word2[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = min({dp[i - 1][j - 1] + 1, dp[i][j - 1] + 1,
+                                    dp[i - 1][j] + 1});
+                }
+            }
+        }
+        return dp[word1.size()][word2.size()];
+    }
+};
+```
+
