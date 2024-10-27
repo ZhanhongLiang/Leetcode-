@@ -3935,10 +3935,10 @@ class Solution {
 1. 确定dp数组（dp table）以及下标的含义
 dp[i] [j] 表示以下标i-1为结尾的字符串s，和以下标j-1为结尾的字符串t，相同⼦序列的⻓度为dp[i] [j]。
 2. 在确定递推公式的时候，⾸先要考虑如下两种操作，整理如下：
-  if (s[i - 1] == t[j - 1])
-  t中找到了⼀个字符在s中也出现了
-  if (s[i - 1] != t[j - 1])
-  相当于t要删除元素，继续匹配
+    if (s[i - 1] == t[j - 1])
+    t中找到了⼀个字符在s中也出现了
+    if (s[i - 1] != t[j - 1])
+    相当于t要删除元素，继续匹配
 
 ![](https://pic.superbed.cc/item/671b5300fa9f77b4dc57fb0c.png)
 
@@ -4068,11 +4068,11 @@ babg bag
 1. 确定dp数组（dp table）以及下标的含义
 dp[i] [j]：以i-1为结尾的s⼦序列中出现以j-1为结尾的t的个数为dp[i] [j]。
 2. s[i - 1] 与 t[j - 1]相等
-  s[i - 1] 与 t[j - 1] 不相等 所以当s[i - 1] 与 t[j - 1]相等时，dp[i] [j] = dp[i - 1] [j - 1] + dp[i - 1] [j];
-  当s[i - 1] 与 t[j - 1]不相等时，dp[i][j]只有⼀部分组成，不⽤s[i - 1]来匹配（就是模拟在s中删除这个元素），即：
-  dp[i - 1] [j]
+    s[i - 1] 与 t[j - 1] 不相等 所以当s[i - 1] 与 t[j - 1]相等时，dp[i] [j] = dp[i - 1] [j - 1] + dp[i - 1] [j];
+    当s[i - 1] 与 t[j - 1]不相等时，dp[i][j]只有⼀部分组成，不⽤s[i - 1]来匹配（就是模拟在s中删除这个元素），即：
+    dp[i - 1] [j]
 3.  dp数组如何初始化
-  从递推公式dp[i] [j] = dp[i - 1] [j - 1] + dp[i - 1] [j]; 和 dp[i] [j] = dp[i - 1] [j]; 中可以看出dp[i] [j] 是从上⽅和左上⽅推导⽽来，如图：，那么 dp[i] [0] 和dp[0] [j]是⼀定要初始化的。
+    从递推公式dp[i] [j] = dp[i - 1] [j - 1] + dp[i - 1] [j]; 和 dp[i] [j] = dp[i - 1] [j]; 中可以看出dp[i] [j] 是从上⽅和左上⽅推导⽽来，如图：，那么 dp[i] [0] 和dp[0] [j]是⼀定要初始化的。
 4. 从递推公式dp[i] [j] = dp[i - 1] [j - 1] + dp[i - 1] [j]; 和 dp[i] [j] = dp[i - 1] [j]; 中可以看出dp[i][j]都是根据左上⽅和正上⽅推出来的。
 5. ![](https://pic.superbed.cc/item/671b54a5fa9f77b4dc581348.png)
 
@@ -4190,7 +4190,7 @@ class Solution {
 1. 确定dp数组（dp table）以及下标的含义
 dp[i] [j]：以i-1为结尾的字符串word1，和以j-1位结尾的字符串word2，想要达到相等，所需要删除元素的最少次数。
 2. 当word1[i - 1] 与 word2[j - 1]相同的时候
-  当word1[i - 1] 与 word2[j - 1]不相同的时候
+    当word1[i - 1] 与 word2[j - 1]不相同的时候
 3. ![](https://pic.superbed.cc/item/671b5551fa9f77b4dc581d4d.png)
 4. 从递推公式 dp[i] [j] = min(dp[i - 1] [j - 1] + 2, min(dp[i - 1] [j], dp[i] [j - 1]) + 1); 和dp[i] [j] = dp[i - 1] [j - 1]可以看出dp[i] [j]都是根据左上⽅、正上⽅、正左⽅推出来的。
 
@@ -4405,4 +4405,258 @@ class Solution {
     }
 };
 ```
+
+# 647 [回文子串](https://leetcode.cn/problems/palindromic-substrings/description/)
+
+## 题目
+
+给你一个字符串 `s` ，请你统计并返回这个字符串中 **回文子串** 的数目。
+
+**回文字符串** 是正着读和倒过来读一样的字符串。
+
+**子字符串** 是字符串中的由连续字符组成的一个序列。
+
+ 
+
+**示例 1：**
+
+```
+输入：s = "abc"
+输出：3
+解释：三个回文子串: "a", "b", "c"
+```
+
+**示例 2：**
+
+```
+输入：s = "aaa"
+输出：6
+解释：6个回文子串: "a", "a", "a", "aa", "aa", "aaa"
+```
+
+ 
+
+**提示：**
+
+- `1 <= s.length <= 1000`
+- `s` 由小写英文字母组成
+
+## 题目大意
+
+>找出所有是连续的回文字串
+
+## 解题思路
+
+>用动态规划
+
+```c++
+        // vector<vector<bool>> dp(s.size() + 1, vector<bool>(2,false));
+        // dp[i][j] 代表[i,j]区间的字符串是否是回文字符串
+        // false代表不是回文字符串,true代表是回文字符串
+        // 递推公式:
+        //        如果s[i] == s[j]
+        //            1.如果j==i,那么肯定是回文字串,dp[i][j] = true;
+        //            2.如果j-i == 1,那么也肯定是回文字串,例如aa,dp[i][j]=true;
+        //            3.如果j-i > 1,那么需要判断dp[i + 1][j-1]是否是回文字串
+        // 因为需要判断i+1和j-1, 且,dp[i][j]是由左下角推导上来的,
+        // 也就是遍历顺序必须是从下到上，从左到右
+```
+
+
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-25 15:35:04
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-27 19:55:56
+ * @FilePath: \code\dp_leetcode647.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+/**
+ *  DP五部曲:
+ *  1. 确定dp数组（dp table）以及下标的含义
+    2. 确定递推公式
+    3. dp数组如何初始化
+    4. 确定遍历顺序
+    5. 举例推导dp数组
+ */
+class Solution {
+  public:
+    int countSubstrings(string s) {
+        // vector<vector<bool>> dp(s.size() + 1, vector<bool>(2,false));
+        // dp[i][j] 代表[i,j]区间的字符串是否是回文字符串
+        // false代表不是回文字符串,true代表是回文字符串
+        // 递推公式:
+        //        如果s[i] == s[j]
+        //            1.如果j==i,那么肯定是回文字串,dp[i][j] = true;
+        //            2.如果j-i == 1,那么也肯定是回文字串,例如aa,dp[i][j]=true;
+        //            3.如果j-i > 1,那么需要判断dp[i + 1][j-1]是否是回文字串
+        // 因为需要判断i+1和j-1, 且,dp[i][j]是由左下角推导上来的,
+        // 也就是遍历顺序必须是从下到上，从左到右
+        if (s.size() == 0) {
+            return 0;
+        }
+        vector<vector<bool>> dp(s.size() + 1,
+                                vector<bool>(s.size() + 1, false));
+        int res = 0;
+        for (int i = s.size() - 1; i >= 0; i--) {
+            for (int j = i; j < s.size(); j++) {
+                if (s[i] == s[j]) {
+                    if (j - i <= 1) {
+                        dp[i][j] = true;
+                        res++;
+                    } else if (dp[i + 1][j - 1]) {
+                        dp[i][j] = true;
+                        res++;
+                    }
+                }
+            }
+        }
+        return res;
+    }
+};
+```
+
+# 516[最长回文子序列](https://leetcode.cn/problems/longest-palindromic-subsequence/description/)
+
+## 题目
+
+给你一个字符串 `s` ，找出其中最长的回文子序列，并返回该序列的长度。
+
+子序列定义为：不改变剩余字符顺序的情况下，删除某些字符或者不删除任何字符形成的一个序列。
+
+ 
+
+**示例 1：**
+
+```
+输入：s = "bbbab"
+输出：4
+解释：一个可能的最长回文子序列为 "bbbb" 。
+```
+
+**示例 2：**
+
+```
+输入：s = "cbbd"
+输出：2
+解释：一个可能的最长回文子序列为 "bb" 。
+```
+
+ 
+
+**提示：**
+
+- `1 <= s.length <= 1000`
+- `s` 仅由小写英文字母组成
+
+## 题目大意
+
+>找出最长的回文子序列
+
+## 解题思路
+
+```c++
+        // 找出最长的回文字符子序列
+        // 子序列是不连续的
+        // dp[i][j]字符串在[i,j]范围内最长的回文子序列的长度
+        // 递推公式:
+        //        如果s[i] == s[j]
+        //           dp[i][j] = dp[i+1][j-1]+2
+        //        不相等
+        //           需要分别加入s[i]和s[j]看那个是最大
+        //            dp[i][j] = max(dp[i+1][j], dp[i][j - 1])
+```
+
+
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-10-25 15:36:20
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-10-27 20:09:18
+ * @FilePath: \code\dp_leetcode516.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <math.h>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+#define random(x) (rand() % x)
+using namespace std;
+
+class Solution {
+  public:
+    int longestPalindromeSubseq(string s) {
+        // 找出最长的回文字符子序列
+        // 子序列是不连续的
+        // dp[i][j]字符串在[i,j]范围内最长的回文子序列的长度
+        // 递推公式:
+        //        如果s[i] == s[j]
+        //           dp[i][j] = dp[i+1][j-1]+2
+        //        不相等
+        //           需要分别加入s[i]和s[j]看那个是最大
+        //            dp[i][j] = max(dp[i+1][j], dp[i][j - 1])
+        vector<vector<int>> dp(s.size() + 1, vector<int>(s.size() + 1, 0));
+        // 需要将所有单个字符初始化为回文串长度为1
+        for (int i = 0; i < s.size(); i++) {
+            dp[i][i] = 1;
+        }
+        // 还是从左上角开始遍历
+        // 且j = i + 1
+        for (int i = s.size() - 1; i >= 0; i--) {
+            for (int j = i + 1; j < s.size(); j++) {
+                if (s[i] == s[j]) {
+                    dp[i][j] = dp[i + 1][j - 1] + 2;
+                } else {
+                    dp[i][j] = max(dp[i + 1][j], dp[i][j - 1]);
+                }
+            }
+        }
+        return dp[0][s.size() - 1];
+    }
+};
+```
+
+
 
