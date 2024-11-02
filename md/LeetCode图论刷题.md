@@ -1889,3 +1889,597 @@ int main() {
 
 
 
+## 代码
+
+```c++
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+// 并合集定义
+// union-find
+// 通常用一个数组来表示,其中每个元素的值指向其父节点,根节点指向自己
+// 表示该元素是集合的代表
+
+class UnionFind {
+  public:
+    // 初始化parent数组
+    UnionFind(int size) {
+        parent.resize(size);
+        // 初始化parent数组
+        rank.resize(size, 0); // 初始化秩为 0
+        for (int i = 0; i < size; i++) {
+            parent[i] = i;
+        }
+    }
+
+    // 查找函数
+    // 查找元素的根节点，路径压缩优化可以提高效率。
+    // 使用路径压缩优化find函数
+    // 因为原始的find函数就是每次查找其父亲节点，
+    // 需要不断的递归下去
+    // 假如多叉树高度很深的华，每次find需要递归很多次
+    // 除了根节点其他所有节点都挂载根节点下，这样我们在寻根的时候就很快，只需要一步，
+    int find(int x) {
+        if (parent[x] != x) {
+            parent[x] = find(parent[x]); // 这里路径压缩了
+        }
+        return parent[x];
+    }
+
+    // 合并操作
+    // 将两个集合合并，可以使用按秩合并优化
+    // 确保较小的树合并到较大的树下
+    void unionSets(int x, int y) {
+        int root_x = find(x);
+        int root_y = find(y);
+        if (root_x != root_y) {
+            parent[root_y] = root_x;
+        }
+    }
+
+    // 判断x和v是否找到同一个根
+    // 最后我们如何判断两个元素是否在同一个集合里
+    bool isSame(int x, int y) {
+        int root_x = find(x);
+        int root_y = find(y);
+        return root_x == root_y;
+    }
+
+    //
+    int unionByRank(int x, int y) {
+        int root_x = find(x);
+        int root_y = find(y);
+        if (root_x != root_y) {
+            if (rank[root_x] < rank[root_y]) {
+                // 将小秩树合并到大秩树上
+                parent[root_x] = root_y;
+            } else if (rank[root_x] > rank[root_y]) {
+                parent[root_y] = root_x;
+            } else {
+                // 随便选择一个作为新的根
+                parent[root_y] = root_x;
+                rank[root_x]++; // 秩加一
+            }
+        }
+    }
+
+  private:
+    vector<int> parent;
+    vector<int> rank; // 记录每棵树的高度，也就是秩
+};
+
+```
+
+# [寻找存在的路径](https://kamacoder.com/problempage.php?pid=1179)
+
+## 题目
+
+- 题目描述
+
+给定一个包含 n 个节点的无向图中，节点编号从 1 到 n （含 1 和 n ）。
+
+你的任务是判断是否有一条从节点 source 出发到节点 destination 的路径存在。
+
+- 输入描述
+
+第一行包含两个正整数 N 和 M，N 代表节点的个数，M 代表边的个数。 
+
+后续 M 行，每行两个正整数 s 和 t，代表从节点 s 与节点 t 之间有一条边。 
+
+最后一行包含两个正整数，代表起始节点 source 和目标节点 destination。
+
+- 输出描述
+
+输出一个整数，代表是否存在从节点 source 到节点 destination 的路径。如果存在，输出 1；否则，输出 0。
+
+- 输入示例
+
+```
+5 4
+1 2
+1 3
+2 4
+3 4
+1 4
+```
+
+- 输出示例
+
+```
+1
+```
+
+![img](https://kamacoder.com/upload/kamacoder.com/image/20240416/20240416112946_20453.png)
+
+数据范围：
+
+1 <= M, N <= 100。
+
+## 题目大意
+
+>判断是否有一条从节点 source 出发到节点 destination 的路径存在。
+
+## 解题思路
+
+并查集可以解决什么问题呢？
+
+主要就是集合问题，**两个节点在不在一个集合，也可以将两个节点添加到一个集合中**。
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-11-02 13:34:24
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-11-02 13:35:10
+ * @FilePath: \code\graph_kamacoding_findpath.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+#include <iostream>
+#include <vector>
+
+using namespace std;
+// 两个节点在不在一个集合，也可以将两个节点添加到一个集合中
+
+// 这道题考察的是并查集问题
+
+// 节点数量
+int n;
+// 并查集储存
+vector<int> parent = vector<int>(101, 0);
+
+// 初始化
+void init() {
+    for (int i = 1; i <= n; i++) {
+        parent[i] = i;
+    }
+}
+
+// 查找某个节点的根节点
+// 需要路径压缩优化
+int find(int x) {
+    if (parent[x] != x) {
+        parent[x] = find(parent[x]); // 这里路径压缩了
+    }
+    return parent[x];
+}
+
+// 判断x和y是否是同一个根
+bool isSame(int x, int y) {
+    int root_x = find(x);
+    int root_y = find(y);
+    return root_x == root_y;
+}
+
+// 合并操作
+void unionSets(int x, int y) {
+    int root_x = find(x);
+    int root_y = find(y);
+    if (root_x == root_y) {
+        return;
+    }
+    parent[root_y] = root_x;
+}
+
+int main() {
+    int m, s, t;
+    int source, destination;
+    cin >> n >> m;
+    init();
+    while (m--) {
+        cin >> s >> t;
+        unionSets(s, t);
+    }
+    cin >> source >> destination;
+    if (isSame(source, destination)) {
+        cout << 1 << endl;
+    } else {
+        cout << 0 << endl;
+    }
+}
+
+```
+
+
+
+
+
+# [冗余连接](https://kamacoder.com/problempage.php?pid=1179)
+
+## 题目
+
+- 题目描述
+
+有一个图，它是一棵树，他是拥有 n 个节点（节点编号1到n）和 n - 1 条边的连通无环无向图（其实就是一个线形图），如图：
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20240905163122.png)
+
+现在在这棵树上的基础上，添加一条边（依然是n个节点，但有n条边），使这个图变成了有环图，如图：
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20240905164721.png)
+
+先请你找出冗余边，删除后，使该图可以重新变成一棵树。
+
+- 输入描述
+
+第一行包含一个整数 N，表示图的节点个数和边的个数。
+
+后续 N 行，每行包含两个整数 s 和 t，表示图中 s 和 t 之间有一条边。
+
+- 输出描述
+
+输出一条可以删除的边。如果有多个答案，请删除标准输入中最后出现的那条边。
+
+- 输入示例
+
+- ```
+  3
+  1 2
+  2 3
+  1 3
+  ```
+
+- 输入示例
+
+```
+1 3
+```
+
+![img](https://kamacoder.com/upload/kamacoder.com/image/20240417/20240417110831_73733.png)
+
+图中的 1 2，2 3，1 3 等三条边在删除后都能使原图变为一棵合法的树。但是 1 3 由于是标准输出里最后出现的那条边，所以输出结果为 1 3
+
+
+
+数据范围：
+
+1 <= N <= 1000.
+
+## 题目大意
+
+>删除一条边后保证是一颗有向树
+
+## 解题思路
+
+我们再来看一下这道题目。
+
+题目说是无向图，返回一条可以删去的边，使得结果图是一个有着N个节点的树（即：只有一个根节点）。
+
+如果有多个答案，则返回二维数组中最后出现的边。
+
+那么我们就可以从前向后遍历每一条边（因为优先让前面的边连上），边的两个节点如果不在同一个集合，就加入集合（即：同一个根节点）。
+
+如图所示，节点A 和节点 B 不在同一个集合，那么就可以将两个 节点连在一起。
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20230604104720.png)
+
+如果边的两个节点已经出现在同一个集合里，说明着边的两个节点已经连在一起了，再加入这条边一定就出现环了。
+
+如图所示：
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20230604104330.png)
+
+已经判断 节点A 和 节点B 在在同一个集合（同一个根），如果将 节点A 和 节点B 连在一起就一定会出现环。
+
+这个思路清晰之后，代码就很好写了。
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-11-02 14:31:37
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-11-02 16:39:49
+ * @FilePath: \code\graph_kamacoding_redundancy_connection.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+int n; // 结点数和边数
+vector<int> parent = vector<int>(1001, 0);
+
+void init() {
+    for (int i = 1; i <= n; i++) {
+        parent[i] = i;
+    }
+}
+
+// 寻找该节点的根节点
+// 路径压缩
+int find(int x) {
+    if (parent[x] != x) {
+        parent[x] = find(parent[x]);
+    }
+    return parent[x];
+}
+
+// 合并
+void unionSets(int x, int y) {
+    int root_x = find(x);
+    int root_y = find(y);
+    if (root_x == root_y) {
+        return;
+    }
+    parent[root_y] = root_x;
+}
+
+// 判断是否同根
+bool isSame(int x, int y) {
+    int root_x = find(x);
+    int root_y = find(y);
+    return root_x == root_y;
+}
+
+int main() {
+    int s, t;
+    cin >> n;
+    init();
+    while (n--) {
+        cin >> s >> t;
+        if (isSame(s, t)) {
+            cout << s << " " << t << endl;
+            return 0;
+        } else {
+            unionSets(s, t);
+        }
+    }
+}
+
+```
+
+
+
+# [冗余连接II](https://kamacoder.com/problempage.php?pid=1182)
+
+## 题目
+
+- 题目描述
+
+有一种有向树,该树只有一个根节点，所有其他节点都是该根节点的后继。该树除了根节点之外的每一个节点都有且只有一个父节点，而根节点没有父节点。有向树拥有 n 个节点和 n - 1 条边。如图： 
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20240827152106.png)
+
+现在有一个有向图，有向图是在有向树中的两个没有直接链接的节点中间添加一条有向边。如图：
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20240827152134.png)
+
+输入一个有向图，该图由一个有着 n 个节点(节点编号 从 1 到 n)，n 条边，请返回一条可以删除的边，使得删除该条边之后该有向图可以被当作一颗有向树。
+
+- 输入描述
+
+第一行输入一个整数 N，表示有向图中节点和边的个数。 
+
+后续 N 行，每行输入两个整数 s 和 t，代表这是 s 节点连接并指向 t 节点的单向边
+
+- 输出描述
+
+输出一条可以删除的边，若有多条边可以删除，请输出标准输入中最后出现的一条边。
+
+- 输入示例
+
+```
+3
+1 2
+1 3
+2 3
+```
+
+- 输出示例
+
+```
+2 3
+```
+
+![img](https://kamacoder.com/upload/kamacoder.com/image/20240418/20240418110555_68889.png)
+
+在删除 2 3 后有向图可以变为一棵合法的有向树，所以输出 2 3
+
+
+
+**数据范围：**
+
+1 <= N <= 1000.
+
+## 题目大意
+
+>删除一条边后保证是一颗有向树
+
+## 解题思路
+
+还有“**若有多条边可以删除，请输出标准输入中最后出现的一条边**”，这说明在两条边都可以删除的情况下，要删顺序靠后的边！
+
+我们来想一下 有向树的性质，如果是有向树的话，只有根节点入度为0，其他节点入度都为1（因为该树除了根节点之外的每一个节点都有且只有一个父节点，而根节点没有父节点）。
+
+所以情况一：如果我们找到入度为2的点，那么删一条指向该节点的边就行了。
+
+如图：
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20240527115807.png)
+
+找到了节点3 的入度为2，删 1 -> 3 或者 2 -> 3 。选择删顺序靠后便可。
+
+但 入度为2 还有一种情况，情况二，只能删特定的一条边，如图：
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20240527151456.png)
+
+节点3 的入度为 2，但在删除边的时候，只能删 这条边（节点1 -> 节点3），如果删这条边（节点4 -> 节点3），那么删后本图也不是有向树了（因为找不到根节点）。
+
+综上，如果发现入度为2的节点，我们需要判断 删除哪一条边，删除后本图能成为有向树。如果是删哪个都可以，优先删顺序靠后的边。
+
+情况三： 如果没有入度为2的点，说明 图中有环了（注意是有向环）。
+
+如图：
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20240527120531.png)
+
+对于情况三，删掉构成环的边就可以了。
+
+## 代码
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-11-02 14:48:01
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-11-02 16:40:35
+ * @FilePath: \code\graph_kamacoding_redundancy_connection02.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+// 有向树，除了根节点，每个节点只有一个父亲节点
+// 根节点是没有父亲节点的
+int n; // 代表节点和边数
+vector<int> parent = vector<int>(1001, 0);
+
+// 初始化
+void init() {
+    for (int i = 1; i <= n; i++) {
+        parent[i] = i;
+    }
+}
+
+// 查找
+int find(int x) {
+    if (parent[x] != x) {
+        parent[x] = find(parent[x]);
+    }
+    return parent[x];
+}
+
+// 合并
+void unionSets(int x, int y) {
+    int root_x = find(x);
+    int root_y = find(y);
+    if (root_x == root_y) {
+        return;
+    }
+    parent[root_y] = root_x;
+}
+
+// 判断是否同根
+bool isSame(int x, int y) {
+    int root_x = find(x);
+    int root_y = find(y);
+    return root_x == root_y;
+}
+
+// 删除最后一条边
+// 判断是否是有向树
+bool isTreeAfterRemoveEdge(const vector<vector<int>> &edges, int delet_edge) {
+    init();
+    // 需要用并查集进行构建树,然后判断删除这条边后是否是有向树
+    for (int i = 0; i < n; i++) {
+        // 如果当前遍历边表的i等于要删除的边
+        // 那么就需要跳过改变
+        if (i == delet_edge) {
+            continue;
+        }
+        // 跳过后进行判断
+        // 如果发现某条边添加的时候是同根的,就证明存在环
+        if (isSame(edges[i][0], edges[i][1])) {
+            return false;
+        }
+        // 否则添加到并查集中
+        unionSets(edges[i][0], edges[i][1]);
+    }
+    return true;
+}
+
+// 找到构建的时候最后出现的边
+// 根据并查集的特性，当最后一个边
+void getRemoveEdge(const vector<vector<int>> &edges) {
+    init();
+    for (int i = 0; i < n; i++) {
+        if (isSame(edges[i][0], edges[i][1])) {
+            cout << edges[i][0] << " " << edges[i][1] << endl;
+            return;
+        }
+        unionSets(edges[i][0], edges[i][1]);
+    }
+}
+
+// 删除某条边后判断是否还是有向树
+
+int main() {
+    int s, t;
+    // 记录边表
+    // 0位置是起始
+    // 1位置是终点
+    vector<vector<int>> edges;
+    // 记录每个节点的入度
+    // 因为从1开始，所以空间是要n+1
+    vector<int> in_degree(n + 1, 0);
+    cin >> n;
+    for (int i = 0; i < n; i++) {
+        cin >> s >> t;
+        in_degree[t]++;
+        edges.push_back({s, t});
+    }
+
+    // 边表已经储存好
+    // 必须逆序遍历边表，找出入度为2的节点,
+    // 如果是顺序的的，就不能保证一定删除就是最后一条出现的边了
+    // 第一条边必然是最后出现的边
+    // 第二条边是首先出现的边
+    vector<int> vec; // 记录入度为2的边
+    for (int i = n - 1; i >= 0; i++) {
+        // 这里必须是要s>t，以t来找入度
+        // i就代表是edges中哪一条边
+        if (in_degree[edges[i][1]] == 2) {
+            vec.push_back(i);
+        }
+    }
+    // 需要分出两种情况,假如是存在入度==2的节点
+    // 那么就要判断删除最后一条边是否满足该树是有向树的性质
+    if (vec.size() > 0) {
+        if (isTreeAfterRemoveEdge(edges, vec[0])) {
+            cout << edges[vec[0]][0] << " " << edges[vec[0]][1] << endl;
+        } else {
+            cout << edges[vec[1]][0] << " " << edges[vec[1]][1] << endl;
+        }
+    }
+    // 再判断第三种情况，如果不存在入度2，那么就说明图是存在环的
+    // 需要删除存在环的最后一个边
+    getRemoveEdge(edges);
+}
+```
+

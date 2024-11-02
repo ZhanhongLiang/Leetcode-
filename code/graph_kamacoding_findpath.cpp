@@ -24,6 +24,49 @@ vector<int> parent = vector<int>(101, 0);
 // 初始化
 void init() {
     for (int i = 1; i <= n; i++) {
-        // 这个规定了
+        parent[i] = i;
+    }
+}
+
+// 查找某个节点的根节点
+// 需要路径压缩优化
+int find(int x) {
+    if (parent[x] != x) {
+        parent[x] = find(parent[x]); // 这里路径压缩了
+    }
+    return parent[x];
+}
+
+// 判断x和y是否是同一个根
+bool isSame(int x, int y) {
+    int root_x = find(x);
+    int root_y = find(y);
+    return root_x == root_y;
+}
+
+// 合并操作
+void unionSets(int x, int y) {
+    int root_x = find(x);
+    int root_y = find(y);
+    if (root_x == root_y) {
+        return;
+    }
+    parent[root_y] = root_x;
+}
+
+int main() {
+    int m, s, t;
+    int source, destination;
+    cin >> n >> m;
+    init();
+    while (m--) {
+        cin >> s >> t;
+        unionSets(s, t);
+    }
+    cin >> source >> destination;
+    if (isSame(source, destination)) {
+        cout << 1 << endl;
+    } else {
+        cout << 0 << endl;
     }
 }
