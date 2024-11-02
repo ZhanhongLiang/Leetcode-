@@ -1089,7 +1089,7 @@ class Solution {
 };
 ```
 
-<<<<<<< HEAD
+
 
 
 # 494 [目标和](https://leetcode.cn/problems/target-sum/)
