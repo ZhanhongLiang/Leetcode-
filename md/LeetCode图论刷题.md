@@ -2483,3 +2483,571 @@ int main() {
 }
 ```
 
+# 最小生成树原理
+
+[原理](https://blog.csdn.net/luoshixian099/article/details/51908175)
+
+## prim算法(点优先)
+
+prim算法核心就是三步，我称为**prim三部曲**，大家一定要熟悉这三步，代码相对会好些很多：
+
+1. 第一步，选距离生成树最近节点
+2. 第二步，最近节点加入生成树
+3. 第三步，更新非生成树节点到生成树的距离（即更新minDist数组）
+
+**minDist数组 用来记录 每一个节点距离最小生成树的最近距离**。 理解这一点非常重要，这也是 prim算法最核心要点所在，很多录友看不懂prim算法的代码，都是因为没有理解透 这个数组的含义。
+
+接下来，我们来通过一步一步画图，来带大家巩固 **prim三部曲** 以及 minDist数组 的作用。
+
+（**示例中节点编号是从1开始，所以为了让大家看的不晕，minDist数组下标我也从 1 开始计数，下标0 就不使用了，这样 下标和节点标号就可以对应上了，避免大家搞混**）
+
+
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20231222102048.png)
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20231222102431.png)
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20231222102457.png)
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20231222102618.png)
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20231222102646.png)
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20231222102732.png)
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20231222102820.png)
+
+
+
+## prim代码模板
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-11-03 13:21:27
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-11-03 14:23:29
+ * @FilePath: \code\graph_kamacoding_prim.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <climits>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+/**
+ * prim算法核心就是三步，我称为**prim三部曲**，大家一定要熟悉这三步，代码相对会好些很多：
+1. 第一步，选距离生成树最近节点
+2. 第二步，最近节点加入生成树
+3. 第三步，更新非生成树节点到生成树的距离（即更新minDist数组）
+minDist数组 用来记录 每一个节点距离最小生成树的最近距离
+总结来说，prim算法是点优先算法
+ */
+
+int main() {
+    // v代表顶点数
+    // e代表边数
+    // x 代表起点
+    // y代表终点
+    // k代表x->y的边权值
+    int v, e;
+    int x, y, k;
+    cin >> v >> e;
+    // 用邻接矩阵来表示该图
+    // 边权值最大为10000
+    vector<vector<int>> grid(v + 1, vector<int>(v + 1, 10001));
+    // 因为邻接矩阵具有对称性
+    while (e--) {
+        cin >> x >> y >> k;
+        grid[x][y] = k;
+        grid[y][x] = k;
+    }
+    // 所有节点到最小生成树的最小距离
+    vector<int> minDist(v + 1, 10001);
+    // 判断这个节点是否在生成树
+    vector<bool> is_in_tree(v + 1, false);
+
+    // 加上初始化
+    // 这个是描述出最小生成树的边的数组
+    // parent[j] = cur
+    // 就是指出最小生成树中j-cur中的边
+    vector<int> parent(v + 1, -1);
+
+    // 需要循环v-1次，因为最小生成树有v-1条边
+    for (int i = 1; i < v; i++) {
+        // prim三部曲
+        // 第一步,选距离生成树最近节点
+        int cur = -1; // 选中的节点
+        // 记录距离该生成树的其余节点的最短距离
+        int min_value = INT_MAX;
+        // 从1开始遍历, 遍历到v节点
+        for (int j = 1; j <= v; j++) {
+            //  选取最小生成树节点的条件：
+            //  （1）不在最小生成树里
+            //  （2）距离最小生成树最近的节点
+            if (!is_in_tree[j] && minDist[j] < min_value) {
+                min_value = minDist[j];
+                cur = j;
+            }
+        }
+        // 2、prim三部曲，第二步：最近节点（cur）加入生成树
+        is_in_tree[cur] = true;
+        // 3、prim三部曲，第三步：更新非生成树节点到生成树的距离（即更新minDist数组）
+        // cur节点加入之后， 最小生成树加入了新的节点，那么所有节点到
+        // 最小生成树的距离（即minDist数组）需要更新一下
+        // 由于cur节点是新加入到最小生成树，那么只需要关心与 cur 相连的
+        // 非生成树节点 的距离 是否比 原来
+        // 非生成树节点到生成树节点的距离更小了呢
+        for (int j = 1; j <= v; j++) {
+            if (!is_in_tree[j] && grid[cur][j] < minDist[j]) {
+                minDist[j] = grid[cur][j];
+                parent[j] = cur;
+            }
+        }
+    }
+    // 统计结果
+    int result = 0;
+    // 不计第一个顶点，因为统计的是边的权值，v个节点有 v-1条边
+    for (int i = 2; i <= v; i++) {
+        result += minDist[i];
+    }
+    // 打印出最小生成树
+    for (int i = 1; i <= v; i++) {
+        cout << i << "->" << parent[i] << endl;
+    }
+    cout << result << endl;
+}
+```
+
+
+
+## kruskal算法(边优先)
+
+kruscal的思路：
+
+- 边的权值排序，因为要优先选最小的边加入到生成树里
+- 遍历排序后的边
+  - 如果边首尾的两个节点在同一个集合，说明如果连上这条边图中会出现环
+  - 如果边首尾的两个节点不在同一个集合，加入到最小生成树，并把两个节点加入同一个集合
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20240111114204.png)
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20240111120458.png)
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20240112105834.png)
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20240112110214.png)
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20240112110450.png)
+
+![img](https://code-thinking-1253855093.file.myqcloud.com/pics/20240112110637.png)
+
+
+
+## kruskal代码模板
+
+```c++
+#include <algorithm>
+#include <climits>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+/**
+ * 边的权值排序，因为要优先选最小的边加入到生成树里
+    遍历排序后的边
+      如果边首尾的两个节点在同一个集合，说明如果连上这条边图中会出现环
+      如果边首尾的两个节点不在同一个集合，加入到最小生成树，并把两个节点加入同一个集合
+如何判断两个节点是否是同一个集合的，用并查集
+ */
+
+// kruskal
+// 边优先算法
+// l,r为 边两边的节点，val为边的数值
+struct Edge {
+    int l, r, val;
+    Edge(int l_, int r_, int val_) : l(l_), r(r_), val(val_) {}
+};
+
+// 节点数量
+int n = 10001;
+// 并查集标记节点关系的数组
+vector<int> parent(n, -1); // 节点编号是从1开始的，n要大一些
+
+// 并查集初始化
+void init() {
+    for (int i = 0; i < n; ++i) {
+        parent[i] = i;
+    }
+}
+
+// 查找函数
+// 查找元素的根节点，路径压缩优化可以提高效率。
+// 使用路径压缩优化find函数
+// 因为原始的find函数就是每次查找其父亲节点，
+// 需要不断的递归下去
+// 假如多叉树高度很深的华，每次find需要递归很多次
+// 除了根节点其他所有节点都挂载根节点下，这样我们在寻根的时候就很快，只需要一步，
+int find(int x) {
+    if (parent[x] != x) {
+        parent[x] = find(parent[x]); // 这里路径压缩了
+    }
+    return parent[x];
+}
+
+// 合并操作
+// 将两个集合合并，可以使用按秩合并优化
+// 确保较小的树合并到较大的树下
+// 合并
+void unionSets(int x, int y) {
+    int root_x = find(x);
+    int root_y = find(y);
+    if (root_x == root_y) {
+        return;
+    }
+    parent[root_y] = root_x;
+}
+
+bool static cmp(const Edge &a, const Edge &b) { return a.val < b.val; }
+
+int main() {
+    int v, e;
+    int x, y, k;
+    // 用来储存边
+    vector<Edge> edges;
+    vector<Edge> result_tree;
+    int result = 0;
+    cin >> v >> e;
+    while (e--) {
+        cin >> x >> y >> k;
+        edges.push_back(Edge(x, y, k));
+    }
+
+    // 需要将边的权值按照从小到大进行排序
+    sort(edges.begin(), edges.end(), cmp);
+
+    // 并查集初始化
+    init();
+
+    // 从头开始遍历
+    for (Edge edge : edges) {
+        int root_x = find(edge.l);
+        int root_y = find(edge.r);
+        if (root_x != root_y) {
+            result += edge.val;
+            result_tree.push_back(edge);
+            unionSets(root_x, root_y);
+        }
+    }
+    for (Edge edge : edges) {
+        cout << edge.l << " - " << edge.r << " : " << edge.val << endl;
+    }
+    cout << result << endl;
+    return 0;
+}
+```
+
+
+
+## 总结
+
+为什么边少的话，使用 Kruskal 更优呢？
+
+因为 Kruskal 是对边进行排序的后 进行操作是否加入到最小生成树。
+
+边如果少，那么遍历操作的次数就少。
+
+在节点数量固定的情况下，图中的边越少，Kruskal 需要遍历的边也就越少。
+
+而 prim 算法是对节点进行操作的，节点数量越少，prim算法效率就越优。
+
+`所以在 稀疏图中，用Kruskal更优`。 `在稠密图中，用prim算法更优`。
+
+> 边数量较少为稀疏图，接近或等于完全图（所有节点皆相连）为稠密图
+
+Prim 算法 时间复杂度为 O(n^2)，其中 n 为节点数量，它的运行效率和图中边树无关，适用稠密图。
+
+Kruskal算法 时间复杂度 为 nlogn，其中n 为边的数量，适用稀疏图。
+
+# [寻宝](https://kamacoder.com/problempage.php?pid=1053)
+
+## 题目
+
+- 题目描述
+
+在世界的某个区域，有一些分散的神秘岛屿，每个岛屿上都有一种珍稀的资源或者宝藏。国王打算在这些岛屿上建公路，方便运输。
+
+不同岛屿之间，路途距离不同，国王希望你可以规划建公路的方案，如何可以以最短的总公路距离将 所有岛屿联通起来（注意：这是一个无向图）。 
+
+给定一张地图，其中包括了所有的岛屿，以及它们之间的距离。以最小化公路建设长度，确保可以链接到所有岛屿。
+
+- 输入描述
+
+第一行包含两个整数V 和 E，V代表顶点数，E代表边数 。顶点编号是从1到V。例如：V=2，一个有两个顶点，分别是1和2。
+
+接下来共有 E 行，每行三个整数 v1，v2 和 val，v1 和 v2 为边的起点和终点，val代表边的权值。
+
+- 输出描述
+
+输出联通所有岛屿的最小路径总距离
+
+- 输入示例
+
+```
+7 11
+1 2 1
+1 3 1
+1 5 2
+2 6 1
+2 4 2
+2 3 2
+3 4 1
+4 5 1
+5 6 2
+5 7 1
+6 7 1
+```
+
+- 输出示例
+
+```
+6
+```
+
+- 提示信息
+
+![img](https://kamacoder.com/upload/kamacoder.com/image/20230919/20230919201506_90440.png)
+
+数据范围：
+2 <= V <= 10000;
+1 <= E <= 100000;
+0 <= val <= 10000;
+
+如下图，可见将所有的顶点都访问一遍，总距离最低是6.
+
+
+
+## 题目大意
+
+>本题是最小生成树的模板题
+
+## 解题思路
+
+- prim算法
+- krusakl算法
+
+## 代码
+
+- prim算法
+
+```c++
+/*
+ * @Author: Jean_Leung
+ * @Date: 2024-11-03 13:21:27
+ * @LastEditors: Jean_Leung
+ * @LastEditTime: 2024-11-03 14:23:29
+ * @FilePath: \code\graph_kamacoding_prim.cpp
+ * @Description:
+ *
+ * Copyright (c) 2024 by ${robotlive limit}, All Rights Reserved.
+ */
+
+#include <climits>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+/**
+ * prim算法核心就是三步，我称为**prim三部曲**，大家一定要熟悉这三步，代码相对会好些很多：
+1. 第一步，选距离生成树最近节点
+2. 第二步，最近节点加入生成树
+3. 第三步，更新非生成树节点到生成树的距离（即更新minDist数组）
+minDist数组 用来记录 每一个节点距离最小生成树的最近距离
+总结来说，prim算法是点优先算法
+ */
+
+int main() {
+    // v代表顶点数
+    // e代表边数
+    // x 代表起点
+    // y代表终点
+    // k代表x->y的边权值
+    int v, e;
+    int x, y, k;
+    cin >> v >> e;
+    // 用邻接矩阵来表示该图
+    // 边权值最大为10000
+    vector<vector<int>> grid(v + 1, vector<int>(v + 1, 10001));
+    // 因为邻接矩阵具有对称性
+    while (e--) {
+        cin >> x >> y >> k;
+        grid[x][y] = k;
+        grid[y][x] = k;
+    }
+    // 所有节点到最小生成树的最小距离
+    vector<int> minDist(v + 1, 10001);
+    // 判断这个节点是否在生成树
+    vector<bool> is_in_tree(v + 1, false);
+
+    // 加上初始化
+    // 这个是描述出最小生成树的边的数组
+    // parent[j] = cur
+    // 就是指出最小生成树中j-cur中的边
+    vector<int> parent(v + 1, -1);
+
+    // 需要循环v-1次，因为最小生成树有v-1条边
+    for (int i = 1; i < v; i++) {
+        // prim三部曲
+        // 第一步,选距离生成树最近节点
+        int cur = -1; // 选中的节点
+        // 记录距离该生成树的其余节点的最短距离
+        int min_value = INT_MAX;
+        // 从1开始遍历, 遍历到v节点
+        for (int j = 1; j <= v; j++) {
+            //  选取最小生成树节点的条件：
+            //  （1）不在最小生成树里
+            //  （2）距离最小生成树最近的节点
+            if (!is_in_tree[j] && minDist[j] < min_value) {
+                min_value = minDist[j];
+                cur = j;
+            }
+        }
+        // 2、prim三部曲，第二步：最近节点（cur）加入生成树
+        is_in_tree[cur] = true;
+        // 3、prim三部曲，第三步：更新非生成树节点到生成树的距离（即更新minDist数组）
+        // cur节点加入之后， 最小生成树加入了新的节点，那么所有节点到
+        // 最小生成树的距离（即minDist数组）需要更新一下
+        // 由于cur节点是新加入到最小生成树，那么只需要关心与 cur 相连的
+        // 非生成树节点 的距离 是否比 原来
+        // 非生成树节点到生成树节点的距离更小了呢
+        for (int j = 1; j <= v; j++) {
+            if (!is_in_tree[j] && grid[cur][j] < minDist[j]) {
+                minDist[j] = grid[cur][j];
+                parent[j] = cur;
+            }
+        }
+    }
+    // 统计结果
+    int result = 0;
+    // 不计第一个顶点，因为统计的是边的权值，v个节点有 v-1条边
+    for (int i = 2; i <= v; i++) {
+        result += minDist[i];
+    }
+    // 打印出最小生成树
+    for (int i = 1; i <= v; i++) {
+        cout << i << "->" << parent[i] << endl;
+    }
+    cout << result << endl;
+}
+```
+
+- kruskal算法
+
+```c++
+#include <algorithm>
+#include <climits>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+/**
+ * 边的权值排序，因为要优先选最小的边加入到生成树里
+    遍历排序后的边
+      如果边首尾的两个节点在同一个集合，说明如果连上这条边图中会出现环
+      如果边首尾的两个节点不在同一个集合，加入到最小生成树，并把两个节点加入同一个集合
+如何判断两个节点是否是同一个集合的，用并查集
+ */
+
+// kruskal
+// 边优先算法
+// l,r为 边两边的节点，val为边的数值
+struct Edge {
+    int l, r, val;
+    Edge(int l_, int r_, int val_) : l(l_), r(r_), val(val_) {}
+};
+
+// 节点数量
+int n = 10001;
+// 并查集标记节点关系的数组
+vector<int> parent(n, -1); // 节点编号是从1开始的，n要大一些
+
+// 并查集初始化
+void init() {
+    for (int i = 0; i < n; ++i) {
+        parent[i] = i;
+    }
+}
+
+// 查找函数
+// 查找元素的根节点，路径压缩优化可以提高效率。
+// 使用路径压缩优化find函数
+// 因为原始的find函数就是每次查找其父亲节点，
+// 需要不断的递归下去
+// 假如多叉树高度很深的华，每次find需要递归很多次
+// 除了根节点其他所有节点都挂载根节点下，这样我们在寻根的时候就很快，只需要一步，
+int find(int x) {
+    if (parent[x] != x) {
+        parent[x] = find(parent[x]); // 这里路径压缩了
+    }
+    return parent[x];
+}
+
+// 合并操作
+// 将两个集合合并，可以使用按秩合并优化
+// 确保较小的树合并到较大的树下
+// 合并
+void unionSets(int x, int y) {
+    int root_x = find(x);
+    int root_y = find(y);
+    if (root_x == root_y) {
+        return;
+    }
+    parent[root_y] = root_x;
+}
+
+bool static cmp(const Edge &a, const Edge &b) { return a.val < b.val; }
+
+int main() {
+    int v, e;
+    int x, y, k;
+    // 用来储存边
+    vector<Edge> edges;
+    vector<Edge> result_tree;
+    int result = 0;
+    cin >> v >> e;
+    while (e--) {
+        cin >> x >> y >> k;
+        edges.push_back(Edge(x, y, k));
+    }
+
+    // 需要将边的权值按照从小到大进行排序
+    sort(edges.begin(), edges.end(), cmp);
+
+    // 并查集初始化
+    init();
+
+    // 从头开始遍历
+    for (Edge edge : edges) {
+        int root_x = find(edge.l);
+        int root_y = find(edge.r);
+        if (root_x != root_y) {
+            result += edge.val;
+            result_tree.push_back(edge);
+            unionSets(root_x, root_y);
+        }
+    }
+    for (Edge edge : edges) {
+        cout << edge.l << " - " << edge.r << " : " << edge.val << endl;
+    }
+    cout << result << endl;
+    return 0;
+}
+```
+
